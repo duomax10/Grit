@@ -36,11 +36,20 @@ for (const d of ['sprites', 'tiles', 'objects']) {
   if (!existsSync(p)) mkdirSync(p, { recursive: true });
 }
 
+// Style for characters and objects (outline looks good on sprites)
 const STYLE = {
   outline: 'single color black outline',
   shading: 'detailed shading',
   detail: 'highly detailed',
   view: 'low top-down',
+};
+
+// Style for ground tiles — NO outline, must tile seamlessly
+const TILE_STYLE = {
+  outline: 'lineless',
+  shading: 'detailed shading',
+  detail: 'highly detailed',
+  view: 'high top-down',
 };
 
 async function gen(name, params, outPath) {
@@ -134,37 +143,37 @@ async function generateTiles() {
 }
 
 // --- TARGET: graveyard-tiles ---
-// Better tiles for the graveyard redesign: seamless grass, gravel, dirt
+// Seamless ground tiles — NO borders, NO outlines, pure texture fill
 async function generateGraveyardTiles() {
-  console.log('\n=== Graveyard Tiles (v2) ===');
+  console.log('\n=== Graveyard Tiles (seamless, no borders) ===');
 
-  // Seamless grass — multiple variants to break up the grid
+  // Grass variants — pure green grass texture, edges must blend when tiled
   for (let i = 0; i < 3; i++) {
     await gen(`Grass variant ${i}`, {
-      description: 'lush green grass ground, seamless tileable texture, soft natural flowing look, gentle color variation between light and dark green, no hard edges, no visible repeating pattern, organic cemetery lawn, top-down view',
+      description: 'green grass texture, seamless repeating tile, uniform ground cover, no border, no edge, no outline, fills entire tile, viewed straight down from above, even color distribution, short mowed cemetery grass',
       imageSize: { width: 32, height: 32 },
-      noBackground: false, ...STYLE,
-      seed: 500 + i,
+      noBackground: false, ...TILE_STYLE,
+      seed: 500 + i * 7,
     }, join(ASSETS, 'tiles', `grass-${i}.png`));
   }
 
-  // Gravel path — the main walkway
+  // Gravel variants — crushed stone texture, no directional bias
   for (let i = 0; i < 2; i++) {
     await gen(`Gravel variant ${i}`, {
-      description: 'fine gray gravel path, seamless tileable texture, small loose pebbles and crushed stone, light gray and beige tones, packed gravel walkway, top-down view',
+      description: 'gray gravel crushed stone texture, seamless repeating tile, no border, no edge, no outline, fills entire tile, viewed straight down from above, small pebbles evenly distributed, light gray pathway gravel',
       imageSize: { width: 32, height: 32 },
-      noBackground: false, ...STYLE,
-      seed: 600 + i,
+      noBackground: false, ...TILE_STYLE,
+      seed: 600 + i * 7,
     }, join(ASSETS, 'tiles', `gravel-${i}.png`));
   }
 
-  // Dirt — side paths to grave clusters
+  // Dirt variants — packed earth texture, no directional path shape
   for (let i = 0; i < 2; i++) {
     await gen(`Dirt variant ${i}`, {
-      description: 'packed brown dirt path, seamless tileable texture, worn earth with subtle texture, some small twigs and pebbles, top-down view',
+      description: 'brown packed dirt earth texture, seamless repeating tile, no border, no edge, no outline, fills entire tile, viewed straight down from above, worn flat ground, even brown earth',
       imageSize: { width: 32, height: 32 },
-      noBackground: false, ...STYLE,
-      seed: 700 + i,
+      noBackground: false, ...TILE_STYLE,
+      seed: 700 + i * 7,
     }, join(ASSETS, 'tiles', `dirt-${i}.png`));
   }
 }
