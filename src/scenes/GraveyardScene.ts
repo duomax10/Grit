@@ -241,38 +241,128 @@ export class GraveyardScene extends Phaser.Scene {
   }
 
   private buildMap(): void {
+    // Determine which base texture key to use (new seamless or old fallback)
+    const grassKey = this.textures.exists('grass-base') ? 'grass-base'
+      : this.textures.exists('grass-0') ? 'grass-0' : 'grass';
+    const gravelKey = this.textures.exists('gravel-base') ? 'gravel-base'
+      : this.textures.exists('gravel-0') ? 'gravel-0' : 'dirt';
+    const dirtKey = this.textures.exists('dirt-base') ? 'dirt-base'
+      : this.textures.exists('dirt-0') ? 'dirt-0' : 'dirt';
+
+    // Render the entire ground to a single canvas for seamless look
+    const canvas = document.createElement('canvas');
+    canvas.width = MAP_W;
+    canvas.height = MAP_H;
+    const ctx = canvas.getContext('2d')!;
+
+    // Helper to get source image data from a Phaser texture
+    const getImage = (key: string): HTMLImageElement | HTMLCanvasElement => {
+      const src = this.textures.get(key).getSourceImage();
+      return src as HTMLImageElement | HTMLCanvasElement;
+    };
+
+    const grassImg = getImage(grassKey);
+    const gravelImg = getImage(gravelKey);
+    const dirtImg = getImage(dirtKey);
+
+    const terrainImg = (cell: number) => {
+      if (cell === V) return gravelImg;
+      if (cell === D) return dirtImg;
+      return grassImg;
+    };
+
+    // First pass: fill with grass everywhere
     for (let r = 0; r < MAP_ROWS; r++) {
       for (let c = 0; c < MAP_COLS; c++) {
-        const x = c * TILE + TILE / 2;
-        const y = r * TILE + TILE / 2;
+        ctx.drawImage(grassImg, c * TILE, r * TILE, TILE, TILE);
+      }
+    }
+
+    // Second pass: paint non-grass terrain with soft feathered edges
+    for (let r = 0; r < MAP_ROWS; r++) {
+      for (let c = 0; c < MAP_COLS; c++) {
+        const cell = LAYOUT[r]?.[c] ?? G;
+        if (cell !== V && cell !== D) continue;
+
+        const x = c * TILE;
+        const y = r * TILE;
+        const img = terrainImg(cell);
+
+        // Draw the terrain tile
+        ctx.drawImage(img, x, y, TILE, TILE);
+
+        // Feather edges: for each neighboring grass tile, draw a soft
+        // gradient from this terrain into the grass to blur the boundary
+        const feather = 6; // pixels of blending
+        const neighbors = [
+          { dr: -1, dc: 0, edge: 'top' },
+          { dr: 1, dc: 0, edge: 'bottom' },
+          { dr: 0, dc: -1, edge: 'left' },
+          { dr: 0, dc: 1, edge: 'right' },
+        ];
+
+        for (const n of neighbors) {
+          const nr = r + n.dr;
+          const nc = c + n.dc;
+          const neighbor = LAYOUT[nr]?.[nc] ?? -1;
+          if (neighbor === G) {
+            // This edge borders grass — feather it
+            ctx.save();
+            if (n.edge === 'top') {
+              const grad = ctx.createLinearGradient(x, y, x, y + feather);
+              grad.addColorStop(0, 'rgba(0,0,0,1)');
+              grad.addColorStop(1, 'rgba(0,0,0,0)');
+              ctx.globalCompositeOperation = 'destination-out';
+              ctx.fillStyle = grad;
+              ctx.fillRect(x, y, TILE, feather);
+              ctx.globalCompositeOperation = 'destination-over';
+              ctx.drawImage(grassImg, x, y, TILE, TILE);
+            } else if (n.edge === 'bottom') {
+              const grad = ctx.createLinearGradient(x, y + TILE, x, y + TILE - feather);
+              grad.addColorStop(0, 'rgba(0,0,0,1)');
+              grad.addColorStop(1, 'rgba(0,0,0,0)');
+              ctx.globalCompositeOperation = 'destination-out';
+              ctx.fillStyle = grad;
+              ctx.fillRect(x, y + TILE - feather, TILE, feather);
+              ctx.globalCompositeOperation = 'destination-over';
+              ctx.drawImage(grassImg, x, y, TILE, TILE);
+            } else if (n.edge === 'left') {
+              const grad = ctx.createLinearGradient(x, y, x + feather, y);
+              grad.addColorStop(0, 'rgba(0,0,0,1)');
+              grad.addColorStop(1, 'rgba(0,0,0,0)');
+              ctx.globalCompositeOperation = 'destination-out';
+              ctx.fillStyle = grad;
+              ctx.fillRect(x, y, feather, TILE);
+              ctx.globalCompositeOperation = 'destination-over';
+              ctx.drawImage(grassImg, x, y, TILE, TILE);
+            } else if (n.edge === 'right') {
+              const grad = ctx.createLinearGradient(x + TILE, y, x + TILE - feather, y);
+              grad.addColorStop(0, 'rgba(0,0,0,1)');
+              grad.addColorStop(1, 'rgba(0,0,0,0)');
+              ctx.globalCompositeOperation = 'destination-out';
+              ctx.fillStyle = grad;
+              ctx.fillRect(x + TILE - feather, y, feather, TILE);
+              ctx.globalCompositeOperation = 'destination-over';
+              ctx.drawImage(grassImg, x, y, TILE, TILE);
+            }
+            ctx.restore();
+          }
+        }
+      }
+    }
+
+    // Add the rendered ground as a single texture
+    this.textures.addCanvas('ground-map', canvas);
+    this.add.image(MAP_W / 2, MAP_H / 2, 'ground-map').setDepth(0);
+
+    // Fence colliders (no visual — fence sprites placed separately)
+    for (let r = 0; r < MAP_ROWS; r++) {
+      for (let c = 0; c < MAP_COLS; c++) {
         const cell = LAYOUT[r][c];
-
-        // Pick grass variant to break up the grid pattern
-        const grassKey = this.textures.exists('grass-0')
-          ? `grass-${Math.floor(this.noise(c, r) * 3)}`
-          : 'grass';
-        const gravelKey = this.textures.exists('gravel-0')
-          ? `gravel-${Math.floor(this.noise(c + 50, r + 50) * 2)}`
-          : 'dirt';
-        const dirtKey = this.textures.exists('dirt-0')
-          ? `dirt-${Math.floor(this.noise(c + 100, r + 100) * 2)}`
-          : 'dirt';
-
-        if (cell === G) {
-          this.add.image(x, y, grassKey).setDepth(0);
-        } else if (cell === V) {
-          this.add.image(x, y, gravelKey).setDepth(0);
-        } else if (cell === D) {
-          this.add.image(x, y, dirtKey).setDepth(0);
-        } else if (cell === F) {
-          this.add.image(x, y, grassKey).setDepth(0);
-          this.add.image(x, y, 'fence').setDepth(1);
-          const z = this.add.zone(x, y, TILE, TILE);
-          this.physics.add.existing(z, true);
-          this.fenceColliders.add(z);
-        } else if (cell === P) {
-          this.add.image(x, y, grassKey).setDepth(0);
-          this.add.image(x, y, 'fence-post').setDepth(1);
+        if (cell === F || cell === P) {
+          const x = c * TILE + TILE / 2;
+          const y = r * TILE + TILE / 2;
+          this.add.image(x, y, cell === P ? 'fence-post' : 'fence').setDepth(1);
           const z = this.add.zone(x, y, TILE, TILE);
           this.physics.add.existing(z, true);
           this.fenceColliders.add(z);

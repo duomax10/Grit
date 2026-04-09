@@ -143,39 +143,30 @@ async function generateTiles() {
 }
 
 // --- TARGET: graveyard-tiles ---
-// Seamless ground tiles — NO borders, NO outlines, pure texture fill
+// One seamless base tile per terrain type. Transitions are handled in code.
 async function generateGraveyardTiles() {
-  console.log('\n=== Graveyard Tiles (seamless, no borders) ===');
+  console.log('\n=== Graveyard Base Tiles (seamless, single per terrain) ===');
 
-  // Grass variants — pure green grass texture, edges must blend when tiled
-  for (let i = 0; i < 3; i++) {
-    await gen(`Grass variant ${i}`, {
-      description: 'green grass texture, seamless repeating tile, uniform ground cover, no border, no edge, no outline, fills entire tile, viewed straight down from above, even color distribution, short mowed cemetery grass',
-      imageSize: { width: 32, height: 32 },
-      noBackground: false, ...TILE_STYLE,
-      seed: 500 + i * 7,
-    }, join(ASSETS, 'tiles', `grass-${i}.png`));
-  }
+  await gen('Grass base', {
+    description: 'green grass ground texture, perfectly seamless repeating tile, uniform short mowed lawn, no border no edge no outline, fills entire image, consistent green color throughout, viewed directly from above, pixel art',
+    imageSize: { width: 32, height: 32 },
+    noBackground: false, ...TILE_STYLE,
+    seed: 555,
+  }, join(ASSETS, 'tiles', 'grass-base.png'));
 
-  // Gravel variants — crushed stone texture, no directional bias
-  for (let i = 0; i < 2; i++) {
-    await gen(`Gravel variant ${i}`, {
-      description: 'gray gravel crushed stone texture, seamless repeating tile, no border, no edge, no outline, fills entire tile, viewed straight down from above, small pebbles evenly distributed, light gray pathway gravel',
-      imageSize: { width: 32, height: 32 },
-      noBackground: false, ...TILE_STYLE,
-      seed: 600 + i * 7,
-    }, join(ASSETS, 'tiles', `gravel-${i}.png`));
-  }
+  await gen('Gravel base', {
+    description: 'gray gravel crushed stone ground texture, perfectly seamless repeating tile, small uniform pebbles, no border no edge no outline, fills entire image, consistent gray throughout, viewed directly from above, pixel art',
+    imageSize: { width: 32, height: 32 },
+    noBackground: false, ...TILE_STYLE,
+    seed: 666,
+  }, join(ASSETS, 'tiles', 'gravel-base.png'));
 
-  // Dirt variants — packed earth texture, no directional path shape
-  for (let i = 0; i < 2; i++) {
-    await gen(`Dirt variant ${i}`, {
-      description: 'brown packed dirt earth texture, seamless repeating tile, no border, no edge, no outline, fills entire tile, viewed straight down from above, worn flat ground, even brown earth',
-      imageSize: { width: 32, height: 32 },
-      noBackground: false, ...TILE_STYLE,
-      seed: 700 + i * 7,
-    }, join(ASSETS, 'tiles', `dirt-${i}.png`));
-  }
+  await gen('Dirt base', {
+    description: 'brown packed dirt earth ground texture, perfectly seamless repeating tile, flat worn earth, no border no edge no outline, fills entire image, consistent brown throughout, viewed directly from above, pixel art',
+    imageSize: { width: 32, height: 32 },
+    noBackground: false, ...TILE_STYLE,
+    seed: 777,
+  }, join(ASSETS, 'tiles', 'dirt-base.png'));
 }
 
 // --- TARGET: monuments ---

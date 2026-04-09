@@ -72,11 +72,13 @@ export class BootScene extends Phaser.Scene {
       }
     });
 
-    // Tiles — original fallbacks
+    // Tiles — seamless base tiles (new) + fallbacks (old)
     this.load.image('grass', 'assets/tiles/grass.png');
     this.load.image('dirt', 'assets/tiles/dirt.png');
-
-    // Tile variants (loaded if available, used to break up grid)
+    this.load.image({ key: 'grass-base', url: 'assets/tiles/grass-base.png' });
+    this.load.image({ key: 'gravel-base', url: 'assets/tiles/gravel-base.png' });
+    this.load.image({ key: 'dirt-base', url: 'assets/tiles/dirt-base.png' });
+    // Old variants as additional fallbacks
     for (let i = 0; i < 3; i++) {
       this.load.image({ key: `grass-${i}`, url: `assets/tiles/grass-${i}.png` });
     }
