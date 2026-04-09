@@ -106,49 +106,85 @@ function extractTilesetId(result) {
   return null;
 }
 
-// Poll get_tileset until ready, then save the images
+// Check if tileset is ready, return true if complete
+function isTilesetReady(result) {
+  const content = result?.result?.content || result?.content || [];
+  const items = Array.isArray(content) ? content : [content];
+  for (const item of items) {
+    if (item.type === 'text' && item.text) {
+      if (item.text.includes('✅')) return true;
+      if (item.text.includes('still being generated')) return false;
+    }
+  }
+  return false;
+}
+
+// Download the tileset PNG and metadata from the API URLs
+async function downloadTileset(tilesetId, name) {
+  const pngUrl = `https://api.pixellab.ai/mcp/tilesets/${tilesetId}/image`;
+  const metaUrl = `https://api.pixellab.ai/mcp/tilesets/${tilesetId}/metadata`;
+
+  // Download PNG
+  console.log(`  Downloading PNG: ${pngUrl}`);
+  const pngResp = await fetch(pngUrl, {
+    headers: { 'Authorization': `Bearer ${API_KEY}` },
+  });
+  if (!pngResp.ok) {
+    console.error(`    PNG download failed: ${pngResp.status} ${await pngResp.text()}`);
+    return false;
+  }
+  const pngBuf = Buffer.from(await pngResp.arrayBuffer());
+  const pngPath = join(ASSETS, `${name}.png`);
+  writeFileSync(pngPath, pngBuf);
+  console.log(`    ✓ Saved: ${pngPath} (${pngBuf.length} bytes)`);
+
+  // Download metadata
+  console.log(`  Downloading metadata: ${metaUrl}`);
+  const metaResp = await fetch(metaUrl, {
+    headers: { 'Authorization': `Bearer ${API_KEY}` },
+  });
+  if (!metaResp.ok) {
+    console.error(`    Metadata download failed: ${metaResp.status}`);
+  } else {
+    const metaText = await metaResp.text();
+    const metaPath = join(ASSETS, `${name}.json`);
+    writeFileSync(metaPath, metaText);
+    console.log(`    ✓ Saved: ${metaPath}`);
+  }
+
+  return true;
+}
+
+// Poll until tileset is ready, then download
 async function waitAndDownload(tilesetId, name) {
   console.log(`  Polling for tileset ${tilesetId}...`);
-  const maxAttempts = 30; // 30 * 10s = 5 minutes max
+  const maxAttempts = 20;
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     console.log(`    Attempt ${attempt + 1}/${maxAttempts}...`);
     const result = await callMcpTool('get_topdown_tileset', { tileset_id: tilesetId });
 
-    const content = result?.result?.content || result?.content || [];
-    const items = Array.isArray(content) ? content : [content];
+    if (isTilesetReady(result)) {
+      console.log(`  ✓ Tileset ready! Downloading...`);
+      return await downloadTileset(tilesetId, name);
+    }
 
-    // Check for images in response
-    let hasImages = false;
-    let imageCount = 0;
-    for (const item of items) {
-      if (item.type === 'image' && item.data) {
-        hasImages = true;
-        const outPath = join(ASSETS, `${name}-${imageCount}.png`);
-        saveBase64Image(item.data, outPath);
-        imageCount++;
-      } else if (item.type === 'text') {
-        console.log(`    Status: ${item.text.slice(0, 200)}`);
-        if (item.text.includes('Unknown tool')) {
-          console.error(`    ✗ Tool not found — aborting`);
+    // Check for errors
+    const content = result?.result?.content || result?.content || [];
+    for (const item of Array.isArray(content) ? content : [content]) {
+      if (item.type === 'text') {
+        if (item.text.includes('Unknown tool') || item.text.includes('error')) {
+          console.error(`    ✗ Error: ${item.text.slice(0, 200)}`);
           return false;
         }
-        if (item.text.includes('still processing') || item.text.includes('Processing')) {
-          break;
-        }
+        console.log(`    ${item.text.slice(0, 100)}`);
       }
     }
 
-    if (hasImages) {
-      console.log(`  ✓ Downloaded ${imageCount} images for ${name}`);
-      return true;
-    }
-
-    // Wait 10 seconds before next poll
-    console.log(`    Still processing, waiting 10s...`);
+    console.log(`    Waiting 10s...`);
     await new Promise(r => setTimeout(r, 10000));
   }
 
-  console.error(`  ✗ Timed out waiting for tileset ${tilesetId}`);
+  console.error(`  ✗ Timed out waiting for ${name}`);
   return false;
 }
 
