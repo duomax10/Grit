@@ -6,58 +6,145 @@ import { DialogSystem } from '../systems/DialogSystem';
 import { StateManager } from '../systems/StateManager';
 import * as Dialogs from '../data/dialogs';
 
-// Map dimensions in tiles
-const MAP_COLS = 30;
-const MAP_ROWS = 22;
+// Map dimensions in tiles — larger for a real graveyard feel
+const MAP_COLS = 36;
+const MAP_ROWS = 28;
 const TILE = 32;
 const MAP_W = MAP_COLS * TILE;
 const MAP_H = MAP_ROWS * TILE;
 
-// Graveyard layout definition
-// 0 = grass, 1 = dirt path, 2 = fence, 3 = fence post
-const LAYOUT: number[][] = [];
+// Layout cell types
+const G = 0; // grass
+const D = 1; // dirt path
+const F = 2; // fence
+const P = 3; // fence post
 
-function initLayout() {
+function buildLayout(): number[][] {
+  const L: number[][] = [];
   for (let r = 0; r < MAP_ROWS; r++) {
-    LAYOUT[r] = [];
+    L[r] = [];
     for (let c = 0; c < MAP_COLS; c++) {
+      L[r][c] = G;
+
       // Fence border
       if (r === 0 || r === MAP_ROWS - 1 || c === 0 || c === MAP_COLS - 1) {
-        // Corners and every 6 tiles get a post
-        if ((r === 0 || r === MAP_ROWS - 1) && (c === 0 || c === MAP_COLS - 1 || c % 6 === 0)) {
-          LAYOUT[r][c] = 3;
-        } else if ((c === 0 || c === MAP_COLS - 1) && r % 6 === 0) {
-          LAYOUT[r][c] = 3;
-        } else {
-          LAYOUT[r][c] = 2;
-        }
+        const isCorner = (r === 0 || r === MAP_ROWS - 1) && (c === 0 || c === MAP_COLS - 1);
+        const isHPost = (r === 0 || r === MAP_ROWS - 1) && c % 5 === 0;
+        const isVPost = (c === 0 || c === MAP_COLS - 1) && r % 5 === 0;
+        L[r][c] = (isCorner || isHPost || isVPost) ? P : F;
       }
-      // Dirt path (winding from bottom-center upward)
-      else if (
-        (c >= 14 && c <= 16 && r >= 18 && r <= 20) || // entrance
-        (c >= 13 && c <= 15 && r >= 12 && r <= 17) || // main path up
-        (c >= 10 && c <= 13 && r >= 9 && r <= 11) ||  // branch left
-        (c >= 15 && c <= 20 && r >= 9 && r <= 11) ||  // branch right
-        (c >= 13 && c <= 15 && r >= 5 && r <= 9)      // path to house area
-      ) {
-        LAYOUT[r][c] = 1;
-      } else {
-        LAYOUT[r][c] = 0;
+
+      // Main entrance path (bottom center, going north)
+      if (c >= 16 && c <= 19 && r >= 24 && r <= MAP_ROWS - 2) L[r][c] = D;
+      if (c >= 16 && c <= 19 && r >= 10 && r <= 23) L[r][c] = D;
+      if (c >= 16 && c <= 19 && r >= 7 && r <= 10) L[r][c] = D;
+
+      // East-west cross paths
+      if (r >= 14 && r <= 15 && c >= 3 && c <= 32) L[r][c] = D;
+      if (r >= 7 && r <= 8 && c >= 3 && c <= 32) L[r][c] = D;
+
+      // Side paths
+      if (c >= 7 && c <= 8 && r >= 3 && r <= 24) L[r][c] = D;
+      if (c >= 27 && c <= 28 && r >= 3 && r <= 24) L[r][c] = D;
+
+      // Fountain plaza
+      if (r >= 12 && r <= 17 && c >= 14 && c <= 21) L[r][c] = D;
+
+      // Path to caretaker's house
+      if (r >= 3 && r <= 4 && c >= 3 && c <= 8) L[r][c] = D;
+    }
+  }
+  return L;
+}
+
+const LAYOUT = buildLayout();
+
+// Flat grave markers — decorative, in rows
+interface FlatGrave { c: number; r: number; variant: number; }
+
+function generateFlatGraves(): FlatGrave[] {
+  const graves: FlatGrave[] = [];
+  const isGoodSpot = (c: number, r: number) => {
+    if (c <= 1 || c >= MAP_COLS - 2 || r <= 1 || r >= MAP_ROWS - 2) return false;
+    if (LAYOUT[r][c] !== G) return false;
+    for (let dr = -1; dr <= 1; dr++) {
+      for (let dc = -1; dc <= 1; dc++) {
+        if (LAYOUT[r + dr]?.[c + dc] === D) return false;
+      }
+    }
+    return true;
+  };
+
+  // Grave sections between paths
+  const sections = [
+    { rMin: 9, rMax: 13, cMin: 3, cMax: 14 },
+    { rMin: 9, rMax: 13, cMin: 21, cMax: 32 },
+    { rMin: 17, rMax: 23, cMin: 3, cMax: 14 },
+    { rMin: 17, rMax: 23, cMin: 21, cMax: 32 },
+    { rMin: 3, rMax: 6, cMin: 10, cMax: 32 },
+  ];
+  for (const s of sections) {
+    for (let r = s.rMin; r <= s.rMax; r += 2) {
+      for (let c = s.cMin; c <= s.cMax; c += 2) {
+        if (isGoodSpot(c, r)) graves.push({ c, r, variant: (c + r) % 4 });
       }
     }
   }
+  return graves;
 }
-initLayout();
+
+const FLAT_GRAVES = generateFlatGraves();
+
+// Monument positions (interactive)
+const MONUMENTS = [
+  { c: 5, r: 10, idx: 0, label: 'Angel Statue' },
+  { c: 26, r: 10, idx: 1, label: 'Obelisk Monument' },
+  { c: 12, r: 20, idx: 2, label: 'Celtic Cross' },
+  { c: 24, r: 20, idx: 3, label: 'Ornate Headstone' },
+  { c: 17, r: 4, idx: 4, label: 'Stone Crypt' },
+];
+
+// Decorations
+interface Deco { c: number; r: number; tex: string; collide?: boolean; colW?: number; colH?: number; depth?: number; }
+const DECORATIONS: Deco[] = [
+  // Oak trees
+  { c: 4, r: 5, tex: 'tree-oak', collide: true, colW: 14, colH: 10, depth: 8 },
+  { c: 24, r: 3, tex: 'tree-oak', collide: true, colW: 14, colH: 10, depth: 8 },
+  { c: 11, r: 18, tex: 'tree-oak', collide: true, colW: 14, colH: 10, depth: 8 },
+  { c: 31, r: 19, tex: 'tree-oak', collide: true, colW: 14, colH: 10, depth: 8 },
+  { c: 33, r: 5, tex: 'tree-oak', collide: true, colW: 14, colH: 10, depth: 8 },
+  // Evergreens
+  { c: 2, r: 12, tex: 'tree-evergreen', collide: true, colW: 10, colH: 8, depth: 8 },
+  { c: 34, r: 12, tex: 'tree-evergreen', collide: true, colW: 10, colH: 8, depth: 8 },
+  { c: 2, r: 22, tex: 'tree-evergreen', collide: true, colW: 10, colH: 8, depth: 8 },
+  { c: 34, r: 22, tex: 'tree-evergreen', collide: true, colW: 10, colH: 8, depth: 8 },
+  // Dead tree
+  { c: 30, r: 9, tex: 'dead-tree', collide: true, colW: 10, colH: 8, depth: 8 },
+  // Benches
+  { c: 14, r: 20, tex: 'bench', collide: true, colW: 28, colH: 8 },
+  { c: 21, r: 20, tex: 'bench', collide: true, colW: 28, colH: 8 },
+  // Bushes
+  { c: 10, r: 14, tex: 'bush', collide: true, colW: 20, colH: 10 },
+  { c: 25, r: 14, tex: 'bush', collide: true, colW: 20, colH: 10 },
+  { c: 10, r: 8, tex: 'bush', collide: true, colW: 20, colH: 10 },
+  { c: 25, r: 8, tex: 'bush', collide: true, colW: 20, colH: 10 },
+  { c: 5, r: 15, tex: 'bush' },
+  { c: 30, r: 15, tex: 'bush' },
+  // Flowers
+  { c: 4, r: 10, tex: 'flower-arrangement' },
+  { c: 22, r: 10, tex: 'flower-arrangement' },
+  { c: 6, r: 18, tex: 'flower-arrangement' },
+  { c: 28, r: 22, tex: 'flower-arrangement' },
+  { c: 12, r: 4, tex: 'flower-arrangement' },
+];
 
 export class GraveyardScene extends Phaser.Scene {
   private player!: Player;
   private interactionSystem!: InteractionSystem;
   private dialogSystem!: DialogSystem;
-  private fenceColliders: Phaser.Physics.Arcade.StaticGroup | null = null;
-  private objectColliders: Phaser.Physics.Arcade.StaticGroup | null = null;
-  private fogParticles: Phaser.GameObjects.Graphics[] = [];
+  private fenceColliders!: Phaser.Physics.Arcade.StaticGroup;
+  private objectColliders!: Phaser.Physics.Arcade.StaticGroup;
   private ambientSound: Phaser.Sound.BaseSound | null = null;
-  private owlTimer: Phaser.Time.TimerEvent | null = null;
   private footstepTimer = 0;
   private introPlayed = false;
 
@@ -66,21 +153,22 @@ export class GraveyardScene extends Phaser.Scene {
   }
 
   create(): void {
-    // Set world bounds
     this.physics.world.setBounds(0, 0, MAP_W, MAP_H);
+    this.fenceColliders = this.physics.add.staticGroup();
+    this.objectColliders = this.physics.add.staticGroup();
 
-    // Build the tilemap
     this.buildMap();
+    this.placeFlatGraves();
+    this.placeDecorations();
+    this.placeFountain();
 
-    // Create player
-    this.player = new Player(this, 15 * TILE, 19 * TILE);
+    // Player
+    this.player = new Player(this, 17 * TILE + TILE / 2, 25 * TILE);
     this.player.play('gabe-idle-down');
 
-    // Set up camera
+    // Camera
     this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
     this.cameras.main.setBounds(0, 0, MAP_W, MAP_H);
-
-    // Dark tint overlay for atmosphere
     this.cameras.main.setBackgroundColor('#0a0a0a');
 
     // Dialog system
@@ -88,32 +176,24 @@ export class GraveyardScene extends Phaser.Scene {
 
     // Interaction system
     this.interactionSystem = new InteractionSystem(this.player);
-    this.placeInteractiveObjects();
+    this.placeMonuments();
+    this.placeCareHouse();
 
-    // Notify UIScene about interaction system
     this.interactionSystem.setNearestChangeCallback((obj) => {
       const uiScene = this.scene.get('UIScene') as Phaser.Scene;
       uiScene.events.emit('nearest-interactive-changed', obj);
     });
 
-    // Set up collisions
-    if (this.fenceColliders) {
-      this.physics.add.collider(this.player, this.fenceColliders);
-    }
-    if (this.objectColliders) {
-      this.physics.add.collider(this.player, this.objectColliders);
-    }
+    // Collisions
+    this.physics.add.collider(this.player, this.fenceColliders);
+    this.physics.add.collider(this.player, this.objectColliders);
 
-    // Create fog particles
+    // Atmosphere
     this.createFogEffects();
-
-    // Vignette / dark overlay
     this.createVignette();
-
-    // Audio
     this.startAmbientAudio();
 
-    // Intro dialog (delayed)
+    // Intro dialog
     this.time.delayedCall(800, () => {
       if (!this.introPlayed) {
         this.introPlayed = true;
@@ -122,88 +202,75 @@ export class GraveyardScene extends Phaser.Scene {
       }
     });
 
-    // Camera fade in
     this.cameras.main.fadeIn(1000, 0, 0, 0);
 
-    // Listen for interaction from UI
+    // Listen for UI events
     const uiScene = this.scene.get('UIScene');
     if (uiScene) {
       uiScene.events.on('interact-pressed', () => this.handleInteract());
-      uiScene.events.on('inventory-pressed', () => {
-        // Pause player movement while inventory is open
-        this.player.stopMovement();
-      });
+      uiScene.events.on('inventory-pressed', () => this.player.stopMovement());
     }
   }
 
   private buildMap(): void {
-    this.fenceColliders = this.physics.add.staticGroup();
-    this.objectColliders = this.physics.add.staticGroup();
-
     for (let r = 0; r < MAP_ROWS; r++) {
       for (let c = 0; c < MAP_COLS; c++) {
         const x = c * TILE + TILE / 2;
         const y = r * TILE + TILE / 2;
         const cell = LAYOUT[r][c];
 
-        if (cell === 0) {
-          // Grass
-          const variant = Math.floor(this.noise(c, r) * 3);
-          this.add.image(x, y, `grass-${variant}`).setDepth(0);
-        } else if (cell === 1) {
-          // Dirt path
-          const variant = Math.floor(this.noise(c + 100, r + 100) * 2);
-          this.add.image(x, y, `dirt-${variant}`).setDepth(0);
-        } else if (cell === 2) {
-          // Fence
+        if (cell === G) {
+          this.add.image(x, y, 'grass').setDepth(0);
+        } else if (cell === D) {
+          this.add.image(x, y, 'dirt').setDepth(0);
+        } else if (cell === F) {
+          this.add.image(x, y, 'grass').setDepth(0);
           this.add.image(x, y, 'fence').setDepth(1);
-          const collider = this.add.zone(x, y, TILE, TILE);
-          this.physics.add.existing(collider, true);
-          this.fenceColliders!.add(collider);
-        } else if (cell === 3) {
-          // Fence post
+          const z = this.add.zone(x, y, TILE, TILE);
+          this.physics.add.existing(z, true);
+          this.fenceColliders.add(z);
+        } else if (cell === P) {
+          this.add.image(x, y, 'grass').setDepth(0);
           this.add.image(x, y, 'fence-post').setDepth(1);
-          const collider = this.add.zone(x, y, TILE, TILE);
-          this.physics.add.existing(collider, true);
-          this.fenceColliders!.add(collider);
+          const z = this.add.zone(x, y, TILE, TILE);
+          this.physics.add.existing(z, true);
+          this.fenceColliders.add(z);
         }
       }
     }
-
-    // Place some dead trees and bushes on grass tiles
-    const decorations = [
-      { c: 4, r: 4, tex: 'dead-tree' },
-      { c: 25, r: 3, tex: 'dead-tree' },
-      { c: 8, r: 15, tex: 'dead-tree' },
-      { c: 22, r: 17, tex: 'dead-bush' },
-      { c: 3, r: 10, tex: 'dead-bush' },
-      { c: 27, r: 8, tex: 'dead-bush' },
-      { c: 6, r: 18, tex: 'dead-bush' },
-      { c: 20, r: 4, tex: 'dead-tree' },
-    ];
-
-    for (const d of decorations) {
-      const x = d.c * TILE + TILE / 2;
-      const y = d.r * TILE + TILE / 2;
-      this.add.image(x, y, d.tex).setDepth(2);
-      if (d.tex === 'dead-tree') {
-        const collider = this.add.zone(x, y + 4, 12, 8);
-        this.physics.add.existing(collider, true);
-        this.objectColliders!.add(collider);
-      }
-    }
-
-    // Caretaker's house (3x3 tiles, top-left corner area)
-    const houseX = 6 * TILE + TILE * 1.5;
-    const houseY = 3 * TILE + TILE * 1.5;
-    this.add.image(houseX, houseY, 'caretaker-house').setDepth(3);
-    // House collision (slightly smaller than full size)
-    const houseCollider = this.add.zone(houseX, houseY + 10, TILE * 2.5, TILE * 2.5);
-    this.physics.add.existing(houseCollider, true);
-    this.objectColliders!.add(houseCollider);
   }
 
-  private placeInteractiveObjects(): void {
+  private placeFlatGraves(): void {
+    for (const g of FLAT_GRAVES) {
+      const x = g.c * TILE + TILE / 2;
+      const y = g.r * TILE + TILE / 2;
+      this.add.image(x, y, `flat-grave-${g.variant}`).setDepth(1);
+    }
+  }
+
+  private placeDecorations(): void {
+    for (const d of DECORATIONS) {
+      const x = d.c * TILE + TILE / 2;
+      const y = d.r * TILE + TILE / 2;
+      this.add.image(x, y, d.tex).setDepth(d.depth ?? 2);
+      if (d.collide) {
+        const z = this.add.zone(x, y + 6, d.colW ?? 20, d.colH ?? 10);
+        this.physics.add.existing(z, true);
+        this.objectColliders.add(z);
+      }
+    }
+  }
+
+  private placeFountain(): void {
+    const x = 17.5 * TILE;
+    const y = 14.5 * TILE;
+    this.add.image(x, y, 'fountain').setDepth(4);
+    const z = this.add.zone(x, y, 48, 48);
+    this.physics.add.existing(z, true);
+    this.objectColliders.add(z);
+  }
+
+  private placeMonuments(): void {
     const gravestoneDialogs = [
       Dialogs.GRAVESTONE_INSPECT_1,
       Dialogs.GRAVESTONE_INSPECT_2,
@@ -212,50 +279,47 @@ export class GraveyardScene extends Phaser.Scene {
       Dialogs.GRAVESTONE_INSPECT_5,
     ];
 
-    // Gravestone positions
-    const positions = [
-      { c: 10, r: 7 },
-      { c: 18, r: 6 },
-      { c: 8, r: 13 },
-      { c: 22, r: 13 },
-      { c: 16, r: 16 },
-    ];
+    for (const m of MONUMENTS) {
+      const x = m.c * TILE + TILE / 2;
+      const y = m.r * TILE + TILE / 2;
 
-    positions.forEach((pos, i) => {
-      const x = pos.c * TILE + TILE / 2;
-      const y = pos.r * TILE + TILE / 2;
+      this.add.image(x, y, `monument-${m.idx}`).setDepth(4);
 
-      // Visual gravestone
-      this.add.image(x, y, `gravestone-${i}`).setDepth(4);
+      const cz = this.add.zone(x, y + 6, 24, 14);
+      this.physics.add.existing(cz, true);
+      this.objectColliders.add(cz);
 
-      // Collision
-      const collider = this.add.zone(x, y + 4, 20, 12);
-      this.physics.add.existing(collider, true);
-      this.objectColliders!.add(collider);
-
-      // Interactive
       const obj = new InteractiveObject({
         scene: this,
-        x, y: y - 8,
-        texture: `gravestone-${i}`,
+        x, y: y - 10,
+        texture: `monument-${m.idx}`,
         interactionType: 'inspect',
         interactionRadius: 50,
-        label: `Gravestone ${i + 1}`,
-        inspectData: { gravestoneIndex: i, texture: `gravestone-${i}` },
+        label: m.label,
+        inspectData: { texture: `monument-${m.idx}` },
         onInteract: () => {
           this.player.stopMovement();
-          this.dialogSystem.showDialog(gravestoneDialogs[i]);
+          this.dialogSystem.showDialog(gravestoneDialogs[m.idx]);
         },
       });
-      obj.setVisible(false); // visual is already placed
+      obj.setVisible(false);
       this.interactionSystem.addObject(obj);
-    });
+    }
+  }
 
-    // Caretaker's house interactive zone
-    const houseObj = new InteractiveObject({
+  private placeCareHouse(): void {
+    const houseX = 5 * TILE;
+    const houseY = 3 * TILE;
+    this.add.image(houseX, houseY, 'caretaker-house').setDepth(3);
+
+    const cz = this.add.zone(houseX, houseY + 10, TILE * 2.5, TILE * 2.5);
+    this.physics.add.existing(cz, true);
+    this.objectColliders.add(cz);
+
+    const obj = new InteractiveObject({
       scene: this,
-      x: 6 * TILE + TILE * 1.5,
-      y: 5 * TILE + TILE * 1.5,
+      x: houseX,
+      y: houseY + TILE * 1.8,
       texture: 'caretaker-house',
       interactionType: 'dialog',
       interactionRadius: 60,
@@ -265,28 +329,21 @@ export class GraveyardScene extends Phaser.Scene {
         this.dialogSystem.showDialog(Dialogs.CARETAKER_HOUSE_DIALOG);
       },
     });
-    houseObj.setVisible(false);
-    this.interactionSystem.addObject(houseObj);
+    obj.setVisible(false);
+    this.interactionSystem.addObject(obj);
   }
 
   private createFogEffects(): void {
-    // Subtle fog wisps floating across the graveyard
     for (let i = 0; i < 8; i++) {
       const fog = this.add.graphics();
       fog.setDepth(15);
       fog.setAlpha(0.04 + Math.random() * 0.04);
-
       const startX = Math.random() * MAP_W;
       const startY = Math.random() * MAP_H;
       fog.setPosition(startX, startY);
-
-      // Draw a soft blob
       fog.fillStyle(0xb0c0d0, 1);
       fog.fillEllipse(0, 0, 60 + Math.random() * 80, 20 + Math.random() * 20);
 
-      this.fogParticles.push(fog);
-
-      // Animate slowly
       this.tweens.add({
         targets: fog,
         x: startX + 200 + Math.random() * 300,
@@ -294,7 +351,6 @@ export class GraveyardScene extends Phaser.Scene {
         alpha: { from: fog.alpha, to: 0 },
         duration: 12000 + Math.random() * 8000,
         repeat: -1,
-        yoyo: false,
         onRepeat: () => {
           fog.setPosition(-100, Math.random() * MAP_H);
           fog.setAlpha(0.04 + Math.random() * 0.04);
@@ -304,7 +360,6 @@ export class GraveyardScene extends Phaser.Scene {
   }
 
   private createVignette(): void {
-    // Dark vignette around edges of camera
     const vignette = this.add.graphics();
     vignette.setDepth(20);
     vignette.setScrollFactor(0);
@@ -312,50 +367,35 @@ export class GraveyardScene extends Phaser.Scene {
     const drawVignette = () => {
       const { width, height } = this.scale;
       vignette.clear();
-
-      // Gradient-like effect using concentric rectangles
       const steps = 6;
       for (let i = 0; i < steps; i++) {
         const alpha = (1 - i / steps) * 0.15;
         const inset = i * Math.min(width, height) * 0.05;
         vignette.fillStyle(0x000000, alpha);
-        vignette.fillRect(0, 0, width, inset); // top
-        vignette.fillRect(0, height - inset, width, inset); // bottom
-        vignette.fillRect(0, 0, inset, height); // left
-        vignette.fillRect(width - inset, 0, inset, height); // right
+        vignette.fillRect(0, 0, width, inset);
+        vignette.fillRect(0, height - inset, width, inset);
+        vignette.fillRect(0, 0, inset, height);
+        vignette.fillRect(width - inset, 0, inset, height);
       }
     };
-
     drawVignette();
     this.scale.on('resize', drawVignette);
   }
 
   private startAmbientAudio(): void {
-    // Night ambient loop
     this.time.delayedCall(500, () => {
       try {
-        this.ambientSound = this.sound.add('night-ambient', {
-          loop: true,
-          volume: 0.3,
-        });
+        this.ambientSound = this.sound.add('night-ambient', { loop: true, volume: 0.3 });
         this.ambientSound.play();
-      } catch (e) {
-        // Audio may not be ready yet
-      }
+      } catch (_e) { /* audio may not be ready */ }
     });
-
-    // Random owl hoots
     this.scheduleOwlHoot();
   }
 
   private scheduleOwlHoot(): void {
-    const delay = 8000 + Math.random() * 15000; // 8-23 seconds
-    this.owlTimer = this.time.delayedCall(delay, () => {
-      try {
-        this.sound.play('owl-hoot', { volume: 0.15 + Math.random() * 0.1 });
-      } catch (e) {
-        // Audio may fail silently
-      }
+    const delay = 8000 + Math.random() * 15000;
+    this.time.delayedCall(delay, () => {
+      try { this.sound.play('owl-hoot', { volume: 0.15 + Math.random() * 0.1 }); } catch (_e) { /* */ }
       this.scheduleOwlHoot();
     });
   }
@@ -369,7 +409,6 @@ export class GraveyardScene extends Phaser.Scene {
   }
 
   update(_time: number, delta: number): void {
-    // Get input from UIScene's joystick
     const uiScene = this.scene.get('UIScene');
     if (uiScene) {
       const joyData = (uiScene as { joystickData?: { x: number; y: number } }).joystickData;
@@ -391,19 +430,11 @@ export class GraveyardScene extends Phaser.Scene {
       if (this.footstepTimer > 350) {
         this.footstepTimer = 0;
         try {
-          const sfx = Math.random() > 0.5 ? 'footstep' : 'footstep-alt';
-          this.sound.play(sfx, { volume: 0.08 + Math.random() * 0.04 });
-        } catch (e) {
-          // Audio may not be ready
-        }
+          this.sound.play(Math.random() > 0.5 ? 'footstep' : 'footstep-alt', { volume: 0.08 + Math.random() * 0.04 });
+        } catch (_e) { /* */ }
       }
     } else {
-      this.footstepTimer = 300; // Almost ready to play on next movement
+      this.footstepTimer = 300;
     }
-  }
-
-  private noise(x: number, y: number): number {
-    const n = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
-    return n - Math.floor(n);
   }
 }

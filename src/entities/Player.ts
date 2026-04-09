@@ -12,13 +12,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   public inputY = 0;
 
   constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, 'gabe-sheet', 'down_4');
+    super(scene, x, y, 'gabe-south');
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
     this.setCollideWorldBounds(false);
-    this.setSize(16, 10);
-    this.setOffset(8, 20);
+    this.setSize(16, 12);
+    this.setOffset(8, 34);
     this.setDepth(10);
   }
 

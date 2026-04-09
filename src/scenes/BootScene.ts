@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { generateAllAssets } from '../assets/AssetGenerator';
+import { generateAudio } from '../assets/AudioGenerator';
 
 export class BootScene extends Phaser.Scene {
   private progressText!: Phaser.GameObjects.Text;
@@ -9,15 +9,13 @@ export class BootScene extends Phaser.Scene {
     super({ key: 'BootScene' });
   }
 
-  create(): void {
+  preload(): void {
     const { width, height } = this.scale;
     const cx = width / 2;
     const cy = height / 2;
 
-    // Dark background
     this.cameras.main.setBackgroundColor('#0a0a0a');
 
-    // Title
     this.add.text(cx, cy - 60, 'GRIT', {
       fontFamily: 'Georgia, serif',
       fontSize: '32px',
@@ -25,7 +23,6 @@ export class BootScene extends Phaser.Scene {
       fontStyle: 'bold',
     }).setOrigin(0.5);
 
-    // Subtitle
     this.add.text(cx, cy - 30, 'A Gritty Adventure', {
       fontFamily: 'Georgia, serif',
       fontSize: '12px',
@@ -33,62 +30,102 @@ export class BootScene extends Phaser.Scene {
       fontStyle: 'italic',
     }).setOrigin(0.5);
 
-    // Progress bar background
     this.progressBar = this.add.graphics();
-    this.progressBar.fillStyle(0x1a1a1a, 1);
-    this.progressBar.fillRect(cx - 80, cy + 10, 160, 12);
-    this.progressBar.lineStyle(1, 0x3a3a3e, 1);
-    this.progressBar.strokeRect(cx - 80, cy + 10, 160, 12);
-
-    // Progress text
-    this.progressText = this.add.text(cx, cy + 40, 'Generating assets...', {
+    this.progressText = this.add.text(cx, cy + 40, 'Loading...', {
       fontFamily: 'monospace',
       fontSize: '10px',
       color: '#5a5a60',
     }).setOrigin(0.5);
 
-    // Generate all assets
-    this.generateAssets(cx, cy);
-  }
+    // Progress bar updates
+    this.load.on('progress', (value: number) => {
+      this.progressBar.clear();
+      this.progressBar.fillStyle(0x1a1a1a, 1);
+      this.progressBar.fillRect(cx - 80, cy + 10, 160, 12);
+      this.progressBar.fillStyle(0x6b4226, 1);
+      this.progressBar.fillRect(cx - 80, cy + 10, 160 * value, 12);
+      this.progressBar.lineStyle(1, 0x3a3a3e, 1);
+      this.progressBar.strokeRect(cx - 80, cy + 10, 160, 12);
+    });
 
-  private async generateAssets(cx: number, cy: number): Promise<void> {
-    try {
-      this.updateProgress(cx, cy, 0.1, 'Conjuring sprites...');
-      await this.delay(100);
+    // --- Load all PNG assets ---
 
-      await generateAllAssets(this);
+    // Character sprites (single frames per direction)
+    this.load.image('gabe-south', 'assets/sprites/gabe-south.png');
+    this.load.image('gabe-north', 'assets/sprites/gabe-north.png');
+    this.load.image('gabe-east', 'assets/sprites/gabe-east.png');
+    this.load.image('gabe-west', 'assets/sprites/gabe-west.png');
 
-      this.updateProgress(cx, cy, 0.8, 'Summoning the darkness...');
-      await this.delay(300);
+    // Tiles
+    this.load.image('grass', 'assets/tiles/grass.png');
+    this.load.image('dirt', 'assets/tiles/dirt.png');
 
-      this.updateProgress(cx, cy, 1.0, 'Enter the graveyard...');
-      await this.delay(500);
-
-      // Fade out and start game
-      this.cameras.main.fadeOut(800, 0, 0, 0);
-      this.cameras.main.once('camerafadeoutcomplete', () => {
-        this.scene.start('GraveyardScene');
-        this.scene.start('UIScene');
-      });
-    } catch (error) {
-      console.error('Asset generation failed:', error);
-      this.progressText.setText('Error loading assets. Refresh to retry.');
-      this.progressText.setColor('#aa3333');
+    // Monuments (interactive gravestones)
+    for (let i = 0; i < 5; i++) {
+      this.load.image(`monument-${i}`, `assets/objects/monument-${i}.png`);
     }
+
+    // Flat grave markers (decorative)
+    for (let i = 0; i < 4; i++) {
+      this.load.image(`flat-grave-${i}`, `assets/objects/flat-grave-${i}.png`);
+    }
+
+    // Trees
+    this.load.image('tree-oak', 'assets/objects/tree-oak.png');
+    this.load.image('tree-evergreen', 'assets/objects/tree-evergreen.png');
+    this.load.image('dead-tree', 'assets/objects/dead-tree.png');
+
+    // Environment objects
+    this.load.image('fountain', 'assets/objects/fountain.png');
+    this.load.image('bench', 'assets/objects/bench.png');
+    this.load.image('bush', 'assets/objects/bush.png');
+    this.load.image('flower-arrangement', 'assets/objects/flower-arrangement.png');
+
+    // Fence
+    this.load.image('fence', 'assets/objects/fence.png');
+    this.load.image('fence-post', 'assets/objects/fence-post.png');
+
+    // Caretaker's house
+    this.load.image('caretaker-house', 'assets/objects/caretaker-house.png');
   }
 
-  private updateProgress(cx: number, cy: number, progress: number, text: string): void {
-    this.progressBar.clear();
-    this.progressBar.fillStyle(0x1a1a1a, 1);
-    this.progressBar.fillRect(cx - 80, cy + 10, 160, 12);
-    this.progressBar.fillStyle(0x6b4226, 1);
-    this.progressBar.fillRect(cx - 80, cy + 10, 160 * progress, 12);
-    this.progressBar.lineStyle(1, 0x3a3a3e, 1);
-    this.progressBar.strokeRect(cx - 80, cy + 10, 160, 12);
-    this.progressText.setText(text);
-  }
+  async create(): Promise<void> {
+    this.progressText.setText('Summoning the darkness...');
 
-  private delay(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+    // Generate procedural audio (kept since PixelLab doesn't do audio)
+    try {
+      await generateAudio(this);
+    } catch (e) {
+      console.warn('Audio generation failed, continuing without sound:', e);
+    }
+
+    // Create player animations (single-frame per direction since we have static images)
+    const directions = ['south', 'north', 'east', 'west'] as const;
+    const dirMap = { south: 'down', north: 'up', east: 'right', west: 'left' } as const;
+
+    for (const dir of directions) {
+      const gameDir = dirMap[dir];
+      this.anims.create({
+        key: `gabe-walk-${gameDir}`,
+        frames: [{ key: `gabe-${dir}` }],
+        frameRate: 1,
+        repeat: -1,
+      });
+      this.anims.create({
+        key: `gabe-idle-${gameDir}`,
+        frames: [{ key: `gabe-${dir}` }],
+        frameRate: 1,
+        repeat: -1,
+      });
+    }
+
+    this.progressText.setText('Enter the graveyard...');
+    await new Promise((r) => setTimeout(r, 400));
+
+    this.cameras.main.fadeOut(800, 0, 0, 0);
+    this.cameras.main.once('camerafadeoutcomplete', () => {
+      this.scene.start('GraveyardScene');
+      this.scene.start('UIScene');
+    });
   }
 }
