@@ -73,7 +73,7 @@ Submitting: grass-to-gravel
   Calling MCP tool: create_topdown_tileset...
   Args: {"lower_description":"dark green cemetery grass, short mowed lawn, pixel art, top-down view","upper_description":"gray gravel crushed stone path, small pebbles, pixel art, top-down view"}
   POST https://api.pixellab.ai/mcp
-  Body: {"jsonrpc":"2.0","id":1775759154084,"method":"tools/call","params":{"name":"create_topdown_tileset","arguments":{"lower_description":"dark green cemetery grass, short mowed lawn, pixel art, top-down view","upper_description":"gray gravel crushed stone path, small pebbles, pixel art, top-down view"}}}
+  Body: {"jsonrpc":"2.0","id":1775760738447,"method":"tools/call","params":{"name":"create_topdown_tileset","arguments":{"lower_description":"dark green cemetery grass, short mowed lawn, pixel art, top-down view","upper_description":"gray gravel crushed stone path, small pebbles, pixel art, top-down view"}}}
   Status: 200 OK
   Content-Type: text/event-stream
   Response length: 2433
@@ -94,13 +94,13 @@ data: {"method":"notifications/message","params":{"level":"debug","data":{"msg":
 
 event: message
 data: {"method":"notifications/message","params"
-  ✓ Submitted. Tileset ID: 4287fa0e-bfa6-487c-8650-6c3802831ae9
+  ✓ Submitted. Tileset ID: a40b941f-94c1-4446-b365-eb642f4324c4
 
 Submitting: grass-to-dirt
   Calling MCP tool: create_topdown_tileset...
   Args: {"lower_description":"dark green cemetery grass, short mowed lawn, pixel art, top-down view","upper_description":"brown packed dirt worn earth path, pixel art, top-down view"}
   POST https://api.pixellab.ai/mcp
-  Body: {"jsonrpc":"2.0","id":1775759154744,"method":"tools/call","params":{"name":"create_topdown_tileset","arguments":{"lower_description":"dark green cemetery grass, short mowed lawn, pixel art, top-down view","upper_description":"brown packed dirt worn earth path, pixel art, top-down view"}}}
+  Body: {"jsonrpc":"2.0","id":1775760739109,"method":"tools/call","params":{"name":"create_topdown_tileset","arguments":{"lower_description":"dark green cemetery grass, short mowed lawn, pixel art, top-down view","upper_description":"brown packed dirt worn earth path, pixel art, top-down view"}}}
   Status: 200 OK
   Content-Type: text/event-stream
   Response length: 2397
@@ -121,105 +121,52 @@ data: {"method":"notifications/message","params":{"level":"debug","data":{"msg":
 
 event: message
 data: {"method":"notifications/message","params":{"level":"i
-  ✓ Submitted. Tileset ID: ec1f953b-d257-4309-a3ab-d81b5fd513a0
+  ✓ Submitted. Tileset ID: bfff5574-619e-4bcd-96c4-e6aae4d87c03
 
 Waiting 60s for initial processing...
 
-Downloading: grass-to-gravel (4287fa0e-bfa6-487c-8650-6c3802831ae9)
-  Polling for tileset 4287fa0e-bfa6-487c-8650-6c3802831ae9...
-    Attempt 1/30...
+Downloading: grass-to-gravel (a40b941f-94c1-4446-b365-eb642f4324c4)
+  Polling for tileset a40b941f-94c1-4446-b365-eb642f4324c4...
+    Attempt 1/20...
   Calling MCP tool: get_topdown_tileset...
-  Args: {"tileset_id":"4287fa0e-bfa6-487c-8650-6c3802831ae9"}
+  Args: {"tileset_id":"a40b941f-94c1-4446-b365-eb642f4324c4"}
   POST https://api.pixellab.ai/mcp
-  Body: {"jsonrpc":"2.0","id":1775759215027,"method":"tools/call","params":{"name":"get_topdown_tileset","arguments":{"tileset_id":"4287fa0e-bfa6-487c-8650-6c3802831ae9"}}}
-  Status: 200 OK
-  Content-Type: text/event-stream
-  Response length: 434
-  Response (first 1000 chars): event: message
-data: {"jsonrpc":"2.0","id":1775759215027,"result":{"content":[{"type":"text","text":"⏳ Tileset is still being generated (33% complete). ETA: ~123s\n\n**Download behavior:**\n- Returns HTTP 423 with `Retry-After: 123` header\n- Response body is JSON error (not tileset JSON)\n- Use `curl --fail` to properly handle this\n- Without `--fail`, you'll save ~100 byte error instead of >10KB tileset"}],"isError":false}}
-
-
-    Status: ⏳ Tileset is still being generated (33% complete). ETA: ~123s
-
-**Download behavior:**
-- Returns HTTP 423 with `Retry-After: 123` header
-- Response body is JSON error (not tileset JSON)
-- Use `curl --f
-    Still processing, waiting 10s...
-    Attempt 2/30...
-  Calling MCP tool: get_topdown_tileset...
-  Args: {"tileset_id":"4287fa0e-bfa6-487c-8650-6c3802831ae9"}
-  POST https://api.pixellab.ai/mcp
-  Body: {"jsonrpc":"2.0","id":1775759225713,"method":"tools/call","params":{"name":"get_topdown_tileset","arguments":{"tileset_id":"4287fa0e-bfa6-487c-8650-6c3802831ae9"}}}
-  Status: 200 OK
-  Content-Type: text/event-stream
-  Response length: 7297
-  Response (first 1000 chars): event: message
-data: {"jsonrpc":"2.0","id":1775759225713,"result":{"content":[{"type":"text","text":"✅ Tileset: dark green cemetery grass, short mowed lawn, pixel art, top-down view ↔ gray gravel crushed stone path, small pebbles, pixel art, top-down view\n\n**Total tiles:** 16\n**Tile size:** 16x16px\n**Style:** View: high top-down\n\n**📥 Download:**\n- [PNG file](https://api.pixellab.ai/mcp/tilesets/4287fa0e-bfa6-487c-8650-6c3802831ae9/image) - 4×4 tileset image\n- [Metadata JSON](https://api.pixellab.ai/mcp/tilesets/4287fa0e-bfa6-487c-8650-6c3802831ae9/metadata) - Tile data with bounding boxes\n- ⚠️ **Always use `curl --fail`** or check file sizes\n- Returns HTTP 423 if still generating (with error JSON/response)\n\n\n**Format Structure:**\n- **PNG file**: 4×4 grid layout with 16 unique Wang tiles\n- **Metadata JSON**: Tile data with bounding box coordinates\n  - `tiles[].bounding_box` - Position in PNG (x, y, width, height)\n  - `tiles[].corners` - Corner terrain types for Wang t
-    Status: ✅ Tileset: dark green cemetery grass, short mowed lawn, pixel art, top-down view ↔ gray gravel crushed stone path, small pebbles, pixel art, top-down view
-
-**Total tiles:** 16
-**Tile size:** 16x16px
-*
-    ✓ Saved: /home/runner/work/Grit/Grit/public/assets/tiles/grass-to-gravel-0.png
-  ✓ Downloaded 1 images for grass-to-gravel
-
-Downloading: grass-to-dirt (ec1f953b-d257-4309-a3ab-d81b5fd513a0)
-  Polling for tileset ec1f953b-d257-4309-a3ab-d81b5fd513a0...
-    Attempt 1/30...
-  Calling MCP tool: get_topdown_tileset...
-  Args: {"tileset_id":"ec1f953b-d257-4309-a3ab-d81b5fd513a0"}
-  POST https://api.pixellab.ai/mcp
-  Body: {"jsonrpc":"2.0","id":1775759227831,"method":"tools/call","params":{"name":"get_topdown_tileset","arguments":{"tileset_id":"ec1f953b-d257-4309-a3ab-d81b5fd513a0"}}}
+  Body: {"jsonrpc":"2.0","id":1775760799388,"method":"tools/call","params":{"name":"get_topdown_tileset","arguments":{"tileset_id":"a40b941f-94c1-4446-b365-eb642f4324c4"}}}
   Status: 200 OK
   Content-Type: text/event-stream
   Response length: 430
   Response (first 1000 chars): event: message
-data: {"jsonrpc":"2.0","id":1775759227831,"result":{"content":[{"type":"text","text":"⏳ Tileset is still being generated (95% complete). ETA: ~3s\n\n**Download behavior:**\n- Returns HTTP 423 with `Retry-After: 3` header\n- Response body is JSON error (not tileset JSON)\n- Use `curl --fail` to properly handle this\n- Without `--fail`, you'll save ~100 byte error instead of >10KB tileset"}],"isError":false}}
+data: {"jsonrpc":"2.0","id":1775760799388,"result":{"content":[{"type":"text","text":"⏳ Tileset is still being generated (95% complete). ETA: ~3s\n\n**Download behavior:**\n- Returns HTTP 423 with `Retry-After: 3` header\n- Response body is JSON error (not tileset JSON)\n- Use `curl --fail` to properly handle this\n- Without `--fail`, you'll save ~100 byte error instead of >10KB tileset"}],"isError":false}}
 
 
-    Status: ⏳ Tileset is still being generated (95% complete). ETA: ~3s
+    ✗ Error: ⏳ Tileset is still being generated (95% complete). ETA: ~3s
 
 **Download behavior:**
 - Returns HTTP 423 with `Retry-After: 3` header
 - Response body is JSON error (not tileset JSON)
 - Use `curl --fail`
-    Still processing, waiting 10s...
-    Attempt 2/30...
+
+Downloading: grass-to-dirt (bfff5574-619e-4bcd-96c4-e6aae4d87c03)
+  Polling for tileset bfff5574-619e-4bcd-96c4-e6aae4d87c03...
+    Attempt 1/20...
   Calling MCP tool: get_topdown_tileset...
-  Args: {"tileset_id":"ec1f953b-d257-4309-a3ab-d81b5fd513a0"}
+  Args: {"tileset_id":"bfff5574-619e-4bcd-96c4-e6aae4d87c03"}
   POST https://api.pixellab.ai/mcp
-  Body: {"jsonrpc":"2.0","id":1775759238295,"method":"tools/call","params":{"name":"get_topdown_tileset","arguments":{"tileset_id":"ec1f953b-d257-4309-a3ab-d81b5fd513a0"}}}
+  Body: {"jsonrpc":"2.0","id":1775760799960,"method":"tools/call","params":{"name":"get_topdown_tileset","arguments":{"tileset_id":"bfff5574-619e-4bcd-96c4-e6aae4d87c03"}}}
   Status: 200 OK
   Content-Type: text/event-stream
   Response length: 432
   Response (first 1000 chars): event: message
-data: {"jsonrpc":"2.0","id":1775759238295,"result":{"content":[{"type":"text","text":"⏳ Tileset is still being generated (46% complete). ETA: ~98s\n\n**Download behavior:**\n- Returns HTTP 423 with `Retry-After: 98` header\n- Response body is JSON error (not tileset JSON)\n- Use `curl --fail` to properly handle this\n- Without `--fail`, you'll save ~100 byte error instead of >10KB tileset"}],"isError":false}}
+data: {"jsonrpc":"2.0","id":1775760799960,"result":{"content":[{"type":"text","text":"⏳ Tileset is still being generated (68% complete). ETA: ~28s\n\n**Download behavior:**\n- Returns HTTP 423 with `Retry-After: 28` header\n- Response body is JSON error (not tileset JSON)\n- Use `curl --fail` to properly handle this\n- Without `--fail`, you'll save ~100 byte error instead of >10KB tileset"}],"isError":false}}
 
 
-    Status: ⏳ Tileset is still being generated (46% complete). ETA: ~98s
+    ✗ Error: ⏳ Tileset is still being generated (68% complete). ETA: ~28s
 
 **Download behavior:**
-- Returns HTTP 423 with `Retry-After: 98` header
+- Returns HTTP 423 with `Retry-After: 28` header
 - Response body is JSON error (not tileset JSON)
 - Use `curl --fai
-    Still processing, waiting 10s...
-    Attempt 3/30...
-  Calling MCP tool: get_topdown_tileset...
-  Args: {"tileset_id":"ec1f953b-d257-4309-a3ab-d81b5fd513a0"}
-  POST https://api.pixellab.ai/mcp
-  Body: {"jsonrpc":"2.0","id":1775759248867,"method":"tools/call","params":{"name":"get_topdown_tileset","arguments":{"tileset_id":"ec1f953b-d257-4309-a3ab-d81b5fd513a0"}}}
-  Status: 200 OK
-  Content-Type: text/event-stream
-  Response length: 5341
-  Response (first 1000 chars): event: message
-data: {"jsonrpc":"2.0","id":1775759248867,"result":{"content":[{"type":"text","text":"✅ Tileset: dark green cemetery grass, short mowed lawn, pixel art, top-down view ↔ brown packed dirt worn earth path, pixel art, top-down view\n\n**Total tiles:** 16\n**Tile size:** 16x16px\n**Style:** View: high top-down\n\n**📥 Download:**\n- [PNG file](https://api.pixellab.ai/mcp/tilesets/ec1f953b-d257-4309-a3ab-d81b5fd513a0/image) - 4×4 tileset image\n- [Metadata JSON](https://api.pixellab.ai/mcp/tilesets/ec1f953b-d257-4309-a3ab-d81b5fd513a0/metadata) - Tile data with bounding boxes\n- ⚠️ **Always use `curl --fail`** or check file sizes\n- Returns HTTP 423 if still generating (with error JSON/response)\n\n\n**Format Structure:**\n- **PNG file**: 4×4 grid layout with 16 unique Wang tiles\n- **Metadata JSON**: Tile data with bounding box coordinates\n  - `tiles[].bounding_box` - Position in PNG (x, y, width, height)\n  - `tiles[].corners` - Corner terrain types for Wang tiling\n  - `
-    Status: ✅ Tileset: dark green cemetery grass, short mowed lawn, pixel art, top-down view ↔ brown packed dirt worn earth path, pixel art, top-down view
-
-**Total tiles:** 16
-**Tile size:** 16x16px
-**Style:** Vi
-    ✓ Saved: /home/runner/work/Grit/Grit/public/assets/tiles/grass-to-dirt-0.png
-  ✓ Downloaded 1 images for grass-to-dirt
 
 === Done ===
+
+Some tileset generation failed. Check logs above.
