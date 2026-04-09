@@ -72,50 +72,37 @@ export class BootScene extends Phaser.Scene {
       }
     });
 
-    // === Ground tiles (from sliced sprite sheet) ===
-    this.load.image('grass-base', 'assets/tiles/grass-base.png');
-    this.load.image('gravel-base', 'assets/tiles/gravel-base.png');
+    // === Ground tiles ===
+    this.load.image('grass', 'assets/tiles/grass.png');
+    this.load.image('gravel', 'assets/tiles/gravel.png');
+    this.load.image('dirt', 'assets/tiles/dirt.png');
 
-    // Transition tiles (4 corners for each terrain pair)
-    for (const pos of ['tl', 'tr', 'bl', 'br']) {
-      this.load.image(`trans-grass-gravel-${pos}`, `assets/tiles/trans-grass-gravel-${pos}.png`);
-      this.load.image(`trans-gravel-grass-${pos}`, `assets/tiles/trans-gravel-grass-${pos}.png`);
-      this.load.image(`trans-grass-dirt-${pos}`, `assets/tiles/trans-grass-dirt-${pos}.png`);
-    }
-
-    // Wang tilesets (kept as fallback)
-    this.load.image({ key: 'wang-grass-gravel', url: 'assets/tiles/grass-to-gravel.png' });
-    this.load.json({ key: 'wang-grass-gravel-meta', url: 'assets/tiles/grass-to-gravel.json' });
-    this.load.image({ key: 'wang-grass-dirt', url: 'assets/tiles/grass-to-dirt.png' });
-    this.load.json({ key: 'wang-grass-dirt-meta', url: 'assets/tiles/grass-to-dirt.json' });
-
-    // Monuments (interactive gravestones) - now 8 variants from sprite sheet
+    // Gravestones (8 variants)
     for (let i = 0; i < 8; i++) {
-      this.load.image(`monument-${i}`, `assets/objects/monument-${i}.png`);
+      this.load.image(`gravestone-${i}`, `assets/objects/gravestone-${i}.png`);
     }
 
     // Trees
     this.load.image('tree-oak', 'assets/objects/tree-oak.png');
     this.load.image('tree-evergreen', 'assets/objects/tree-evergreen.png');
-    this.load.image('dead-tree', 'assets/objects/dead-tree.png');
+    this.load.image('tree-dead', 'assets/objects/tree-dead.png');
 
     // Bushes
-    this.load.image('bush', 'assets/objects/bush.png');
-    this.load.image({ key: 'bush-small-1', url: 'assets/objects/bush-small-1.png' });
-    this.load.image({ key: 'bush-small-2', url: 'assets/objects/bush-small-2.png' });
+    this.load.image('bush-large', 'assets/objects/bush-large.png');
+    this.load.image('bush-small', 'assets/objects/bush-small.png');
 
-    // Environment objects
+    // Large objects
     this.load.image('fountain', 'assets/objects/fountain.png');
-    this.load.image({ key: 'rocks', url: 'assets/objects/rocks.png' });
-    this.load.image({ key: 'grass-tufts', url: 'assets/objects/grass-tufts.png' });
-    this.load.image({ key: 'fallen-leaves', url: 'assets/objects/fallen-leaves.png' });
+    this.load.image('caretaker-house', 'assets/objects/caretaker-house.png');
 
     // Fence
     this.load.image('fence', 'assets/objects/fence.png');
     this.load.image('fence-post', 'assets/objects/fence-post.png');
 
-    // Caretaker's house
-    this.load.image('caretaker-house', 'assets/objects/caretaker-house.png');
+    // Small details
+    this.load.image('rocks', 'assets/objects/rocks.png');
+    this.load.image('grassTufts', 'assets/objects/grassTufts.png');
+    this.load.image('fallenLeaves', 'assets/objects/fallenLeaves.png');
   }
 
   async create(): Promise<void> {
