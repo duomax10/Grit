@@ -143,27 +143,28 @@ async function generateTiles() {
 }
 
 // --- TARGET: graveyard-tiles ---
-// One seamless base tile per terrain type. Transitions are handled in code.
+// Large base textures that repeat less visibly. Grass is 128x128 so
+// the repeat is far less frequent. Gravel and dirt are 64x64.
 async function generateGraveyardTiles() {
-  console.log('\n=== Graveyard Base Tiles (seamless, single per terrain) ===');
+  console.log('\n=== Graveyard Base Tiles (large, seamless) ===');
 
-  await gen('Grass base', {
-    description: 'green grass ground texture, perfectly seamless repeating tile, uniform short mowed lawn, no border no edge no outline, fills entire image, consistent green color throughout, viewed directly from above, pixel art',
-    imageSize: { width: 32, height: 32 },
+  await gen('Grass base (128x128)', {
+    description: 'green grass lawn texture, perfectly seamless tileable, uniform short mowed grass, consistent color across the entire image with no bright or dark patches near the edges, no border, no outline, fills entire image edge to edge, viewed directly from above, pixel art',
+    imageSize: { width: 128, height: 128 },
     noBackground: false, ...TILE_STYLE,
     seed: 555,
   }, join(ASSETS, 'tiles', 'grass-base.png'));
 
-  await gen('Gravel base', {
-    description: 'gray gravel crushed stone ground texture, perfectly seamless repeating tile, small uniform pebbles, no border no edge no outline, fills entire image, consistent gray throughout, viewed directly from above, pixel art',
-    imageSize: { width: 32, height: 32 },
+  await gen('Gravel base (64x64)', {
+    description: 'gray gravel crushed stone ground texture, perfectly seamless tileable, small uniform pebbles, consistent color across entire image, no border, no outline, fills entire image edge to edge, viewed directly from above, pixel art',
+    imageSize: { width: 64, height: 64 },
     noBackground: false, ...TILE_STYLE,
     seed: 666,
   }, join(ASSETS, 'tiles', 'gravel-base.png'));
 
-  await gen('Dirt base', {
-    description: 'brown packed dirt earth ground texture, perfectly seamless repeating tile, flat worn earth, no border no edge no outline, fills entire image, consistent brown throughout, viewed directly from above, pixel art',
-    imageSize: { width: 32, height: 32 },
+  await gen('Dirt base (64x64)', {
+    description: 'brown packed dirt earth ground texture, perfectly seamless tileable, flat worn earth, consistent color across entire image, no border, no outline, fills entire image edge to edge, viewed directly from above, pixel art',
+    imageSize: { width: 64, height: 64 },
     noBackground: false, ...TILE_STYLE,
     seed: 777,
   }, join(ASSETS, 'tiles', 'dirt-base.png'));

@@ -241,7 +241,7 @@ export class GraveyardScene extends Phaser.Scene {
   }
 
   private buildMap(): void {
-    // Determine which base texture key to use (new seamless or old fallback)
+    // Resolve texture keys (prefer new large seamless tiles)
     const grassKey = this.textures.exists('grass-base') ? 'grass-base'
       : this.textures.exists('grass-0') ? 'grass-0' : 'grass';
     const gravelKey = this.textures.exists('gravel-base') ? 'gravel-base'
@@ -249,86 +249,31 @@ export class GraveyardScene extends Phaser.Scene {
     const dirtKey = this.textures.exists('dirt-base') ? 'dirt-base'
       : this.textures.exists('dirt-0') ? 'dirt-0' : 'dirt';
 
-    // Render the entire ground to a single canvas for seamless look
     const canvas = document.createElement('canvas');
     canvas.width = MAP_W;
     canvas.height = MAP_H;
     const ctx = canvas.getContext('2d')!;
 
-    // Helper to get source image data from a Phaser texture
-    const getImage = (key: string): HTMLImageElement | HTMLCanvasElement => {
-      const src = this.textures.get(key).getSourceImage();
-      return src as HTMLImageElement | HTMLCanvasElement;
-    };
+    const getImage = (key: string) =>
+      this.textures.get(key).getSourceImage() as HTMLImageElement | HTMLCanvasElement;
 
     const grassImg = getImage(grassKey);
     const gravelImg = getImage(gravelKey);
     const dirtImg = getImage(dirtKey);
 
-    const terrainImg = (cell: number) => {
-      if (cell === V) return gravelImg;
-      if (cell === D) return dirtImg;
-      return grassImg;
-    };
+    // Fill entire map with grass using pattern fill (tiles the image
+    // at its native size — 128x128 means only ~7 repeats across the map
+    // instead of ~28 at 32x32, making the repeat far less visible)
+    const grassPat = ctx.createPattern(grassImg, 'repeat')!;
+    ctx.fillStyle = grassPat;
+    ctx.fillRect(0, 0, MAP_W, MAP_H);
 
-    // First pass: fill with grass everywhere
-    for (let r = 0; r < MAP_ROWS; r++) {
-      for (let c = 0; c < MAP_COLS; c++) {
-        ctx.drawImage(grassImg, c * TILE, r * TILE, TILE, TILE);
-      }
-    }
+    // Paint gravel and dirt areas using pattern fill with feathered edges
+    const gravelPat = ctx.createPattern(gravelImg, 'repeat')!;
+    const dirtPat = ctx.createPattern(dirtImg, 'repeat')!;
 
-    // Blur grass tile seams — sample a thin strip across each boundary
-    // and blend to hide the repeating tile edges
-    const seamBlur = 3; // pixels on each side of the seam to blend
-    const imgData = ctx.getImageData(0, 0, MAP_W, MAP_H);
-    const px = imgData.data;
+    const feather = 6;
 
-    const getIdx = (x: number, y: number) => (y * MAP_W + x) * 4;
-
-    // Horizontal seams (between rows of tiles)
-    for (let r = 1; r < MAP_ROWS; r++) {
-      const seamY = r * TILE;
-      for (let x = 0; x < MAP_W; x++) {
-        for (let d = 0; d < seamBlur; d++) {
-          const y1 = seamY - 1 - d;
-          const y2 = seamY + d;
-          if (y1 < 0 || y2 >= MAP_H) continue;
-          const i1 = getIdx(x, y1);
-          const i2 = getIdx(x, y2);
-          const t = 0.5 - d * 0.12; // blend factor decreases with distance
-          for (let ch = 0; ch < 3; ch++) {
-            const avg = px[i1 + ch] * (1 - t) + px[i2 + ch] * t;
-            px[i1 + ch] = avg;
-            px[i2 + ch] = px[i2 + ch] * (1 - t) + px[i1 + ch] * t;
-          }
-        }
-      }
-    }
-
-    // Vertical seams (between columns of tiles)
-    for (let c = 1; c < MAP_COLS; c++) {
-      const seamX = c * TILE;
-      for (let y = 0; y < MAP_H; y++) {
-        for (let d = 0; d < seamBlur; d++) {
-          const x1 = seamX - 1 - d;
-          const x2 = seamX + d;
-          if (x1 < 0 || x2 >= MAP_W) continue;
-          const i1 = getIdx(x1, y);
-          const i2 = getIdx(x2, y);
-          const t = 0.5 - d * 0.12;
-          for (let ch = 0; ch < 3; ch++) {
-            const avg = px[i1 + ch] * (1 - t) + px[i2 + ch] * t;
-            px[i1 + ch] = avg;
-            px[i2 + ch] = px[i2 + ch] * (1 - t) + px[i1 + ch] * t;
-          }
-        }
-      }
-    }
-
-    ctx.putImageData(imgData, 0, 0);
-
-    // Second pass: paint non-grass terrain with soft feathered edges
     for (let r = 0; r < MAP_ROWS; r++) {
       for (let c = 0; c < MAP_COLS; c++) {
         const cell = LAYOUT[r]?.[c] ?? G;
@@ -336,76 +281,77 @@ export class GraveyardScene extends Phaser.Scene {
 
         const x = c * TILE;
         const y = r * TILE;
-        const img = terrainImg(cell);
+        const pat = cell === V ? gravelPat : dirtPat;
 
-        // Draw the terrain tile
-        ctx.drawImage(img, x, y, TILE, TILE);
+        // Draw the terrain tile using pattern
+        ctx.fillStyle = pat;
+        ctx.fillRect(x, y, TILE, TILE);
 
-        // Feather edges: for each neighboring grass tile, draw a soft
-        // gradient from this terrain into the grass to blur the boundary
-        const feather = 6; // pixels of blending
-        const neighbors = [
-          { dr: -1, dc: 0, edge: 'top' },
-          { dr: 1, dc: 0, edge: 'bottom' },
-          { dr: 0, dc: -1, edge: 'left' },
-          { dr: 0, dc: 1, edge: 'right' },
+        // Feather edges where this terrain meets grass
+        const edges = [
+          { dr: -1, dc: 0, side: 'top' },
+          { dr: 1, dc: 0, side: 'bottom' },
+          { dr: 0, dc: -1, side: 'left' },
+          { dr: 0, dc: 1, side: 'right' },
         ];
 
-        for (const n of neighbors) {
-          const nr = r + n.dr;
-          const nc = c + n.dc;
-          const neighbor = LAYOUT[nr]?.[nc] ?? -1;
-          if (neighbor === G) {
-            // This edge borders grass — feather it
-            ctx.save();
-            if (n.edge === 'top') {
-              const grad = ctx.createLinearGradient(x, y, x, y + feather);
-              grad.addColorStop(0, 'rgba(0,0,0,1)');
-              grad.addColorStop(1, 'rgba(0,0,0,0)');
-              ctx.globalCompositeOperation = 'destination-out';
-              ctx.fillStyle = grad;
-              ctx.fillRect(x, y, TILE, feather);
-              ctx.globalCompositeOperation = 'destination-over';
-              ctx.drawImage(grassImg, x, y, TILE, TILE);
-            } else if (n.edge === 'bottom') {
-              const grad = ctx.createLinearGradient(x, y + TILE, x, y + TILE - feather);
-              grad.addColorStop(0, 'rgba(0,0,0,1)');
-              grad.addColorStop(1, 'rgba(0,0,0,0)');
-              ctx.globalCompositeOperation = 'destination-out';
-              ctx.fillStyle = grad;
-              ctx.fillRect(x, y + TILE - feather, TILE, feather);
-              ctx.globalCompositeOperation = 'destination-over';
-              ctx.drawImage(grassImg, x, y, TILE, TILE);
-            } else if (n.edge === 'left') {
-              const grad = ctx.createLinearGradient(x, y, x + feather, y);
-              grad.addColorStop(0, 'rgba(0,0,0,1)');
-              grad.addColorStop(1, 'rgba(0,0,0,0)');
-              ctx.globalCompositeOperation = 'destination-out';
-              ctx.fillStyle = grad;
-              ctx.fillRect(x, y, feather, TILE);
-              ctx.globalCompositeOperation = 'destination-over';
-              ctx.drawImage(grassImg, x, y, TILE, TILE);
-            } else if (n.edge === 'right') {
-              const grad = ctx.createLinearGradient(x + TILE, y, x + TILE - feather, y);
-              grad.addColorStop(0, 'rgba(0,0,0,1)');
-              grad.addColorStop(1, 'rgba(0,0,0,0)');
-              ctx.globalCompositeOperation = 'destination-out';
-              ctx.fillStyle = grad;
-              ctx.fillRect(x + TILE - feather, y, feather, TILE);
-              ctx.globalCompositeOperation = 'destination-over';
-              ctx.drawImage(grassImg, x, y, TILE, TILE);
-            }
-            ctx.restore();
+        for (const e of edges) {
+          const neighbor = LAYOUT[r + e.dr]?.[c + e.dc] ?? -1;
+          if (neighbor !== G) continue;
+
+          ctx.save();
+          let grad: CanvasGradient;
+          if (e.side === 'top') {
+            grad = ctx.createLinearGradient(x, y, x, y + feather);
+            grad.addColorStop(0, 'rgba(0,0,0,1)');
+            grad.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.fillStyle = grad;
+            ctx.fillRect(x, y, TILE, feather);
+            ctx.globalCompositeOperation = 'destination-over';
+            ctx.fillStyle = grassPat;
+            ctx.fillRect(x, y, TILE, TILE);
+          } else if (e.side === 'bottom') {
+            grad = ctx.createLinearGradient(x, y + TILE, x, y + TILE - feather);
+            grad.addColorStop(0, 'rgba(0,0,0,1)');
+            grad.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.fillStyle = grad;
+            ctx.fillRect(x, y + TILE - feather, TILE, feather);
+            ctx.globalCompositeOperation = 'destination-over';
+            ctx.fillStyle = grassPat;
+            ctx.fillRect(x, y, TILE, TILE);
+          } else if (e.side === 'left') {
+            grad = ctx.createLinearGradient(x, y, x + feather, y);
+            grad.addColorStop(0, 'rgba(0,0,0,1)');
+            grad.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.fillStyle = grad;
+            ctx.fillRect(x, y, feather, TILE);
+            ctx.globalCompositeOperation = 'destination-over';
+            ctx.fillStyle = grassPat;
+            ctx.fillRect(x, y, TILE, TILE);
+          } else {
+            grad = ctx.createLinearGradient(x + TILE, y, x + TILE - feather, y);
+            grad.addColorStop(0, 'rgba(0,0,0,1)');
+            grad.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.fillStyle = grad;
+            ctx.fillRect(x + TILE - feather, y, feather, TILE);
+            ctx.globalCompositeOperation = 'destination-over';
+            ctx.fillStyle = grassPat;
+            ctx.fillRect(x, y, TILE, TILE);
           }
+          ctx.restore();
         }
       }
     }
 
-    // Add the rendered ground as a single texture
+    // Render as single image
     this.textures.addCanvas('ground-map', canvas);
     this.add.image(MAP_W / 2, MAP_H / 2, 'ground-map').setDepth(0);
 
-    // Fence colliders (no visual — fence sprites placed separately)
+    // Fence colliders + sprites
     for (let r = 0; r < MAP_ROWS; r++) {
       for (let c = 0; c < MAP_COLS; c++) {
         const cell = LAYOUT[r][c];
