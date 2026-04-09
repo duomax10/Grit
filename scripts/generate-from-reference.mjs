@@ -1,9 +1,6 @@
 /**
- * Generate all graveyard assets using PixelLab Bitforge with the
- * sprite sheet as a style reference. This ensures all generated
- * assets match the art style of the reference.
- *
- * Usage: node scripts/generate-from-reference.mjs
+ * Generate graveyard assets using PixelLab Pixflux.
+ * v3 - No style reference, uses detailed prompts instead.
  */
 
 import { PixelLabClient, Base64Image } from '@pixellab-code/pixellab';
@@ -57,7 +54,7 @@ async function gen(name, params, outPath) {
 }
 
 async function main() {
-  console.log('=== Generate Assets from Style Reference ===\n');
+  console.log('=== Generate Graveyard Assets (v3 - Pixflux) ===\n');
 
   try {
     const b = await client.getBalance();
