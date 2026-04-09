@@ -3,34 +3,92 @@
 
 Generating: grass-to-gravel
   Calling MCP tool: create_topdown_tileset...
-  Args: {"lower":"dark green cemetery grass, short mowed lawn, pixel art, top-down view","upper":"gray gravel crushed stone path, small pebbles, pixel art, top-down view"}
+  Args: {"lower_description":"dark green cemetery grass, short mowed lawn, pixel art, top-down view","upper_description":"gray gravel crushed stone path, small pebbles, pixel art, top-down view"}
   POST https://api.pixellab.ai/mcp
-  Body: {"jsonrpc":"2.0","id":1775757455173,"method":"tools/call","params":{"name":"create_topdown_tileset","arguments":{"lower":"dark green cemetery grass, short mowed lawn, pixel art, top-down view","upper":"gray gravel crushed stone path, small pebbles, pixel art, top-down view"}}}
+  Body: {"jsonrpc":"2.0","id":1775757624764,"method":"tools/call","params":{"name":"create_topdown_tileset","arguments":{"lower_description":"dark green cemetery grass, short mowed lawn, pixel art, top-down view","upper_description":"gray gravel crushed stone path, small pebbles, pixel art, top-down view"}}}
   Status: 200 OK
   Content-Type: text/event-stream
-  Response length: 192
+  Response length: 2433
   Response (first 1000 chars): event: message
-data: {"jsonrpc":"2.0","id":1775757455173,"result":{"content":[{"type":"text","text":"Input validation error: 'lower_description' is a required property"}],"isError":true}}
+data: {"method":"notifications/message","params":{"level":"debug","data":{"msg":"Starting tileset generation","extra":null}},"jsonrpc":"2.0"}
 
+event: message
+data: {"method":"notifications/message","params":{"level":"info","data":{"msg":"Lower terrain: dark green cemetery grass, short mowed lawn, pixel art, top-down view","extra":null}},"jsonrpc":"2.0"}
 
+event: message
+data: {"method":"notifications/message","params":{"level":"info","data":{"msg":"Upper terrain: gray gravel crushed stone path, small pebbles, pixel art, top-down view","extra":null}},"jsonrpc":"2.0"}
+
+event: message
+data: {"method":"notifications/message","params":{"level":"debug","data":{"msg":"Getting authorization token","extra":null}},"jsonrpc":"2.0"}
+
+event: message
+data: {"method":"notifications/message","params":{"level":"debug","data":{"msg":"Submitting tileset for background generation","extra":null}},"jsonrpc":"2.0"}
+
+event: message
+data: {"method":"notifications/message","params"
   MCP response received
   Response type: object
-    Info: Input validation error: 'lower_description' is a required property
+    Info: 🚀 Tileset generation started!
+
+**Tileset ID:** `dea6dd1a-67a2-4697-917c-3fa99341b6b5`
+**Description:** dark green cemetery grass, short mowed lawn, pixel art, top-down view → gray gravel crushed stone path, small pebbles, pixel art, top-down view
+
+**Transition Size:** 0.0
+**Status:** Processing (typically takes ~100 seconds)
+
+**Base Tile IDs (predetermined):**
+- Lower (dark green cemetery grass, short mowed lawn, pixel art, top-down view): `a484ee29-8516-4687-ab02-ae403e5aa75e`
+- Upper (gray gravel crushed stone path, small pebbles, pixel art, top-down view): `efe760cc-c7ab-4309-9319-501871ec54ef`
+
+**Next steps:**
+1. Use `get_tileset("dea6dd1a-67a2-4697-917c-3fa99341b6b5")` to check status and retrieve the tileset
+2. The tileset will contain 16 tiles (0.0 transition size)
+3. Use the base tile IDs above to create connected tilesets immediately
+4. **MCP Resource**: Format docs, implementation guide, and important script for Godot tileset conversion. Must read - `pixellab://docs/godot/wang-tilesets`
 
 Generating: grass-to-dirt
   Calling MCP tool: create_topdown_tileset...
-  Args: {"lower":"dark green cemetery grass, short mowed lawn, pixel art, top-down view","upper":"brown packed dirt worn earth path, pixel art, top-down view"}
+  Args: {"lower_description":"dark green cemetery grass, short mowed lawn, pixel art, top-down view","upper_description":"brown packed dirt worn earth path, pixel art, top-down view"}
   POST https://api.pixellab.ai/mcp
-  Body: {"jsonrpc":"2.0","id":1775757455609,"method":"tools/call","params":{"name":"create_topdown_tileset","arguments":{"lower":"dark green cemetery grass, short mowed lawn, pixel art, top-down view","upper":"brown packed dirt worn earth path, pixel art, top-down view"}}}
+  Body: {"jsonrpc":"2.0","id":1775757625475,"method":"tools/call","params":{"name":"create_topdown_tileset","arguments":{"lower_description":"dark green cemetery grass, short mowed lawn, pixel art, top-down view","upper_description":"brown packed dirt worn earth path, pixel art, top-down view"}}}
   Status: 200 OK
   Content-Type: text/event-stream
-  Response length: 192
+  Response length: 2397
   Response (first 1000 chars): event: message
-data: {"jsonrpc":"2.0","id":1775757455609,"result":{"content":[{"type":"text","text":"Input validation error: 'lower_description' is a required property"}],"isError":true}}
+data: {"method":"notifications/message","params":{"level":"debug","data":{"msg":"Starting tileset generation","extra":null}},"jsonrpc":"2.0"}
 
+event: message
+data: {"method":"notifications/message","params":{"level":"info","data":{"msg":"Lower terrain: dark green cemetery grass, short mowed lawn, pixel art, top-down view","extra":null}},"jsonrpc":"2.0"}
 
+event: message
+data: {"method":"notifications/message","params":{"level":"info","data":{"msg":"Upper terrain: brown packed dirt worn earth path, pixel art, top-down view","extra":null}},"jsonrpc":"2.0"}
+
+event: message
+data: {"method":"notifications/message","params":{"level":"debug","data":{"msg":"Getting authorization token","extra":null}},"jsonrpc":"2.0"}
+
+event: message
+data: {"method":"notifications/message","params":{"level":"debug","data":{"msg":"Submitting tileset for background generation","extra":null}},"jsonrpc":"2.0"}
+
+event: message
+data: {"method":"notifications/message","params":{"level":"i
   MCP response received
   Response type: object
-    Info: Input validation error: 'lower_description' is a required property
+    Info: 🚀 Tileset generation started!
+
+**Tileset ID:** `478ea8c3-9c68-4ff3-aff5-cb5215fb1ad6`
+**Description:** dark green cemetery grass, short mowed lawn, pixel art, top-down view → brown packed dirt worn earth path, pixel art, top-down view
+
+**Transition Size:** 0.0
+**Status:** Processing (typically takes ~100 seconds)
+
+**Base Tile IDs (predetermined):**
+- Lower (dark green cemetery grass, short mowed lawn, pixel art, top-down view): `5cb95273-ba3e-4cbd-b31d-7d86068b9624`
+- Upper (brown packed dirt worn earth path, pixel art, top-down view): `387197a7-84c5-436c-9405-cbde73d63c38`
+
+**Next steps:**
+1. Use `get_tileset("478ea8c3-9c68-4ff3-aff5-cb5215fb1ad6")` to check status and retrieve the tileset
+2. The tileset will contain 16 tiles (0.0 transition size)
+3. Use the base tile IDs above to create connected tilesets immediately
+4. **MCP Resource**: Format docs, implementation guide, and important script for Godot tileset conversion. Must read - `pixellab://docs/godot/wang-tilesets`
 
 === Done ===
