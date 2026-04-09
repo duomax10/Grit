@@ -4,6 +4,7 @@ import { InteractiveObject } from '../entities/InteractiveObject';
 import { InteractionSystem } from '../systems/InteractionSystem';
 import { DialogSystem } from '../systems/DialogSystem';
 import { StateManager } from '../systems/StateManager';
+import { buildWangLookup, resolveSimpleCorners, cornersToKey, WangTilesetData } from '../systems/WangTiles';
 import * as Dialogs from '../data/dialogs';
 
 // Map — old small-town cemetery proportions
@@ -241,14 +242,6 @@ export class GraveyardScene extends Phaser.Scene {
   }
 
   private buildMap(): void {
-    // Resolve texture keys (prefer new large seamless tiles)
-    const grassKey = this.textures.exists('grass-base') ? 'grass-base'
-      : this.textures.exists('grass-0') ? 'grass-0' : 'grass';
-    const gravelKey = this.textures.exists('gravel-base') ? 'gravel-base'
-      : this.textures.exists('gravel-0') ? 'gravel-0' : 'dirt';
-    const dirtKey = this.textures.exists('dirt-base') ? 'dirt-base'
-      : this.textures.exists('dirt-0') ? 'dirt-0' : 'dirt';
-
     const canvas = document.createElement('canvas');
     canvas.width = MAP_W;
     canvas.height = MAP_H;
@@ -257,101 +250,140 @@ export class GraveyardScene extends Phaser.Scene {
     const getImage = (key: string) =>
       this.textures.get(key).getSourceImage() as HTMLImageElement | HTMLCanvasElement;
 
-    const grassImg = getImage(grassKey);
-    const gravelImg = getImage(gravelKey);
-    const dirtImg = getImage(dirtKey);
+    // Try to load Wang tilesets, fall back to pattern fill
+    const hasGravelWang = this.textures.exists('wang-grass-gravel') && this.cache.json.exists('wang-grass-gravel-meta');
+    const hasDirtWang = this.textures.exists('wang-grass-dirt') && this.cache.json.exists('wang-grass-dirt-meta');
 
-    // Fill entire map with grass using pattern fill (tiles the image
-    // at its native size — 128x128 means only ~7 repeats across the map
-    // instead of ~28 at 32x32, making the repeat far less visible)
-    const grassPat = ctx.createPattern(grassImg, 'repeat')!;
-    ctx.fillStyle = grassPat;
-    ctx.fillRect(0, 0, MAP_W, MAP_H);
+    let gravelLookup: ReturnType<typeof buildWangLookup> | null = null;
+    let dirtLookup: ReturnType<typeof buildWangLookup> | null = null;
+    let gravelSheet: HTMLImageElement | HTMLCanvasElement | null = null;
+    let dirtSheet: HTMLImageElement | HTMLCanvasElement | null = null;
+    const WT = 16; // Wang tile size
 
-    // Paint gravel and dirt areas using pattern fill with feathered edges
-    const gravelPat = ctx.createPattern(gravelImg, 'repeat')!;
-    const dirtPat = ctx.createPattern(dirtImg, 'repeat')!;
+    if (hasGravelWang) {
+      const meta = this.cache.json.get('wang-grass-gravel-meta') as WangTilesetData;
+      gravelLookup = buildWangLookup(meta);
+      gravelSheet = getImage('wang-grass-gravel');
+    }
+    if (hasDirtWang) {
+      const meta = this.cache.json.get('wang-grass-dirt-meta') as WangTilesetData;
+      dirtLookup = buildWangLookup(meta);
+      dirtSheet = getImage('wang-grass-dirt');
+    }
 
-    const feather = 6;
+    // Build a terrain-only grid (collapse fence to grass for Wang purposes)
+    const terrainGrid: number[][] = [];
+    for (let r = 0; r < MAP_ROWS; r++) {
+      terrainGrid[r] = [];
+      for (let c = 0; c < MAP_COLS; c++) {
+        const cell = LAYOUT[r][c];
+        terrainGrid[r][c] = (cell === V) ? 1 : (cell === D) ? 2 : 0;
+      }
+    }
 
+    // Render each cell as 2x2 Wang tiles (16x16 each = 32x32 total)
     for (let r = 0; r < MAP_ROWS; r++) {
       for (let c = 0; c < MAP_COLS; c++) {
-        const cell = LAYOUT[r]?.[c] ?? G;
-        if (cell !== V && cell !== D) continue;
-
         const x = c * TILE;
         const y = r * TILE;
-        const pat = cell === V ? gravelPat : dirtPat;
+        const cell = terrainGrid[r][c];
 
-        // Draw the terrain tile using pattern
-        ctx.fillStyle = pat;
-        ctx.fillRect(x, y, TILE, TILE);
+        // For each path type, resolve corners and draw Wang tiles
+        const renderWang = (pathType: number, lookup: ReturnType<typeof buildWangLookup> | null, sheet: HTMLImageElement | HTMLCanvasElement | null) => {
+          if (!lookup || !sheet) return false;
 
-        // Feather edges where this terrain meets grass
-        const edges = [
-          { dr: -1, dc: 0, side: 'top' },
-          { dr: 1, dc: 0, side: 'bottom' },
-          { dr: 0, dc: -1, side: 'left' },
-          { dr: 0, dc: 1, side: 'right' },
-        ];
+          const corners = resolveSimpleCorners(terrainGrid, r, c, pathType);
+          const quads = [
+            { corners: corners.tl, dx: 0, dy: 0 },
+            { corners: corners.tr, dx: WT, dy: 0 },
+            { corners: corners.bl, dx: 0, dy: WT },
+            { corners: corners.br, dx: WT, dy: WT },
+          ];
 
-        for (const e of edges) {
-          const neighbor = LAYOUT[r + e.dr]?.[c + e.dc] ?? -1;
-          if (neighbor !== G) continue;
+          for (const q of quads) {
+            const key = cornersToKey(q.corners);
+            const tile = lookup.get(key);
+            if (tile) {
+              const bb = tile.bounding_box;
+              ctx.drawImage(sheet, bb.x, bb.y, bb.width, bb.height, x + q.dx, y + q.dy, WT, WT);
+            }
+          }
+          return true;
+        };
 
-          ctx.save();
-          let grad: CanvasGradient;
-          if (e.side === 'top') {
-            grad = ctx.createLinearGradient(x, y, x, y + feather);
-            grad.addColorStop(0, 'rgba(0,0,0,1)');
-            grad.addColorStop(1, 'rgba(0,0,0,0)');
-            ctx.globalCompositeOperation = 'destination-out';
-            ctx.fillStyle = grad;
-            ctx.fillRect(x, y, TILE, feather);
-            ctx.globalCompositeOperation = 'destination-over';
-            ctx.fillStyle = grassPat;
-            ctx.fillRect(x, y, TILE, TILE);
-          } else if (e.side === 'bottom') {
-            grad = ctx.createLinearGradient(x, y + TILE, x, y + TILE - feather);
-            grad.addColorStop(0, 'rgba(0,0,0,1)');
-            grad.addColorStop(1, 'rgba(0,0,0,0)');
-            ctx.globalCompositeOperation = 'destination-out';
-            ctx.fillStyle = grad;
-            ctx.fillRect(x, y + TILE - feather, TILE, feather);
-            ctx.globalCompositeOperation = 'destination-over';
-            ctx.fillStyle = grassPat;
-            ctx.fillRect(x, y, TILE, TILE);
-          } else if (e.side === 'left') {
-            grad = ctx.createLinearGradient(x, y, x + feather, y);
-            grad.addColorStop(0, 'rgba(0,0,0,1)');
-            grad.addColorStop(1, 'rgba(0,0,0,0)');
-            ctx.globalCompositeOperation = 'destination-out';
-            ctx.fillStyle = grad;
-            ctx.fillRect(x, y, feather, TILE);
-            ctx.globalCompositeOperation = 'destination-over';
-            ctx.fillStyle = grassPat;
-            ctx.fillRect(x, y, TILE, TILE);
-          } else {
-            grad = ctx.createLinearGradient(x + TILE, y, x + TILE - feather, y);
-            grad.addColorStop(0, 'rgba(0,0,0,1)');
-            grad.addColorStop(1, 'rgba(0,0,0,0)');
-            ctx.globalCompositeOperation = 'destination-out';
-            ctx.fillStyle = grad;
-            ctx.fillRect(x + TILE - feather, y, feather, TILE);
-            ctx.globalCompositeOperation = 'destination-over';
-            ctx.fillStyle = grassPat;
+        // Determine what to render based on terrain
+        if (cell === 1) {
+          // Gravel cell — render gravel Wang tiles
+          if (!renderWang(1, gravelLookup, gravelSheet)) {
+            // Fallback: solid gravel
+            const gravelKey = this.textures.exists('gravel-base') ? 'gravel-base' : 'dirt';
+            const pat = ctx.createPattern(getImage(gravelKey), 'repeat')!;
+            ctx.fillStyle = pat;
             ctx.fillRect(x, y, TILE, TILE);
           }
-          ctx.restore();
+        } else if (cell === 2) {
+          // Dirt cell — render dirt Wang tiles
+          if (!renderWang(2, dirtLookup, dirtSheet)) {
+            const dirtKey = this.textures.exists('dirt-base') ? 'dirt-base' : 'dirt';
+            const pat = ctx.createPattern(getImage(dirtKey), 'repeat')!;
+            ctx.fillStyle = pat;
+            ctx.fillRect(x, y, TILE, TILE);
+          }
+        } else {
+          // Grass cell — check if any neighbor is a path (need transition tiles)
+          let rendered = false;
+
+          // Check if gravel is nearby — render gravel Wang for this grass cell
+          if (gravelLookup && gravelSheet) {
+            const hasGravelNeighbor = [[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[-1,1],[1,-1],[1,1]].some(
+              ([dr, dc]) => terrainGrid[r + dr]?.[c + dc] === 1
+            );
+            if (hasGravelNeighbor) {
+              renderWang(1, gravelLookup, gravelSheet);
+              rendered = true;
+            }
+          }
+
+          // Check if dirt is nearby
+          if (!rendered && dirtLookup && dirtSheet) {
+            const hasDirtNeighbor = [[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[-1,1],[1,-1],[1,1]].some(
+              ([dr, dc]) => terrainGrid[r + dr]?.[c + dc] === 2
+            );
+            if (hasDirtNeighbor) {
+              renderWang(2, dirtLookup, dirtSheet);
+              rendered = true;
+            }
+          }
+
+          if (!rendered) {
+            // Pure grass — use the all-lower Wang tile or pattern fill
+            if (gravelLookup && gravelSheet) {
+              // The all-lower tile is solid grass
+              const key = 'lower_lower_lower_lower';
+              const tile = gravelLookup.get(key);
+              if (tile) {
+                const bb = tile.bounding_box;
+                for (let dy = 0; dy < TILE; dy += WT) {
+                  for (let dx = 0; dx < TILE; dx += WT) {
+                    ctx.drawImage(gravelSheet, bb.x, bb.y, bb.width, bb.height, x + dx, y + dy, WT, WT);
+                  }
+                }
+              }
+            } else {
+              const grassKey = this.textures.exists('grass-base') ? 'grass-base' : 'grass';
+              const pat = ctx.createPattern(getImage(grassKey), 'repeat')!;
+              ctx.fillStyle = pat;
+              ctx.fillRect(x, y, TILE, TILE);
+            }
+          }
         }
       }
     }
 
-    // Render as single image
     this.textures.addCanvas('ground-map', canvas);
     this.add.image(MAP_W / 2, MAP_H / 2, 'ground-map').setDepth(0);
 
-    // Fence colliders + sprites
+    // Fence sprites + colliders
     for (let r = 0; r < MAP_ROWS; r++) {
       for (let c = 0; c < MAP_COLS; c++) {
         const cell = LAYOUT[r][c];

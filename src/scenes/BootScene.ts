@@ -72,20 +72,18 @@ export class BootScene extends Phaser.Scene {
       }
     });
 
-    // Tiles — seamless base tiles (new) + fallbacks (old)
+    // Wang tilesets (proper autotile transitions)
+    this.load.image({ key: 'wang-grass-gravel', url: 'assets/tiles/grass-to-gravel.png' });
+    this.load.json({ key: 'wang-grass-gravel-meta', url: 'assets/tiles/grass-to-gravel.json' });
+    this.load.image({ key: 'wang-grass-dirt', url: 'assets/tiles/grass-to-dirt.png' });
+    this.load.json({ key: 'wang-grass-dirt-meta', url: 'assets/tiles/grass-to-dirt.json' });
+
+    // Fallback base tiles
     this.load.image('grass', 'assets/tiles/grass.png');
     this.load.image('dirt', 'assets/tiles/dirt.png');
     this.load.image({ key: 'grass-base', url: 'assets/tiles/grass-base.png' });
     this.load.image({ key: 'gravel-base', url: 'assets/tiles/gravel-base.png' });
     this.load.image({ key: 'dirt-base', url: 'assets/tiles/dirt-base.png' });
-    // Old variants as additional fallbacks
-    for (let i = 0; i < 3; i++) {
-      this.load.image({ key: `grass-${i}`, url: `assets/tiles/grass-${i}.png` });
-    }
-    for (let i = 0; i < 2; i++) {
-      this.load.image({ key: `gravel-${i}`, url: `assets/tiles/gravel-${i}.png` });
-      this.load.image({ key: `dirt-${i}`, url: `assets/tiles/dirt-${i}.png` });
-    }
 
     // Monuments (interactive gravestones)
     for (let i = 0; i < 5; i++) {
