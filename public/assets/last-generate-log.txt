@@ -1,64 +1,63 @@
-Loaded style reference image
-=== Generate Assets from Style Reference ===
+=== Generate Graveyard Assets (v3 - Pixflux) ===
 
 Balance: $0.00
 
 --- Ground Tiles ---
   Generating: Grass tile...
-    ✗ Grass tile: style_image must be size (32, 32), not torch.Size([1024, 1024])
+    ✓ /home/runner/work/Grit/Grit/public/assets/tiles/grass-base.png ($0.0000)
   Generating: Gravel tile...
-    ✗ Gravel tile: style_image must be size (32, 32), not torch.Size([1024, 1024])
+    ✓ /home/runner/work/Grit/Grit/public/assets/tiles/gravel-base.png ($0.0000)
   Generating: Dirt tile...
-    ✗ Dirt tile: style_image must be size (32, 32), not torch.Size([1024, 1024])
+    ✓ /home/runner/work/Grit/Grit/public/assets/tiles/dirt-base.png ($0.0000)
 
 --- Gravestones ---
   Generating: Gravestone 0...
-    ✗ Gravestone 0: style_image must be size (48, 32), not torch.Size([1024, 1024])
+    ✓ /home/runner/work/Grit/Grit/public/assets/objects/monument-0.png ($0.0000)
   Generating: Gravestone 1...
-    ✗ Gravestone 1: style_image must be size (48, 32), not torch.Size([1024, 1024])
+    ✓ /home/runner/work/Grit/Grit/public/assets/objects/monument-1.png ($0.0000)
   Generating: Gravestone 2...
-    ✗ Gravestone 2: style_image must be size (48, 32), not torch.Size([1024, 1024])
+    ✓ /home/runner/work/Grit/Grit/public/assets/objects/monument-2.png ($0.0000)
   Generating: Gravestone 3...
-    ✗ Gravestone 3: style_image must be size (48, 32), not torch.Size([1024, 1024])
+    ✓ /home/runner/work/Grit/Grit/public/assets/objects/monument-3.png ($0.0000)
   Generating: Gravestone 4...
-    ✗ Gravestone 4: style_image must be size (48, 32), not torch.Size([1024, 1024])
+    ✓ /home/runner/work/Grit/Grit/public/assets/objects/monument-4.png ($0.0000)
   Generating: Gravestone 5...
-    ✗ Gravestone 5: style_image must be size (48, 32), not torch.Size([1024, 1024])
+    ✓ /home/runner/work/Grit/Grit/public/assets/objects/monument-5.png ($0.0000)
   Generating: Gravestone 6...
-    ✗ Gravestone 6: style_image must be size (48, 32), not torch.Size([1024, 1024])
+    ✓ /home/runner/work/Grit/Grit/public/assets/objects/monument-6.png ($0.0000)
   Generating: Gravestone 7...
-    ✗ Gravestone 7: style_image must be size (48, 32), not torch.Size([1024, 1024])
+    ✓ /home/runner/work/Grit/Grit/public/assets/objects/monument-7.png ($0.0000)
 
 --- Trees ---
   Generating: Oak tree...
-    ✗ Oak tree: style_image must be size (64, 64), not torch.Size([1024, 1024])
+    ✓ /home/runner/work/Grit/Grit/public/assets/objects/tree-oak.png ($0.0000)
   Generating: Dead tree...
-    ✗ Dead tree: style_image must be size (64, 48), not torch.Size([1024, 1024])
+    ✓ /home/runner/work/Grit/Grit/public/assets/objects/dead-tree.png ($0.0000)
   Generating: Evergreen tree...
-    ✗ Evergreen tree: style_image must be size (64, 48), not torch.Size([1024, 1024])
+    ✓ /home/runner/work/Grit/Grit/public/assets/objects/tree-evergreen.png ($0.0000)
 
 --- Bushes ---
   Generating: Bush...
-    ✗ Bush: style_image must be size (32, 32), not torch.Size([1024, 1024])
+    ✓ /home/runner/work/Grit/Grit/public/assets/objects/bush.png ($0.0000)
 
 --- Large Objects ---
   Generating: Fountain...
-    ✗ Fountain: style_image must be size (96, 96), not torch.Size([1024, 1024])
+    ✓ /home/runner/work/Grit/Grit/public/assets/objects/fountain.png ($0.0000)
   Generating: Caretaker house...
-    ✗ Caretaker house: style_image must be size (96, 96), not torch.Size([1024, 1024])
+    ✓ /home/runner/work/Grit/Grit/public/assets/objects/caretaker-house.png ($0.0000)
 
 --- Fence ---
   Generating: Iron fence section...
-    ✗ Iron fence section: style_image must be size (48, 32), not torch.Size([1024, 1024])
+    ✓ /home/runner/work/Grit/Grit/public/assets/objects/fence.png ($0.0000)
   Generating: Iron fence post...
-    ✗ Iron fence post: style_image must be size (48, 32), not torch.Size([1024, 1024])
+    ✓ /home/runner/work/Grit/Grit/public/assets/objects/fence-post.png ($0.0000)
 
 --- Details ---
   Generating: Rocks...
-    ✗ Rocks: style_image must be size (32, 32), not torch.Size([1024, 1024])
+    ✓ /home/runner/work/Grit/Grit/public/assets/objects/rocks.png ($0.0000)
   Generating: Grass tufts...
-    ✗ Grass tufts: style_image must be size (32, 32), not torch.Size([1024, 1024])
+    ✓ /home/runner/work/Grit/Grit/public/assets/objects/grass-tufts.png ($0.0000)
   Generating: Fallen leaves...
-    ✗ Fallen leaves: style_image must be size (32, 32), not torch.Size([1024, 1024])
+    ✓ /home/runner/work/Grit/Grit/public/assets/objects/fallen-leaves.png ($0.0000)
 
 === Done ===
