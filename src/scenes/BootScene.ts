@@ -50,11 +50,27 @@ export class BootScene extends Phaser.Scene {
 
     // --- Load all PNG assets ---
 
-    // Character sprites (single frames per direction)
+    // Character sprites — static + walk frames (walk frames may not exist yet)
     this.load.image('gabe-south', 'assets/sprites/gabe-south.png');
     this.load.image('gabe-north', 'assets/sprites/gabe-north.png');
     this.load.image('gabe-east', 'assets/sprites/gabe-east.png');
     this.load.image('gabe-west', 'assets/sprites/gabe-west.png');
+
+    // Walk animation frames (4 per direction) — optional, loaded if available
+    for (const dir of ['south', 'north', 'east', 'west']) {
+      for (let f = 0; f < 4; f++) {
+        this.load.image({
+          key: `gabe-${dir}-walk-${f}`,
+          url: `assets/sprites/gabe-${dir}-walk-${f}.png`,
+        });
+      }
+    }
+    // Don't fail if walk frames are missing
+    this.load.on('loaderror', (file: Phaser.Loader.File) => {
+      if (file.key.includes('-walk-')) {
+        // Expected — walk frames not generated yet, will use static fallback
+      }
+    });
 
     // Tiles
     this.load.image('grass', 'assets/tiles/grass.png');
@@ -99,18 +115,30 @@ export class BootScene extends Phaser.Scene {
       console.warn('Audio generation failed, continuing without sound:', e);
     }
 
-    // Create player animations (single-frame per direction since we have static images)
+    // Create player animations — use walk frames if available, else static fallback
     const directions = ['south', 'north', 'east', 'west'] as const;
     const dirMap = { south: 'down', north: 'up', east: 'right', west: 'left' } as const;
 
     for (const dir of directions) {
       const gameDir = dirMap[dir];
-      this.anims.create({
-        key: `gabe-walk-${gameDir}`,
-        frames: [{ key: `gabe-${dir}` }],
-        frameRate: 1,
-        repeat: -1,
-      });
+      const hasWalkFrames = this.textures.exists(`gabe-${dir}-walk-0`);
+
+      if (hasWalkFrames) {
+        this.anims.create({
+          key: `gabe-walk-${gameDir}`,
+          frames: [0, 1, 2, 3].map(f => ({ key: `gabe-${dir}-walk-${f}` })),
+          frameRate: 8,
+          repeat: -1,
+        });
+      } else {
+        this.anims.create({
+          key: `gabe-walk-${gameDir}`,
+          frames: [{ key: `gabe-${dir}` }],
+          frameRate: 1,
+          repeat: -1,
+        });
+      }
+
       this.anims.create({
         key: `gabe-idle-${gameDir}`,
         frames: [{ key: `gabe-${dir}` }],

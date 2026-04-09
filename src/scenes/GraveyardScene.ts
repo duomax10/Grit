@@ -34,24 +34,26 @@ function buildLayout(): number[][] {
         L[r][c] = (isCorner || isHPost || isVPost) ? P : F;
       }
 
-      // Main entrance path (bottom center, going north)
-      if (c >= 16 && c <= 19 && r >= 24 && r <= MAP_ROWS - 2) L[r][c] = D;
-      if (c >= 16 && c <= 19 && r >= 10 && r <= 23) L[r][c] = D;
-      if (c >= 16 && c <= 19 && r >= 7 && r <= 10) L[r][c] = D;
+      // Main path — straight down the center, gate at bottom
+      if (c >= 17 && c <= 18 && r >= 2 && r <= MAP_ROWS - 2) L[r][c] = D;
 
-      // East-west cross paths
-      if (r >= 14 && r <= 15 && c >= 3 && c <= 32) L[r][c] = D;
-      if (r >= 7 && r <= 8 && c >= 3 && c <= 32) L[r][c] = D;
+      // Widen path around fountain area (rows 12-16)
+      if (c >= 15 && c <= 20 && r >= 12 && r <= 16) L[r][c] = D;
 
-      // Side paths
-      if (c >= 7 && c <= 8 && r >= 3 && r <= 24) L[r][c] = D;
-      if (c >= 27 && c <= 28 && r >= 3 && r <= 24) L[r][c] = D;
+      // Short branch path to caretaker's house (top-left)
+      if (r >= 3 && r <= 4 && c >= 4 && c <= 17) L[r][c] = D;
 
-      // Fountain plaza
-      if (r >= 12 && r <= 17 && c >= 14 && c <= 21) L[r][c] = D;
+      // Gentle curved side path — left
+      if (c >= 9 && c <= 10 && r >= 8 && r <= 22) L[r][c] = D;
 
-      // Path to caretaker's house
-      if (r >= 3 && r <= 4 && c >= 3 && c <= 8) L[r][c] = D;
+      // Gentle curved side path — right
+      if (c >= 25 && c <= 26 && r >= 8 && r <= 22) L[r][c] = D;
+
+      // Connect side paths to main at a couple points
+      if (r >= 10 && r <= 10 && c >= 10 && c <= 17) L[r][c] = D;
+      if (r >= 10 && r <= 10 && c >= 18 && c <= 25) L[r][c] = D;
+      if (r >= 20 && r <= 20 && c >= 10 && c <= 17) L[r][c] = D;
+      if (r >= 20 && r <= 20 && c >= 18 && c <= 25) L[r][c] = D;
     }
   }
   return L;
@@ -75,13 +77,22 @@ function generateFlatGraves(): FlatGrave[] {
     return true;
   };
 
-  // Grave sections between paths
+  // Organic grave clusters — left and right of main path, varied spacing
   const sections = [
-    { rMin: 9, rMax: 13, cMin: 3, cMax: 14 },
-    { rMin: 9, rMax: 13, cMin: 21, cMax: 32 },
-    { rMin: 17, rMax: 23, cMin: 3, cMax: 14 },
-    { rMin: 17, rMax: 23, cMin: 21, cMax: 32 },
-    { rMin: 3, rMax: 6, cMin: 10, cMax: 32 },
+    // Left of main path
+    { rMin: 5, rMax: 9, cMin: 3, cMax: 8 },
+    { rMin: 12, rMax: 18, cMin: 2, cMax: 8 },
+    { rMin: 21, rMax: 25, cMin: 3, cMax: 8 },
+    { rMin: 6, rMax: 9, cMin: 12, cMax: 16 },
+    { rMin: 17, rMax: 19, cMin: 12, cMax: 15 },
+    { rMin: 22, rMax: 25, cMin: 12, cMax: 16 },
+    // Right of main path
+    { rMin: 5, rMax: 9, cMin: 20, cMax: 24 },
+    { rMin: 5, rMax: 8, cMin: 28, cMax: 33 },
+    { rMin: 12, rMax: 18, cMin: 28, cMax: 33 },
+    { rMin: 17, rMax: 19, cMin: 21, cMax: 24 },
+    { rMin: 22, rMax: 25, cMin: 20, cMax: 24 },
+    { rMin: 21, rMax: 25, cMin: 28, cMax: 33 },
   ];
   for (const s of sections) {
     for (let r = s.rMin; r <= s.rMax; r += 2) {
@@ -95,47 +106,42 @@ function generateFlatGraves(): FlatGrave[] {
 
 const FLAT_GRAVES = generateFlatGraves();
 
-// Monument positions (interactive)
+// Monument positions — placed organically among the graves
 const MONUMENTS = [
-  { c: 5, r: 10, idx: 0, label: 'Angel Statue' },
-  { c: 26, r: 10, idx: 1, label: 'Obelisk Monument' },
-  { c: 12, r: 20, idx: 2, label: 'Celtic Cross' },
-  { c: 24, r: 20, idx: 3, label: 'Ornate Headstone' },
-  { c: 17, r: 4, idx: 4, label: 'Stone Crypt' },
+  { c: 5, r: 7, idx: 0, label: 'Angel Statue' },       // left section, among older graves
+  { c: 30, r: 7, idx: 1, label: 'Obelisk Monument' },   // right back corner
+  { c: 6, r: 15, idx: 2, label: 'Celtic Cross' },        // left mid-section
+  { c: 22, r: 22, idx: 3, label: 'Ornate Headstone' },   // right lower
+  { c: 14, r: 23, idx: 4, label: 'Stone Crypt' },        // left lower, near edge
 ];
 
-// Decorations
+// Decorations — trees scattered throughout like a real old cemetery
 interface Deco { c: number; r: number; tex: string; collide?: boolean; colW?: number; colH?: number; depth?: number; }
 const DECORATIONS: Deco[] = [
-  // Oak trees
-  { c: 4, r: 5, tex: 'tree-oak', collide: true, colW: 14, colH: 10, depth: 8 },
-  { c: 24, r: 3, tex: 'tree-oak', collide: true, colW: 14, colH: 10, depth: 8 },
-  { c: 11, r: 18, tex: 'tree-oak', collide: true, colW: 14, colH: 10, depth: 8 },
-  { c: 31, r: 19, tex: 'tree-oak', collide: true, colW: 14, colH: 10, depth: 8 },
-  { c: 33, r: 5, tex: 'tree-oak', collide: true, colW: 14, colH: 10, depth: 8 },
-  // Evergreens
-  { c: 2, r: 12, tex: 'tree-evergreen', collide: true, colW: 10, colH: 8, depth: 8 },
-  { c: 34, r: 12, tex: 'tree-evergreen', collide: true, colW: 10, colH: 8, depth: 8 },
-  { c: 2, r: 22, tex: 'tree-evergreen', collide: true, colW: 10, colH: 8, depth: 8 },
-  { c: 34, r: 22, tex: 'tree-evergreen', collide: true, colW: 10, colH: 8, depth: 8 },
-  // Dead tree
-  { c: 30, r: 9, tex: 'dead-tree', collide: true, colW: 10, colH: 8, depth: 8 },
-  // Benches
-  { c: 14, r: 20, tex: 'bench', collide: true, colW: 28, colH: 8 },
-  { c: 21, r: 20, tex: 'bench', collide: true, colW: 28, colH: 8 },
-  // Bushes
-  { c: 10, r: 14, tex: 'bush', collide: true, colW: 20, colH: 10 },
-  { c: 25, r: 14, tex: 'bush', collide: true, colW: 20, colH: 10 },
-  { c: 10, r: 8, tex: 'bush', collide: true, colW: 20, colH: 10 },
-  { c: 25, r: 8, tex: 'bush', collide: true, colW: 20, colH: 10 },
-  { c: 5, r: 15, tex: 'bush' },
-  { c: 30, r: 15, tex: 'bush' },
-  // Flowers
-  { c: 4, r: 10, tex: 'flower-arrangement' },
-  { c: 22, r: 10, tex: 'flower-arrangement' },
-  { c: 6, r: 18, tex: 'flower-arrangement' },
-  { c: 28, r: 22, tex: 'flower-arrangement' },
-  { c: 12, r: 4, tex: 'flower-arrangement' },
+  // Oak trees — scattered throughout, providing shade
+  { c: 7, r: 11, tex: 'tree-oak', collide: true, colW: 14, colH: 10, depth: 8 },
+  { c: 28, r: 11, tex: 'tree-oak', collide: true, colW: 14, colH: 10, depth: 8 },
+  { c: 13, r: 6, tex: 'tree-oak', collide: true, colW: 14, colH: 10, depth: 8 },
+  { c: 23, r: 5, tex: 'tree-oak', collide: true, colW: 14, colH: 10, depth: 8 },
+  { c: 4, r: 21, tex: 'tree-oak', collide: true, colW: 14, colH: 10, depth: 8 },
+  { c: 31, r: 24, tex: 'tree-oak', collide: true, colW: 14, colH: 10, depth: 8 },
+  // Evergreens — along edges and near house
+  { c: 2, r: 6, tex: 'tree-evergreen', collide: true, colW: 10, colH: 8, depth: 8 },
+  { c: 34, r: 6, tex: 'tree-evergreen', collide: true, colW: 10, colH: 8, depth: 8 },
+  { c: 2, r: 17, tex: 'tree-evergreen', collide: true, colW: 10, colH: 8, depth: 8 },
+  { c: 34, r: 17, tex: 'tree-evergreen', collide: true, colW: 10, colH: 8, depth: 8 },
+  // Dead tree — one for atmosphere
+  { c: 32, r: 9, tex: 'dead-tree', collide: true, colW: 10, colH: 8, depth: 8 },
+  // Bench — along the main path
+  { c: 15, r: 14, tex: 'bench', collide: true, colW: 28, colH: 8 },
+  { c: 21, r: 14, tex: 'bench', collide: true, colW: 28, colH: 8 },
+  // Flowers near some graves
+  { c: 6, r: 8, tex: 'flower-arrangement' },
+  { c: 31, r: 8, tex: 'flower-arrangement' },
+  { c: 5, r: 16, tex: 'flower-arrangement' },
+  { c: 23, r: 23, tex: 'flower-arrangement' },
+  { c: 13, r: 24, tex: 'flower-arrangement' },
+  { c: 29, r: 15, tex: 'flower-arrangement' },
 ];
 
 export class GraveyardScene extends Phaser.Scene {

@@ -2,6 +2,20 @@ name: Generate Game Assets (PixelLab)
 
 on:
   workflow_dispatch:
+    inputs:
+      target:
+        description: 'Which assets to generate'
+        required: true
+        type: choice
+        options:
+          - walk-anims
+          - character
+          - tiles
+          - monuments
+          - environment
+          - house
+          - flat-graves
+          - all
 
 permissions:
   contents: write
@@ -20,12 +34,12 @@ jobs:
 
       - run: npm install
 
-      - name: Generate assets via PixelLab API
+      - name: Generate ${{ inputs.target }} assets
         env:
           PIXELLAB_SECRET: ${{ secrets.PIXELLAB_SECRET }}
-        run: node scripts/generate-assets.mjs
+        run: node scripts/generate-targeted.mjs ${{ inputs.target }}
 
-      - name: Commit and push generated assets
+      - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -33,6 +47,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No new assets generated"
           else
-            git commit -m "Add PixelLab-generated game assets"
+            git commit -m "Generate ${{ inputs.target }} assets via PixelLab"
             git push
           fi
