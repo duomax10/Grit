@@ -57,61 +57,47 @@ async function gen(name, params, outPath) {
 }
 
 // --- TARGET: walk-anims ---
+// Uses animateWithText with high imageGuidanceScale to keep the character
+// consistent across all frames. Each direction uses its static sprite as
+// the reference image so the walk cycle matches the idle pose.
 async function generateWalkAnims() {
   console.log('\n=== Walk Animation Frames ===');
-  const gabeDesc = 'pixel art character, white male, medium build, short brown messy hair, facial scruff stubble, brown leather jacket, blue jeans, dark boots, gritty adventure game protagonist';
+  const gabeDesc = 'pixel art character, white male, medium build, short brown messy hair, facial scruff, brown leather jacket, blue jeans, dark boots';
 
   for (const dir of ['south', 'north', 'east', 'west']) {
     const refPath = join(ASSETS, 'sprites', `gabe-${dir}.png`);
     if (!existsSync(refPath)) {
-      console.log(`  Skipping ${dir} - no reference image at ${refPath}`);
+      console.log(`  ✗ Skipping ${dir} — no reference image at ${refPath}`);
+      console.log(`    Run 'character' target first.`);
       continue;
     }
 
-    // Try animateWithText first
-    let success = false;
+    const refImage = await Base64Image.fromFile(refPath);
+    console.log(`  Generating ${dir} walk cycle (animateWithText)...`);
+
     try {
-      const refImage = await Base64Image.fromFile(refPath);
-      console.log(`  Animating ${dir} walk cycle via animateWithText...`);
       const r = await client.animateWithText({
         description: gabeDesc,
-        action: 'walking',
+        action: 'walk cycle',
         referenceImage: refImage,
         imageSize: { width: 32, height: 48 },
         direction: dir,
         view: 'low top-down',
         nFrames: 4,
+        imageGuidanceScale: 5,   // high — keep character consistent across frames
+        textGuidanceScale: 4,    // lower — let the reference image dominate
+        seed: 42,                // deterministic
       });
+
+      console.log(`    Got ${r.images.length} frames (cost: $${r.usage.usd.toFixed(4)})`);
       for (let f = 0; f < r.images.length; f++) {
         const outPath = join(ASSETS, 'sprites', `gabe-${dir}-walk-${f}.png`);
         await r.images[f].saveToFile(outPath);
         console.log(`    ✓ Frame ${f}: ${outPath}`);
       }
-      console.log(`    Cost: $${r.usage.usd.toFixed(4)}`);
-      success = true;
     } catch (err) {
-      console.error(`    ✗ animateWithText failed for ${dir}: ${err.message}`);
-    }
-
-    // Fallback: generate individual walk frames with pixflux + different seeds
-    if (!success) {
-      console.log(`  Falling back to pixflux generation for ${dir}...`);
-      const walkDescs = [
-        `${gabeDesc}, walking pose, left foot forward`,
-        `${gabeDesc}, walking pose, standing straight mid-stride`,
-        `${gabeDesc}, walking pose, right foot forward`,
-        `${gabeDesc}, walking pose, standing straight mid-stride`,
-      ];
-      for (let f = 0; f < 4; f++) {
-        await gen(`${dir} walk frame ${f}`, {
-          description: walkDescs[f],
-          imageSize: { width: 32, height: 48 },
-          noBackground: true,
-          direction: dir,
-          ...STYLE,
-          seed: 2000 + f * 100 + ['south','north','east','west'].indexOf(dir) * 10,
-        }, join(ASSETS, 'sprites', `gabe-${dir}-walk-${f}.png`));
-      }
+      console.error(`    ✗ FAILED ${dir}: ${err.message}`);
+      if (err.status) console.error(`      HTTP ${err.status}`);
     }
   }
 }
