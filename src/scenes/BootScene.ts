@@ -72,9 +72,18 @@ export class BootScene extends Phaser.Scene {
       }
     });
 
-    // Tiles
+    // Tiles — original fallbacks
     this.load.image('grass', 'assets/tiles/grass.png');
     this.load.image('dirt', 'assets/tiles/dirt.png');
+
+    // Tile variants (loaded if available, used to break up grid)
+    for (let i = 0; i < 3; i++) {
+      this.load.image({ key: `grass-${i}`, url: `assets/tiles/grass-${i}.png` });
+    }
+    for (let i = 0; i < 2; i++) {
+      this.load.image({ key: `gravel-${i}`, url: `assets/tiles/gravel-${i}.png` });
+      this.load.image({ key: `dirt-${i}`, url: `assets/tiles/dirt-${i}.png` });
+    }
 
     // Monuments (interactive gravestones)
     for (let i = 0; i < 5; i++) {

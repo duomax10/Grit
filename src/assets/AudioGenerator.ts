@@ -148,16 +148,7 @@ export async function generateAudio(scene: Phaser.Scene): Promise<void> {
     const rand = seededRandom(i % 1000 + 1);
     val += (rand() * 2 - 1) * windEnv;
 
-    const cricketPhase = (t * 4200) % 1;
-    const cricketPulse = Math.sin(t * 8) > 0.3 ? 1 : 0;
-    const cricketChirp = Math.sin(cricketPhase * Math.PI * 2) * 0.015 * cricketPulse;
-    const cricketEnv = Math.sin((t / ambientDuration) * Math.PI);
-    val += cricketChirp * cricketEnv;
-
-    const cricket2Phase = (t * 3800) % 1;
-    const cricket2Pulse = Math.sin(t * 6 + 1.5) > 0.4 ? 1 : 0;
-    val += Math.sin(cricket2Phase * Math.PI * 2) * 0.01 * cricket2Pulse;
-
+    // Low rumble only — crickets disabled (too high pitched)
     val += Math.sin(t * 30) * 0.008;
     return val;
   });

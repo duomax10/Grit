@@ -11,6 +11,7 @@ on:
           - walk-anims
           - character
           - tiles
+          - graveyard-tiles
           - monuments
           - environment
           - house
