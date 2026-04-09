@@ -23,7 +23,7 @@ if (!API_KEY) {
 
 if (!existsSync(ASSETS)) mkdirSync(ASSETS, { recursive: true });
 
-const MCP_URL = 'https://api.pixellab.ai/mcp';
+import { WANG_TILESETS } from './asset-config.mjs';
 
 // Call an MCP tool via HTTP
 async function callMcpTool(toolName, args) {
@@ -234,18 +234,7 @@ async function main() {
     console.log('Could not list tools:', err.message);
   }
 
-  const tilesets = [
-    {
-      name: 'grass-to-gravel',
-      lower_description: 'dark green cemetery grass, short mowed lawn, pixel art, top-down view',
-      upper_description: 'gray gravel crushed stone path, small pebbles, pixel art, top-down view',
-    },
-    {
-      name: 'grass-to-dirt',
-      lower_description: 'dark green cemetery grass, short mowed lawn, pixel art, top-down view',
-      upper_description: 'brown packed dirt worn earth path, pixel art, top-down view',
-    },
-  ];
+  const tilesets = WANG_TILESETS;
 
   // Step 1: Submit all tileset generation requests
   const pending = [];

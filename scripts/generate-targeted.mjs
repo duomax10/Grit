@@ -18,6 +18,10 @@ import { PixelLabClient, Base64Image } from '@pixellab-code/pixellab';
 import { mkdirSync, existsSync, readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import {
+  CHARACTER, MONUMENTS as MONUMENT_DESCS, FLAT_GRAVE, TREES, ENVIRONMENT,
+  BUILDINGS, SPRITE_STYLE, TILE_STYLE,
+} from './asset-config.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -36,21 +40,9 @@ for (const d of ['sprites', 'tiles', 'objects']) {
   if (!existsSync(p)) mkdirSync(p, { recursive: true });
 }
 
-// Style for characters and objects (outline looks good on sprites)
-const STYLE = {
-  outline: 'single color black outline',
-  shading: 'detailed shading',
-  detail: 'highly detailed',
-  view: 'low top-down',
-};
-
-// Style for ground tiles — NO outline, must tile seamlessly
-const TILE_STYLE = {
-  outline: 'lineless',
-  shading: 'detailed shading',
-  detail: 'highly detailed',
-  view: 'high top-down',
-};
+// Use style settings from central config
+const STYLE = SPRITE_STYLE;
+const T_STYLE = TILE_STYLE;
 
 async function gen(name, params, outPath) {
   console.log(`  Generating: ${name}...`);
@@ -71,7 +63,7 @@ async function gen(name, params, outPath) {
 // the reference image so the walk cycle matches the idle pose.
 async function generateWalkAnims() {
   console.log('\n=== Walk Animation Frames ===');
-  const gabeDesc = 'pixel art character, white male, medium build, short brown messy hair, facial scruff, brown leather jacket, blue jeans, dark boots';
+  const gabeDesc = CHARACTER.description;
 
   for (const dir of ['south', 'north', 'east', 'west']) {
     const refPath = join(ASSETS, 'sprites', `gabe-${dir}.png`);
@@ -87,7 +79,7 @@ async function generateWalkAnims() {
     try {
       const r = await client.animateWithText({
         description: gabeDesc,
-        action: 'walk cycle',
+        action: CHARACTER.walkAction,
         referenceImage: refImage,
         imageSize: { width: 32, height: 48 },
         direction: dir,
@@ -114,10 +106,9 @@ async function generateWalkAnims() {
 // --- TARGET: character ---
 async function generateCharacter() {
   console.log('\n=== Character Sprites ===');
-  const gabeDesc = 'pixel art character, white male, medium build, short brown messy hair, facial scruff stubble, brown leather jacket, blue jeans, dark boots, modern day, gritty adventure game protagonist';
   for (const dir of ['south', 'north', 'east', 'west']) {
     await gen(`Gabe ${dir}`, {
-      description: gabeDesc,
+      description: CHARACTER.description,
       imageSize: { width: 32, height: 48 },
       noBackground: true,
       direction: dir,
@@ -173,16 +164,9 @@ async function generateGraveyardTiles() {
 // --- TARGET: monuments ---
 async function generateMonuments() {
   console.log('\n=== Interactive Monuments ===');
-  const items = [
-    { name: 'Angel statue', desc: 'stone angel statue gravestone monument, weathered gray stone, wings, praying pose, graveyard, nighttime' },
-    { name: 'Obelisk', desc: 'tall stone obelisk grave monument, weathered gray, pointed top, old cemetery' },
-    { name: 'Celtic cross', desc: 'ornate celtic cross gravestone, stone, moss covered base, old cemetery monument' },
-    { name: 'Ornate headstone', desc: 'large ornate Victorian headstone, carved decorations, weathered stone, graveyard' },
-    { name: 'Stone crypt', desc: 'small stone crypt mausoleum entrance, iron door, old cemetery, gothic style' },
-  ];
-  for (let i = 0; i < items.length; i++) {
-    await gen(items[i].name, {
-      description: items[i].desc,
+  for (let i = 0; i < MONUMENT_DESCS.length; i++) {
+    await gen(MONUMENT_DESCS[i].name, {
+      description: MONUMENT_DESCS[i].description,
       imageSize: { width: 32, height: 48 },
       noBackground: true, ...STYLE,
     }, join(ASSETS, 'objects', `monument-${i}.png`));
@@ -192,49 +176,52 @@ async function generateMonuments() {
 // --- TARGET: environment ---
 async function generateEnvironment() {
   console.log('\n=== Environment Objects ===');
+  const E = ENVIRONMENT;
+  const T = TREES;
+
   await gen('Oak tree', {
-    description: 'large oak tree with full green canopy, thick trunk, top-down 3/4 view, graveyard setting',
-    imageSize: { width: 64, height: 64 }, noBackground: true, ...STYLE,
+    description: T.oak.description,
+    imageSize: T.oak.size, noBackground: true, ...STYLE,
   }, join(ASSETS, 'objects', 'tree-oak.png'));
 
   await gen('Evergreen tree', {
-    description: 'tall dark cypress or evergreen tree, narrow conical shape, graveyard, top-down 3/4 view',
-    imageSize: { width: 32, height: 64 }, noBackground: true, ...STYLE,
+    description: T.evergreen.description,
+    imageSize: T.evergreen.size, noBackground: true, ...STYLE,
   }, join(ASSETS, 'objects', 'tree-evergreen.png'));
 
   await gen('Dead tree', {
-    description: 'dead leafless gnarled tree, bare branches, dark bark, spooky graveyard atmosphere',
-    imageSize: { width: 48, height: 64 }, noBackground: true, ...STYLE,
+    description: T.dead.description,
+    imageSize: T.dead.size, noBackground: true, ...STYLE,
   }, join(ASSETS, 'objects', 'dead-tree.png'));
 
   await gen('Fountain', {
-    description: 'old stone water fountain, circular basin, weathered, moss, graveyard garden, top-down 3/4 view',
-    imageSize: { width: 64, height: 64 }, noBackground: true, ...STYLE,
+    description: E.fountain.description,
+    imageSize: E.fountain.size, noBackground: true, ...STYLE,
   }, join(ASSETS, 'objects', 'fountain.png'));
 
   await gen('Bench', {
-    description: 'old wooden park bench, dark wood, iron frame, top-down 3/4 view, graveyard setting',
-    imageSize: { width: 48, height: 32 }, noBackground: true, ...STYLE,
+    description: E.bench.description,
+    imageSize: E.bench.size, noBackground: true, ...STYLE,
   }, join(ASSETS, 'objects', 'bench.png'));
 
   await gen('Bush', {
-    description: 'green hedge bush, rounded shape, some small flowers, top-down 3/4 view',
-    imageSize: { width: 32, height: 32 }, noBackground: true, ...STYLE,
+    description: E.bush.description,
+    imageSize: E.bush.size, noBackground: true, ...STYLE,
   }, join(ASSETS, 'objects', 'bush.png'));
 
   await gen('Flowers', {
-    description: 'small flower bouquet arrangement on ground, colorful flowers, memorial tribute, top-down view',
-    imageSize: { width: 16, height: 16 }, noBackground: true, ...STYLE,
+    description: E.flowerArrangement.description,
+    imageSize: E.flowerArrangement.size, noBackground: true, ...STYLE,
   }, join(ASSETS, 'objects', 'flower-arrangement.png'));
 
   await gen('Fence section', {
-    description: 'wrought iron cemetery fence section with pointed bars, dark metal, rust spots, top-down 3/4 front view',
-    imageSize: { width: 32, height: 32 }, noBackground: true, ...STYLE,
+    description: E.fence.description,
+    imageSize: E.fence.size, noBackground: true, ...STYLE,
   }, join(ASSETS, 'objects', 'fence.png'));
 
   await gen('Fence post', {
-    description: 'wrought iron cemetery fence post, thick dark metal pillar with cap, top-down 3/4 view',
-    imageSize: { width: 32, height: 32 }, noBackground: true, ...STYLE,
+    description: E.fencePost.description,
+    imageSize: E.fencePost.size, noBackground: true, ...STYLE,
   }, join(ASSETS, 'objects', 'fence-post.png'));
 }
 
@@ -242,8 +229,8 @@ async function generateEnvironment() {
 async function generateHouse() {
   console.log('\n=== Caretaker House ===');
   await gen("Caretaker's house", {
-    description: "small stone caretaker's cottage house, shingled roof, lit window with warm glow, wooden door, chimney, dark nighttime setting, old cemetery groundskeeper building",
-    imageSize: { width: 96, height: 96 }, noBackground: true, ...STYLE,
+    description: BUILDINGS.caretakerHouse.description,
+    imageSize: BUILDINGS.caretakerHouse.size, noBackground: true, ...STYLE,
   }, join(ASSETS, 'objects', 'caretaker-house.png'));
 }
 
@@ -252,7 +239,7 @@ async function generateFlatGraves() {
   console.log('\n=== Flat Grave Markers ===');
   for (let i = 0; i < 4; i++) {
     await gen(`Flat grave ${i}`, {
-      description: 'small flat rectangular grave marker in ground, stone slab, top-down view, grass around edges',
+      description: FLAT_GRAVE,
       imageSize: { width: 32, height: 32 }, noBackground: true, ...STYLE, seed: 1000 + i,
     }, join(ASSETS, 'objects', `flat-grave-${i}.png`));
   }
@@ -263,7 +250,6 @@ const TARGETS = {
   'walk-anims': generateWalkAnims,
   'character': generateCharacter,
   'tiles': generateTiles,
-  'graveyard-tiles': generateGraveyardTiles,
   'monuments': generateMonuments,
   'environment': generateEnvironment,
   'house': generateHouse,
