@@ -93,10 +93,65 @@ function saveBase64Image(base64Data, filePath) {
   console.log(`    ✓ Saved: ${filePath}`);
 }
 
+// Extract tileset ID from MCP response
+function extractTilesetId(result) {
+  const content = result?.result?.content || result?.content || [];
+  const items = Array.isArray(content) ? content : [content];
+  for (const item of items) {
+    if (item.type === 'text' && item.text) {
+      const match = item.text.match(/Tileset ID:\*\*\s*`([^`]+)`/);
+      if (match) return match[1];
+    }
+  }
+  return null;
+}
+
+// Poll get_tileset until ready, then save the images
+async function waitAndDownload(tilesetId, name) {
+  console.log(`  Polling for tileset ${tilesetId}...`);
+  const maxAttempts = 30; // 30 * 10s = 5 minutes max
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    console.log(`    Attempt ${attempt + 1}/${maxAttempts}...`);
+    const result = await callMcpTool('get_tileset', { tileset_id: tilesetId });
+
+    const content = result?.result?.content || result?.content || [];
+    const items = Array.isArray(content) ? content : [content];
+
+    // Check for images in response
+    let hasImages = false;
+    let imageCount = 0;
+    for (const item of items) {
+      if (item.type === 'image' && item.data) {
+        hasImages = true;
+        const outPath = join(ASSETS, `${name}-${imageCount}.png`);
+        saveBase64Image(item.data, outPath);
+        imageCount++;
+      } else if (item.type === 'text') {
+        console.log(`    Status: ${item.text.slice(0, 200)}`);
+        // Check if still processing
+        if (item.text.includes('still processing') || item.text.includes('Processing')) {
+          break; // wait and retry
+        }
+      }
+    }
+
+    if (hasImages) {
+      console.log(`  ✓ Downloaded ${imageCount} images for ${name}`);
+      return true;
+    }
+
+    // Wait 10 seconds before next poll
+    console.log(`    Still processing, waiting 10s...`);
+    await new Promise(r => setTimeout(r, 10000));
+  }
+
+  console.error(`  ✗ Timed out waiting for tileset ${tilesetId}`);
+  return false;
+}
+
 async function main() {
   console.log('=== Wang Tileset Generator (PixelLab MCP) ===\n');
 
-  // Define the tileset pairs we need for the graveyard
   const tilesets = [
     {
       name: 'grass-to-gravel',
@@ -110,51 +165,48 @@ async function main() {
     },
   ];
 
+  // Step 1: Submit all tileset generation requests
+  const pending = [];
   for (const ts of tilesets) {
-    console.log(`\nGenerating: ${ts.name}`);
+    console.log(`\nSubmitting: ${ts.name}`);
     try {
       const result = await callMcpTool('create_topdown_tileset', {
         lower_description: ts.lower_description,
         upper_description: ts.upper_description,
       });
 
-      console.log('  MCP response received');
-      console.log('  Response type:', typeof result);
-
-      // The MCP response contains the tileset image(s)
-      // Parse and save them
-      if (result && result.result) {
-        const content = result.result.content || result.result;
-        if (Array.isArray(content)) {
-          for (let i = 0; i < content.length; i++) {
-            const item = content[i];
-            if (item.type === 'image' && item.data) {
-              saveBase64Image(item.data, join(ASSETS, `${ts.name}-${i}.png`));
-            } else if (item.type === 'text') {
-              console.log(`    Info: ${item.text}`);
-            }
-          }
-        } else if (typeof content === 'object' && content.type === 'image') {
-          saveBase64Image(content.data, join(ASSETS, `${ts.name}.png`));
-        }
-      } else if (result && result.content) {
-        for (let i = 0; i < result.content.length; i++) {
-          const item = result.content[i];
-          if (item.type === 'image' && item.data) {
-            saveBase64Image(item.data, join(ASSETS, `${ts.name}-${i}.png`));
-          } else if (item.type === 'text') {
-            console.log(`    Info: ${item.text}`);
-          }
-        }
+      const tilesetId = extractTilesetId(result);
+      if (tilesetId) {
+        console.log(`  ✓ Submitted. Tileset ID: ${tilesetId}`);
+        pending.push({ name: ts.name, id: tilesetId });
       } else {
-        // Dump the raw response structure for debugging
-        console.log('  Raw response:', JSON.stringify(result).slice(0, 500));
+        console.error(`  ✗ Could not extract tileset ID from response`);
+        const content = result?.result?.content || result?.content || [];
+        for (const item of Array.isArray(content) ? content : [content]) {
+          if (item.type === 'text') console.log(`    ${item.text.slice(0, 300)}`);
+        }
+        process.exitCode = 1;
       }
     } catch (err) {
       console.error(`  ✗ FAILED: ${err.message}`);
-      console.error(err.stack);
       process.exitCode = 1;
     }
+  }
+
+  if (pending.length === 0) {
+    console.error('\nNo tilesets submitted successfully.');
+    process.exit(1);
+  }
+
+  // Step 2: Wait for processing (initial wait)
+  console.log(`\nWaiting 60s for initial processing...`);
+  await new Promise(r => setTimeout(r, 60000));
+
+  // Step 3: Poll and download each tileset
+  for (const ts of pending) {
+    console.log(`\nDownloading: ${ts.name} (${ts.id})`);
+    const ok = await waitAndDownload(ts.id, ts.name);
+    if (!ok) process.exitCode = 1;
   }
 
   console.log('\n=== Done ===');
