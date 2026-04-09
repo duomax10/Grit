@@ -8,6 +8,7 @@ on:
         required: true
         type: choice
         options:
+          - level-assets
           - graveyard-from-reference
           - graveyard-full
           - walk-anims
@@ -42,7 +43,9 @@ jobs:
         env:
           PIXELLAB_SECRET: ${{ secrets.PIXELLAB_SECRET }}
         run: |
-          if [ "${{ inputs.target }}" = "graveyard-from-reference" ]; then
+          if [ "${{ inputs.target }}" = "level-assets" ]; then
+            node scripts/generate-level-assets.mjs 2>&1 | tee /tmp/generate-log.txt
+          elif [ "${{ inputs.target }}" = "graveyard-from-reference" ]; then
             node scripts/generate-from-reference.mjs 2>&1 | tee /tmp/generate-log.txt
           elif [ "${{ inputs.target }}" = "wang-tilesets" ]; then
             node scripts/generate-wang-tiles.mjs 2>&1 | tee /tmp/generate-log.txt
