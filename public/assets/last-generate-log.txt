@@ -1,11 +1,11 @@
 === Wang Tileset Generator (PixelLab MCP) ===
 
 
-Generating: grass-to-gravel
+Submitting: grass-to-gravel
   Calling MCP tool: create_topdown_tileset...
   Args: {"lower_description":"dark green cemetery grass, short mowed lawn, pixel art, top-down view","upper_description":"gray gravel crushed stone path, small pebbles, pixel art, top-down view"}
   POST https://api.pixellab.ai/mcp
-  Body: {"jsonrpc":"2.0","id":1775757624764,"method":"tools/call","params":{"name":"create_topdown_tileset","arguments":{"lower_description":"dark green cemetery grass, short mowed lawn, pixel art, top-down view","upper_description":"gray gravel crushed stone path, small pebbles, pixel art, top-down view"}}}
+  Body: {"jsonrpc":"2.0","id":1775757826960,"method":"tools/call","params":{"name":"create_topdown_tileset","arguments":{"lower_description":"dark green cemetery grass, short mowed lawn, pixel art, top-down view","upper_description":"gray gravel crushed stone path, small pebbles, pixel art, top-down view"}}}
   Status: 200 OK
   Content-Type: text/event-stream
   Response length: 2433
@@ -26,31 +26,13 @@ data: {"method":"notifications/message","params":{"level":"debug","data":{"msg":
 
 event: message
 data: {"method":"notifications/message","params"
-  MCP response received
-  Response type: object
-    Info: 🚀 Tileset generation started!
+  ✓ Submitted. Tileset ID: 6aa838c7-e14d-4f70-ada2-667093dd1f38
 
-**Tileset ID:** `dea6dd1a-67a2-4697-917c-3fa99341b6b5`
-**Description:** dark green cemetery grass, short mowed lawn, pixel art, top-down view → gray gravel crushed stone path, small pebbles, pixel art, top-down view
-
-**Transition Size:** 0.0
-**Status:** Processing (typically takes ~100 seconds)
-
-**Base Tile IDs (predetermined):**
-- Lower (dark green cemetery grass, short mowed lawn, pixel art, top-down view): `a484ee29-8516-4687-ab02-ae403e5aa75e`
-- Upper (gray gravel crushed stone path, small pebbles, pixel art, top-down view): `efe760cc-c7ab-4309-9319-501871ec54ef`
-
-**Next steps:**
-1. Use `get_tileset("dea6dd1a-67a2-4697-917c-3fa99341b6b5")` to check status and retrieve the tileset
-2. The tileset will contain 16 tiles (0.0 transition size)
-3. Use the base tile IDs above to create connected tilesets immediately
-4. **MCP Resource**: Format docs, implementation guide, and important script for Godot tileset conversion. Must read - `pixellab://docs/godot/wang-tilesets`
-
-Generating: grass-to-dirt
+Submitting: grass-to-dirt
   Calling MCP tool: create_topdown_tileset...
   Args: {"lower_description":"dark green cemetery grass, short mowed lawn, pixel art, top-down view","upper_description":"brown packed dirt worn earth path, pixel art, top-down view"}
   POST https://api.pixellab.ai/mcp
-  Body: {"jsonrpc":"2.0","id":1775757625475,"method":"tools/call","params":{"name":"create_topdown_tileset","arguments":{"lower_description":"dark green cemetery grass, short mowed lawn, pixel art, top-down view","upper_description":"brown packed dirt worn earth path, pixel art, top-down view"}}}
+  Body: {"jsonrpc":"2.0","id":1775757827522,"method":"tools/call","params":{"name":"create_topdown_tileset","arguments":{"lower_description":"dark green cemetery grass, short mowed lawn, pixel art, top-down view","upper_description":"brown packed dirt worn earth path, pixel art, top-down view"}}}
   Status: 200 OK
   Content-Type: text/event-stream
   Response length: 2397
@@ -71,24 +53,858 @@ data: {"method":"notifications/message","params":{"level":"debug","data":{"msg":
 
 event: message
 data: {"method":"notifications/message","params":{"level":"i
-  MCP response received
-  Response type: object
-    Info: 🚀 Tileset generation started!
+  ✓ Submitted. Tileset ID: f8d0a5c2-dcea-4cce-8eea-56a5efc740a6
 
-**Tileset ID:** `478ea8c3-9c68-4ff3-aff5-cb5215fb1ad6`
-**Description:** dark green cemetery grass, short mowed lawn, pixel art, top-down view → brown packed dirt worn earth path, pixel art, top-down view
+Waiting 60s for initial processing...
 
-**Transition Size:** 0.0
-**Status:** Processing (typically takes ~100 seconds)
+Downloading: grass-to-gravel (6aa838c7-e14d-4f70-ada2-667093dd1f38)
+  Polling for tileset 6aa838c7-e14d-4f70-ada2-667093dd1f38...
+    Attempt 1/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775757887994,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775757887994,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
 
-**Base Tile IDs (predetermined):**
-- Lower (dark green cemetery grass, short mowed lawn, pixel art, top-down view): `5cb95273-ba3e-4cbd-b31d-7d86068b9624`
-- Upper (brown packed dirt worn earth path, pixel art, top-down view): `387197a7-84c5-436c-9405-cbde73d63c38`
 
-**Next steps:**
-1. Use `get_tileset("478ea8c3-9c68-4ff3-aff5-cb5215fb1ad6")` to check status and retrieve the tileset
-2. The tileset will contain 16 tiles (0.0 transition size)
-3. Use the base tile IDs above to create connected tilesets immediately
-4. **MCP Resource**: Format docs, implementation guide, and important script for Godot tileset conversion. Must read - `pixellab://docs/godot/wang-tilesets`
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 2/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775757898381,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775757898381,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 3/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775757909847,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775757909847,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 4/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775757920146,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775757920146,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 5/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775757930439,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775757930439,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 6/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775757940787,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775757940787,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 7/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775757951107,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775757951107,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 8/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775757961497,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775757961497,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 9/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775757971791,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775757971791,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 10/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775757982090,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775757982090,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 11/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775757992386,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775757992386,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 12/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758002681,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758002681,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 13/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758013069,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758013069,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 14/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758023374,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758023374,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 15/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758033764,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758033764,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 16/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758044058,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758044058,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 17/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758054446,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758054446,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 18/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758064833,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758064833,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 19/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758075151,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758075151,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 20/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758085449,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758085449,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 21/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758095837,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758095837,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 22/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758106225,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758106225,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 23/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758116618,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758116618,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 24/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758126959,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758126959,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 25/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758137387,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758137387,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 26/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758153012,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758153012,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 27/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758163318,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758163318,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 28/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758175744,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758175744,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 29/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758186130,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758186130,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 30/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758196433,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"6aa838c7-e14d-4f70-ada2-667093dd1f38"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758196433,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+  ✗ Timed out waiting for tileset 6aa838c7-e14d-4f70-ada2-667093dd1f38
+
+Downloading: grass-to-dirt (f8d0a5c2-dcea-4cce-8eea-56a5efc740a6)
+  Polling for tileset f8d0a5c2-dcea-4cce-8eea-56a5efc740a6...
+    Attempt 1/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758206728,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758206728,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 2/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758217192,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758217192,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 3/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758227488,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758227488,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 4/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758237876,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758237876,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 5/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758248169,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758248169,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 6/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758258470,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758258470,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 7/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758268861,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758268861,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 8/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758279364,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758279364,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 9/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758289756,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758289756,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 10/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758300147,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758300147,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 11/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758310490,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758310490,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 12/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758320781,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758320781,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 13/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758331100,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758331100,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 14/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758341415,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758341415,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 15/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758351850,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758351850,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 16/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758369503,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758369503,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 17/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758379798,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758379798,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 18/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758390094,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758390094,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 19/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758400389,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758400389,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 20/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758410695,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758410695,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 21/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758421083,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758421083,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 22/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758431472,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758431472,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 23/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758441861,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758441861,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 24/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758452206,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758452206,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 25/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758462625,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758462625,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 26/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758472945,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758472945,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 27/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758483264,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758483264,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 28/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758493674,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758493674,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 29/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758504017,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758504017,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+    Attempt 30/30...
+  Calling MCP tool: get_tileset...
+  Args: {"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775758514405,"method":"tools/call","params":{"name":"get_tileset","arguments":{"tileset_id":"f8d0a5c2-dcea-4cce-8eea-56a5efc740a6"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 151
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775758514405,"result":{"content":[{"type":"text","text":"Unknown tool: get_tileset"}],"isError":true}}
+
+
+    Status: Unknown tool: get_tileset
+    Still processing, waiting 10s...
+  ✗ Timed out waiting for tileset f8d0a5c2-dcea-4cce-8eea-56a5efc740a6
 
 === Done ===
+
+Some tileset generation failed. Check logs above.
