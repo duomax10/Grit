@@ -35,12 +35,19 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const moving = Math.abs(this.inputX) > 0.1 || Math.abs(this.inputY) > 0.1;
 
     if (moving) {
-      // Determine facing direction based on strongest axis
-      if (Math.abs(this.inputX) > Math.abs(this.inputY)) {
+      // Determine facing direction — require a clear dominant axis
+      // to prevent flickering on diagonals. Only switch when the
+      // new axis is at least 30% stronger than the other.
+      const ax = Math.abs(this.inputX);
+      const ay = Math.abs(this.inputY);
+      const threshold = 0.3;
+
+      if (ax > ay * (1 + threshold)) {
         this.facing = this.inputX > 0 ? 'right' : 'left';
-      } else {
+      } else if (ay > ax * (1 + threshold)) {
         this.facing = this.inputY > 0 ? 'down' : 'up';
       }
+      // else: keep current facing direction (prevents flicker on diagonals)
 
       if (!this.isMoving || this.anims.currentAnim?.key !== `gabe-walk-${this.facing}`) {
         this.play(`gabe-walk-${this.facing}`, true);
