@@ -86,29 +86,33 @@ export class DialogSystem {
   }
 
   private drawBackground(): void {
-    const { width, height } = this.scene.scale;
-    const boxY = height - this.BOX_HEIGHT - 8;
+    const { width } = this.scene.scale;
+    const boxY = 8; // TOP of screen
 
     this.bgGraphics.clear();
 
-    // Semi-transparent dark background
     this.bgGraphics.fillStyle(
       this.currentLine?.type === 'thought' ? 0x0a0a1a : 0x0a0a0a,
       this.currentLine?.type === 'thought' ? 0.75 : 0.85,
     );
     this.bgGraphics.fillRoundedRect(8, boxY, width - 16, this.BOX_HEIGHT, 4);
 
-    // Border
     this.bgGraphics.lineStyle(1, this.currentLine?.type === 'thought' ? 0x3a3a5a : 0x3a3a3e, 0.8);
     this.bgGraphics.strokeRoundedRect(8, boxY, width - 16, this.BOX_HEIGHT, 4);
   }
 
   private positionText(): void {
-    const { width, height } = this.scene.scale;
-    const boxY = height - this.BOX_HEIGHT - 8;
+    const { width } = this.scene.scale;
+    const boxY = 8; // TOP of screen
     const p = this.BOX_PADDING;
 
     if (this.currentLine?.type === 'speech' && this.currentLine.speaker) {
+      this.speakerText.setPosition(8 + p, boxY + p);
+      this.speakerText.setVisible(true);
+      this.bodyText.setPosition(8 + p, boxY + p + 16);
+    } else if (this.currentLine?.type === 'thought') {
+      // Thoughts show speaker name too (default "Gabe")
+      this.speakerText.setText(this.currentLine.speaker || 'Gabe');
       this.speakerText.setPosition(8 + p, boxY + p);
       this.speakerText.setVisible(true);
       this.bodyText.setPosition(8 + p, boxY + p + 16);
@@ -140,15 +144,17 @@ export class DialogSystem {
     this.displayedChars = 0;
     this.advanceIndicator.setVisible(false);
 
-    // Set speaker
-    if (this.currentLine.type === 'speech' && this.currentLine.speaker) {
-      this.speakerText.setText(this.currentLine.speaker);
-    }
-
-    // Style based on type
+    // Set speaker name and style
     if (this.currentLine.type === 'thought') {
+      this.speakerText.setText(this.currentLine.speaker || 'Gabe');
+      this.speakerText.setColor('#8080a0'); // muted blue-gray for thoughts
       this.bodyText.setFontStyle('italic');
       this.bodyText.setColor('#a0a0c0');
+    } else if (this.currentLine.type === 'speech' && this.currentLine.speaker) {
+      this.speakerText.setText(this.currentLine.speaker);
+      this.speakerText.setColor('#c0a880'); // warm gold for speech
+      this.bodyText.setFontStyle('normal');
+      this.bodyText.setColor('#d0d0d0');
     } else {
       this.bodyText.setFontStyle('normal');
       this.bodyText.setColor('#d0d0d0');
