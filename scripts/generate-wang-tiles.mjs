@@ -112,7 +112,7 @@ async function waitAndDownload(tilesetId, name) {
   const maxAttempts = 30; // 30 * 10s = 5 minutes max
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     console.log(`    Attempt ${attempt + 1}/${maxAttempts}...`);
-    const result = await callMcpTool('get_tileset', { tileset_id: tilesetId });
+    const result = await callMcpTool('get_topdown_tileset', { tileset_id: tilesetId });
 
     const content = result?.result?.content || result?.content || [];
     const items = Array.isArray(content) ? content : [content];
