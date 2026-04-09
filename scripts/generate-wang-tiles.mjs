@@ -28,9 +28,8 @@ const MCP_URL = 'https://api.pixellab.ai/mcp';
 // Call an MCP tool via HTTP
 async function callMcpTool(toolName, args) {
   console.log(`  Calling MCP tool: ${toolName}...`);
+  console.log(`  Args: ${JSON.stringify(args)}`);
 
-  // MCP uses JSON-RPC 2.0 over HTTP with SSE transport
-  // For the streamable HTTP transport, we POST to the MCP endpoint
   const body = {
     jsonrpc: '2.0',
     id: Date.now(),
@@ -40,6 +39,9 @@ async function callMcpTool(toolName, args) {
       arguments: args,
     },
   };
+
+  console.log(`  POST ${MCP_URL}`);
+  console.log(`  Body: ${JSON.stringify(body)}`);
 
   const response = await fetch(MCP_URL, {
     method: 'POST',
@@ -51,16 +53,22 @@ async function callMcpTool(toolName, args) {
     body: JSON.stringify(body),
   });
 
+  console.log(`  Status: ${response.status} ${response.statusText}`);
+  console.log(`  Content-Type: ${response.headers.get('content-type')}`);
+
+  const text = await response.text();
+  console.log(`  Response length: ${text.length}`);
+  console.log(`  Response (first 1000 chars): ${text.slice(0, 1000)}`);
+
   if (!response.ok) {
-    const text = await response.text();
     throw new Error(`MCP call failed (${response.status}): ${text}`);
   }
 
-  const contentType = response.headers.get('content-type') || '';
-
-  if (contentType.includes('text/event-stream')) {
-    // SSE response — collect all events
-    const text = await response.text();
+  // Try parsing as JSON
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    // Might be SSE
     const lines = text.split('\n');
     let result = null;
     for (const line of lines) {
@@ -69,14 +77,11 @@ async function callMcpTool(toolName, args) {
           const data = JSON.parse(line.slice(6));
           if (data.result) result = data.result;
           if (data.jsonrpc) result = data;
-        } catch (e) {
-          // skip non-JSON data lines
-        }
+        } catch (_e) { /* skip */ }
       }
     }
-    return result;
-  } else {
-    return await response.json();
+    if (result) return result;
+    throw new Error(`Could not parse MCP response: ${text.slice(0, 500)}`);
   }
 }
 
@@ -146,11 +151,19 @@ async function main() {
         console.log('  Raw response:', JSON.stringify(result).slice(0, 500));
       }
     } catch (err) {
-      console.error(`  ✗ Failed: ${err.message}`);
+      console.error(`  ✗ FAILED: ${err.message}`);
+      console.error(err.stack);
+      process.exitCode = 1;
     }
   }
 
   console.log('\n=== Done ===');
+  if (process.exitCode) {
+    console.error('\nSome tileset generation failed. Check logs above.');
+  }
 }
 
-main().catch(console.error);
+main().catch((err) => {
+  console.error('Fatal error:', err);
+  process.exit(1);
+});
