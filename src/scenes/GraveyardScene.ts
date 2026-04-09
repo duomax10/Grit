@@ -6,14 +6,13 @@ import { DialogSystem } from '../systems/DialogSystem';
 import { StateManager } from '../systems/StateManager';
 import * as Dialogs from '../data/dialogs';
 
-// Map dimensions in tiles — larger for a real graveyard feel
-const MAP_COLS = 36;
-const MAP_ROWS = 28;
+// Map — old small-town cemetery proportions
+const MAP_COLS = 28;
+const MAP_ROWS = 32;
 const TILE = 32;
 const MAP_W = MAP_COLS * TILE;
 const MAP_H = MAP_ROWS * TILE;
 
-// Layout cell types
 const G = 0; // grass
 const D = 1; // dirt path
 const F = 2; // fence
@@ -29,31 +28,19 @@ function buildLayout(): number[][] {
       // Fence border
       if (r === 0 || r === MAP_ROWS - 1 || c === 0 || c === MAP_COLS - 1) {
         const isCorner = (r === 0 || r === MAP_ROWS - 1) && (c === 0 || c === MAP_COLS - 1);
-        const isHPost = (r === 0 || r === MAP_ROWS - 1) && c % 5 === 0;
-        const isVPost = (c === 0 || c === MAP_COLS - 1) && r % 5 === 0;
+        const isHPost = (r === 0 || r === MAP_ROWS - 1) && c % 6 === 0;
+        const isVPost = (c === 0 || c === MAP_COLS - 1) && r % 6 === 0;
         L[r][c] = (isCorner || isHPost || isVPost) ? P : F;
       }
 
-      // Main path — straight down the center, gate at bottom
-      if (c >= 17 && c <= 18 && r >= 2 && r <= MAP_ROWS - 2) L[r][c] = D;
+      // === MAIN PATH: single narrow path down the center ===
+      if (c >= 13 && c <= 14 && r >= 2 && r <= MAP_ROWS - 2) L[r][c] = D;
 
-      // Widen path around fountain area (rows 12-16)
-      if (c >= 15 && c <= 20 && r >= 12 && r <= 16) L[r][c] = D;
+      // Widen slightly at fountain (rows 14-17)
+      if (c >= 12 && c <= 15 && r >= 14 && r <= 17) L[r][c] = D;
 
-      // Short branch path to caretaker's house (top-left)
-      if (r >= 3 && r <= 4 && c >= 4 && c <= 17) L[r][c] = D;
-
-      // Gentle curved side path — left
-      if (c >= 9 && c <= 10 && r >= 8 && r <= 22) L[r][c] = D;
-
-      // Gentle curved side path — right
-      if (c >= 25 && c <= 26 && r >= 8 && r <= 22) L[r][c] = D;
-
-      // Connect side paths to main at a couple points
-      if (r >= 10 && r <= 10 && c >= 10 && c <= 17) L[r][c] = D;
-      if (r >= 10 && r <= 10 && c >= 18 && c <= 25) L[r][c] = D;
-      if (r >= 20 && r <= 20 && c >= 10 && c <= 17) L[r][c] = D;
-      if (r >= 20 && r <= 20 && c >= 18 && c <= 25) L[r][c] = D;
+      // Small path to caretaker's house (top-left)
+      if (r === 4 && c >= 3 && c <= 13) L[r][c] = D;
     }
   }
   return L;
@@ -77,22 +64,16 @@ function generateFlatGraves(): FlatGrave[] {
     return true;
   };
 
-  // Organic grave clusters — left and right of main path, varied spacing
+  // Grave clusters — left and right of the central path
   const sections = [
-    // Left of main path
-    { rMin: 5, rMax: 9, cMin: 3, cMax: 8 },
-    { rMin: 12, rMax: 18, cMin: 2, cMax: 8 },
-    { rMin: 21, rMax: 25, cMin: 3, cMax: 8 },
-    { rMin: 6, rMax: 9, cMin: 12, cMax: 16 },
-    { rMin: 17, rMax: 19, cMin: 12, cMax: 15 },
-    { rMin: 22, rMax: 25, cMin: 12, cMax: 16 },
-    // Right of main path
-    { rMin: 5, rMax: 9, cMin: 20, cMax: 24 },
-    { rMin: 5, rMax: 8, cMin: 28, cMax: 33 },
-    { rMin: 12, rMax: 18, cMin: 28, cMax: 33 },
-    { rMin: 17, rMax: 19, cMin: 21, cMax: 24 },
-    { rMin: 22, rMax: 25, cMin: 20, cMax: 24 },
-    { rMin: 21, rMax: 25, cMin: 28, cMax: 33 },
+    // Left of path — scattered clusters
+    { rMin: 6, rMax: 12, cMin: 2, cMax: 11 },
+    { rMin: 19, rMax: 28, cMin: 2, cMax: 11 },
+    // Right of path
+    { rMin: 6, rMax: 12, cMin: 16, cMax: 25 },
+    { rMin: 19, rMax: 28, cMin: 16, cMax: 25 },
+    // Near top
+    { rMin: 2, rMax: 4, cMin: 16, cMax: 25 },
   ];
   for (const s of sections) {
     for (let r = s.rMin; r <= s.rMax; r += 2) {
@@ -106,42 +87,36 @@ function generateFlatGraves(): FlatGrave[] {
 
 const FLAT_GRAVES = generateFlatGraves();
 
-// Monument positions — placed organically among the graves
+// Monuments — placed among the graves, the notable ones you'd notice
 const MONUMENTS = [
-  { c: 5, r: 7, idx: 0, label: 'Angel Statue' },       // left section, among older graves
-  { c: 30, r: 7, idx: 1, label: 'Obelisk Monument' },   // right back corner
-  { c: 6, r: 15, idx: 2, label: 'Celtic Cross' },        // left mid-section
-  { c: 22, r: 22, idx: 3, label: 'Ornate Headstone' },   // right lower
-  { c: 14, r: 23, idx: 4, label: 'Stone Crypt' },        // left lower, near edge
+  { c: 5, r: 8, idx: 0, label: 'Angel Statue' },
+  { c: 22, r: 7, idx: 1, label: 'Obelisk Monument' },
+  { c: 4, r: 22, idx: 2, label: 'Celtic Cross' },
+  { c: 20, r: 24, idx: 3, label: 'Ornate Headstone' },
+  { c: 10, r: 28, idx: 4, label: 'Stone Crypt' },
 ];
 
-// Decorations — trees scattered throughout like a real old cemetery
+// Decorations — trees scattered naturally, a couple benches, some flowers
 interface Deco { c: number; r: number; tex: string; collide?: boolean; colW?: number; colH?: number; depth?: number; }
 const DECORATIONS: Deco[] = [
-  // Oak trees — scattered throughout, providing shade
-  { c: 7, r: 11, tex: 'tree-oak', collide: true, colW: 14, colH: 10, depth: 8 },
-  { c: 28, r: 11, tex: 'tree-oak', collide: true, colW: 14, colH: 10, depth: 8 },
-  { c: 13, r: 6, tex: 'tree-oak', collide: true, colW: 14, colH: 10, depth: 8 },
-  { c: 23, r: 5, tex: 'tree-oak', collide: true, colW: 14, colH: 10, depth: 8 },
-  { c: 4, r: 21, tex: 'tree-oak', collide: true, colW: 14, colH: 10, depth: 8 },
-  { c: 31, r: 24, tex: 'tree-oak', collide: true, colW: 14, colH: 10, depth: 8 },
-  // Evergreens — along edges and near house
-  { c: 2, r: 6, tex: 'tree-evergreen', collide: true, colW: 10, colH: 8, depth: 8 },
-  { c: 34, r: 6, tex: 'tree-evergreen', collide: true, colW: 10, colH: 8, depth: 8 },
-  { c: 2, r: 17, tex: 'tree-evergreen', collide: true, colW: 10, colH: 8, depth: 8 },
-  { c: 34, r: 17, tex: 'tree-evergreen', collide: true, colW: 10, colH: 8, depth: 8 },
-  // Dead tree — one for atmosphere
-  { c: 32, r: 9, tex: 'dead-tree', collide: true, colW: 10, colH: 8, depth: 8 },
-  // Bench — along the main path
-  { c: 15, r: 14, tex: 'bench', collide: true, colW: 28, colH: 8 },
-  { c: 21, r: 14, tex: 'bench', collide: true, colW: 28, colH: 8 },
+  // Oak trees — a few big ones giving shade
+  { c: 8, r: 10, tex: 'tree-oak', collide: true, colW: 14, colH: 10, depth: 8 },
+  { c: 20, r: 12, tex: 'tree-oak', collide: true, colW: 14, colH: 10, depth: 8 },
+  { c: 5, r: 26, tex: 'tree-oak', collide: true, colW: 14, colH: 10, depth: 8 },
+  { c: 23, r: 20, tex: 'tree-oak', collide: true, colW: 14, colH: 10, depth: 8 },
+  // Evergreens — flanking the entrance and near house
+  { c: 11, r: 29, tex: 'tree-evergreen', collide: true, colW: 10, colH: 8, depth: 8 },
+  { c: 17, r: 29, tex: 'tree-evergreen', collide: true, colW: 10, colH: 8, depth: 8 },
+  { c: 3, r: 2, tex: 'tree-evergreen', collide: true, colW: 10, colH: 8, depth: 8 },
+  // Dead tree — atmosphere
+  { c: 25, r: 6, tex: 'dead-tree', collide: true, colW: 10, colH: 8, depth: 8 },
+  // Bench next to fountain
+  { c: 11, r: 16, tex: 'bench', collide: true, colW: 28, colH: 8 },
   // Flowers near some graves
-  { c: 6, r: 8, tex: 'flower-arrangement' },
-  { c: 31, r: 8, tex: 'flower-arrangement' },
-  { c: 5, r: 16, tex: 'flower-arrangement' },
-  { c: 23, r: 23, tex: 'flower-arrangement' },
-  { c: 13, r: 24, tex: 'flower-arrangement' },
-  { c: 29, r: 15, tex: 'flower-arrangement' },
+  { c: 6, r: 9, tex: 'flower-arrangement' },
+  { c: 21, r: 8, tex: 'flower-arrangement' },
+  { c: 3, r: 23, tex: 'flower-arrangement' },
+  { c: 19, r: 25, tex: 'flower-arrangement' },
 ];
 
 export class GraveyardScene extends Phaser.Scene {
@@ -169,7 +144,8 @@ export class GraveyardScene extends Phaser.Scene {
     this.placeFountain();
 
     // Player
-    this.player = new Player(this, 17 * TILE + TILE / 2, 25 * TILE);
+    // Spawn near the gate (bottom of main path)
+    this.player = new Player(this, 13.5 * TILE, 29 * TILE);
     this.player.play('gabe-idle-down');
 
     // Camera
@@ -268,8 +244,9 @@ export class GraveyardScene extends Phaser.Scene {
   }
 
   private placeFountain(): void {
-    const x = 17.5 * TILE;
-    const y = 14.5 * TILE;
+    // Fountain on the main path, roughly center of cemetery
+    const x = 13.5 * TILE;
+    const y = 15.5 * TILE;
     this.add.image(x, y, 'fountain').setDepth(4);
     const z = this.add.zone(x, y, 48, 48);
     this.physics.add.existing(z, true);
@@ -314,8 +291,9 @@ export class GraveyardScene extends Phaser.Scene {
   }
 
   private placeCareHouse(): void {
-    const houseX = 5 * TILE;
-    const houseY = 3 * TILE;
+    // Caretaker's house — top-left corner, off the side path
+    const houseX = 4 * TILE;
+    const houseY = 2.5 * TILE;
     this.add.image(houseX, houseY, 'caretaker-house').setDepth(3);
 
     const cz = this.add.zone(houseX, houseY + 10, TILE * 2.5, TILE * 2.5);

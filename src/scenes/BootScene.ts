@@ -115,30 +115,20 @@ export class BootScene extends Phaser.Scene {
       console.warn('Audio generation failed, continuing without sound:', e);
     }
 
-    // Create player animations — use walk frames if available, else static fallback
+    // Create player animations — static frames for now
+    // Walk frames from PixelLab aren't consistent enough for smooth animation yet.
+    // Use the static directional sprite for both walk and idle.
     const directions = ['south', 'north', 'east', 'west'] as const;
     const dirMap = { south: 'down', north: 'up', east: 'right', west: 'left' } as const;
 
     for (const dir of directions) {
       const gameDir = dirMap[dir];
-      const hasWalkFrames = this.textures.exists(`gabe-${dir}-walk-0`);
-
-      if (hasWalkFrames) {
-        this.anims.create({
-          key: `gabe-walk-${gameDir}`,
-          frames: [0, 1, 2, 3].map(f => ({ key: `gabe-${dir}-walk-${f}` })),
-          frameRate: 8,
-          repeat: -1,
-        });
-      } else {
-        this.anims.create({
-          key: `gabe-walk-${gameDir}`,
-          frames: [{ key: `gabe-${dir}` }],
-          frameRate: 1,
-          repeat: -1,
-        });
-      }
-
+      this.anims.create({
+        key: `gabe-walk-${gameDir}`,
+        frames: [{ key: `gabe-${dir}` }],
+        frameRate: 1,
+        repeat: -1,
+      });
       this.anims.create({
         key: `gabe-idle-${gameDir}`,
         frames: [{ key: `gabe-${dir}` }],
