@@ -278,6 +278,56 @@ export class GraveyardScene extends Phaser.Scene {
       }
     }
 
+    // Blur grass tile seams — sample a thin strip across each boundary
+    // and blend to hide the repeating tile edges
+    const seamBlur = 3; // pixels on each side of the seam to blend
+    const imgData = ctx.getImageData(0, 0, MAP_W, MAP_H);
+    const px = imgData.data;
+
+    const getIdx = (x: number, y: number) => (y * MAP_W + x) * 4;
+
+    // Horizontal seams (between rows of tiles)
+    for (let r = 1; r < MAP_ROWS; r++) {
+      const seamY = r * TILE;
+      for (let x = 0; x < MAP_W; x++) {
+        for (let d = 0; d < seamBlur; d++) {
+          const y1 = seamY - 1 - d;
+          const y2 = seamY + d;
+          if (y1 < 0 || y2 >= MAP_H) continue;
+          const i1 = getIdx(x, y1);
+          const i2 = getIdx(x, y2);
+          const t = 0.5 - d * 0.12; // blend factor decreases with distance
+          for (let ch = 0; ch < 3; ch++) {
+            const avg = px[i1 + ch] * (1 - t) + px[i2 + ch] * t;
+            px[i1 + ch] = avg;
+            px[i2 + ch] = px[i2 + ch] * (1 - t) + px[i1 + ch] * t;
+          }
+        }
+      }
+    }
+
+    // Vertical seams (between columns of tiles)
+    for (let c = 1; c < MAP_COLS; c++) {
+      const seamX = c * TILE;
+      for (let y = 0; y < MAP_H; y++) {
+        for (let d = 0; d < seamBlur; d++) {
+          const x1 = seamX - 1 - d;
+          const x2 = seamX + d;
+          if (x1 < 0 || x2 >= MAP_W) continue;
+          const i1 = getIdx(x1, y);
+          const i2 = getIdx(x2, y);
+          const t = 0.5 - d * 0.12;
+          for (let ch = 0; ch < 3; ch++) {
+            const avg = px[i1 + ch] * (1 - t) + px[i2 + ch] * t;
+            px[i1 + ch] = avg;
+            px[i2 + ch] = px[i2 + ch] * (1 - t) + px[i1 + ch] * t;
+          }
+        }
+      }
+    }
+
+    ctx.putImageData(imgData, 0, 0);
+
     // Second pass: paint non-grass terrain with soft feathered edges
     for (let r = 0; r < MAP_ROWS; r++) {
       for (let c = 0; c < MAP_COLS; c++) {
