@@ -8,6 +8,7 @@ on:
         required: true
         type: choice
         options:
+          - graveyard-from-reference
           - graveyard-full
           - walk-anims
           - wang-tilesets
@@ -41,7 +42,9 @@ jobs:
         env:
           PIXELLAB_SECRET: ${{ secrets.PIXELLAB_SECRET }}
         run: |
-          if [ "${{ inputs.target }}" = "wang-tilesets" ]; then
+          if [ "${{ inputs.target }}" = "graveyard-from-reference" ]; then
+            node scripts/generate-from-reference.mjs 2>&1 | tee /tmp/generate-log.txt
+          elif [ "${{ inputs.target }}" = "wang-tilesets" ]; then
             node scripts/generate-wang-tiles.mjs 2>&1 | tee /tmp/generate-log.txt
           elif [ "${{ inputs.target }}" = "graveyard-full" ]; then
             echo "=== GRAVEYARD FULL LEVEL REGENERATION ==="
