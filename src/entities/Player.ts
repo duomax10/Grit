@@ -1,0 +1,65 @@
+import Phaser from 'phaser';
+
+export type Direction = 'down' | 'up' | 'left' | 'right';
+
+export class Player extends Phaser.Physics.Arcade.Sprite {
+  private speed = 80;
+  private facing: Direction = 'down';
+  private isMoving = false;
+
+  // Input from virtual joystick or keyboard
+  public inputX = 0;
+  public inputY = 0;
+
+  constructor(scene: Phaser.Scene, x: number, y: number) {
+    super(scene, x, y, 'gabe-sheet', 'down_4');
+    scene.add.existing(this);
+    scene.physics.add.existing(this);
+
+    this.setCollideWorldBounds(false);
+    this.setSize(16, 10);
+    this.setOffset(8, 20);
+    this.setDepth(10);
+  }
+
+  get direction(): Direction {
+    return this.facing;
+  }
+
+  update(): void {
+    const vx = this.inputX * this.speed;
+    const vy = this.inputY * this.speed;
+
+    this.setVelocity(vx, vy);
+
+    const moving = Math.abs(this.inputX) > 0.1 || Math.abs(this.inputY) > 0.1;
+
+    if (moving) {
+      // Determine facing direction based on strongest axis
+      if (Math.abs(this.inputX) > Math.abs(this.inputY)) {
+        this.facing = this.inputX > 0 ? 'right' : 'left';
+      } else {
+        this.facing = this.inputY > 0 ? 'down' : 'up';
+      }
+
+      if (!this.isMoving || this.anims.currentAnim?.key !== `gabe-walk-${this.facing}`) {
+        this.play(`gabe-walk-${this.facing}`, true);
+      }
+      this.isMoving = true;
+    } else {
+      if (this.isMoving) {
+        this.play(`gabe-idle-${this.facing}`, true);
+        this.isMoving = false;
+      }
+      this.setVelocity(0, 0);
+    }
+  }
+
+  stopMovement(): void {
+    this.inputX = 0;
+    this.inputY = 0;
+    this.setVelocity(0, 0);
+    this.play(`gabe-idle-${this.facing}`, true);
+    this.isMoving = false;
+  }
+}
