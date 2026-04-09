@@ -60,26 +60,25 @@ async function gen(name, params, outPath) {
 async function generateWalkAnims() {
   console.log('\n=== Walk Animation Frames ===');
   const gabeDesc = 'pixel art character, white male, medium build, short brown messy hair, facial scruff stubble, brown leather jacket, blue jeans, dark boots, gritty adventure game protagonist';
-  const dirMap = { south: 'south', north: 'north', east: 'east', west: 'west' };
 
-  for (const [dir, apiDir] of Object.entries(dirMap)) {
-    // Load the static reference image for this direction
+  for (const dir of ['south', 'north', 'east', 'west']) {
     const refPath = join(ASSETS, 'sprites', `gabe-${dir}.png`);
     if (!existsSync(refPath)) {
       console.log(`  Skipping ${dir} - no reference image at ${refPath}`);
-      console.log(`  Run 'character' target first to generate reference sprites`);
       continue;
     }
-    const refImage = await Base64Image.fromFile(refPath);
 
-    console.log(`  Animating ${dir} walk cycle...`);
+    // Try animateWithText first
+    let success = false;
     try {
+      const refImage = await Base64Image.fromFile(refPath);
+      console.log(`  Animating ${dir} walk cycle via animateWithText...`);
       const r = await client.animateWithText({
         description: gabeDesc,
-        action: 'walking forward',
+        action: 'walking',
         referenceImage: refImage,
         imageSize: { width: 32, height: 48 },
-        direction: apiDir,
+        direction: dir,
         view: 'low top-down',
         nFrames: 4,
       });
@@ -89,8 +88,30 @@ async function generateWalkAnims() {
         console.log(`    ✓ Frame ${f}: ${outPath}`);
       }
       console.log(`    Cost: $${r.usage.usd.toFixed(4)}`);
+      success = true;
     } catch (err) {
-      console.error(`    ✗ ${dir} animation failed: ${err.message}`);
+      console.error(`    ✗ animateWithText failed for ${dir}: ${err.message}`);
+    }
+
+    // Fallback: generate individual walk frames with pixflux + different seeds
+    if (!success) {
+      console.log(`  Falling back to pixflux generation for ${dir}...`);
+      const walkDescs = [
+        `${gabeDesc}, walking pose, left foot forward`,
+        `${gabeDesc}, walking pose, standing straight mid-stride`,
+        `${gabeDesc}, walking pose, right foot forward`,
+        `${gabeDesc}, walking pose, standing straight mid-stride`,
+      ];
+      for (let f = 0; f < 4; f++) {
+        await gen(`${dir} walk frame ${f}`, {
+          description: walkDescs[f],
+          imageSize: { width: 32, height: 48 },
+          noBackground: true,
+          direction: dir,
+          ...STYLE,
+          seed: 2000 + f * 100 + ['south','north','east','west'].indexOf(dir) * 10,
+        }, join(ASSETS, 'sprites', `gabe-${dir}-walk-${f}.png`));
+      }
     }
   }
 }
