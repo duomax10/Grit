@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@pixellab-code/pixellab": "^1.0.2",
     "phaser": "^3.80.1"
   },
   "devDependencies": {
