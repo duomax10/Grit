@@ -172,11 +172,16 @@ async function waitAndDownload(tilesetId, name) {
     const content = result?.result?.content || result?.content || [];
     for (const item of Array.isArray(content) ? content : [content]) {
       if (item.type === 'text') {
-        if (item.text.includes('Unknown tool') || item.text.includes('error')) {
-          console.error(`    ✗ Error: ${item.text.slice(0, 200)}`);
+        if (item.text.includes('Unknown tool')) {
+          console.error(`    ✗ Tool not found — aborting`);
           return false;
         }
-        console.log(`    ${item.text.slice(0, 100)}`);
+        const pct = item.text.match(/(\d+)% complete/);
+        if (pct) {
+          console.log(`    ${pct[1]}% complete...`);
+        } else {
+          console.log(`    ${item.text.slice(0, 80)}`);
+        }
       }
     }
 
