@@ -110,7 +110,7 @@ export const ENVIRONMENT = {
   },
   flowerArrangement: {
     description: `small wilting flower bouquet on ground, muted faded colors, memorial tribute resting on dark olive grass, ${GLOBAL}, ${TILE_VIEW}`,
-    size: { width: 16, height: 16 },
+    size: { width: 32, height: 32 },
   },
   fence: {
     description: `wrought iron cemetery fence section, dark metal pointed bars, rust spots and heavy aging patina, old iron fence, dark olive grass tufts at base, ${GLOBAL}, ${OBJ_VIEW}`,

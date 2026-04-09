@@ -25,6 +25,8 @@ if (!existsSync(ASSETS)) mkdirSync(ASSETS, { recursive: true });
 
 import { WANG_TILESETS } from './asset-config.mjs';
 
+const MCP_URL = 'https://api.pixellab.ai/mcp';
+
 // Call an MCP tool via HTTP
 async function callMcpTool(toolName, args) {
   console.log(`  Calling MCP tool: ${toolName}...`);
