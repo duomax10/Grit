@@ -281,17 +281,35 @@ export class GraveyardScene extends Phaser.Scene {
       }
     }
 
-    // Render each cell as 2x2 Wang tiles (16x16 each = 32x32 total)
+    // First: fill entire map with the Wang grass tile for uniform base
+    if (gravelLookup && gravelSheet) {
+      const grassKey = 'lower_lower_lower_lower';
+      const grassTile = gravelLookup.get(grassKey);
+      if (grassTile) {
+        const bb = grassTile.bounding_box;
+        for (let py = 0; py < MAP_H; py += WT) {
+          for (let px = 0; px < MAP_W; px += WT) {
+            ctx.drawImage(gravelSheet, bb.x, bb.y, bb.width, bb.height, px, py, WT, WT);
+          }
+        }
+      }
+    } else {
+      // Fallback: pattern fill with old grass
+      const grassKey = this.textures.exists('grass-base') ? 'grass-base' : 'grass';
+      const pat = ctx.createPattern(getImage(grassKey), 'repeat')!;
+      ctx.fillStyle = pat;
+      ctx.fillRect(0, 0, MAP_W, MAP_H);
+    }
+
+    // Render each cell — only path cells and their grass neighbors need Wang rendering
     for (let r = 0; r < MAP_ROWS; r++) {
       for (let c = 0; c < MAP_COLS; c++) {
         const x = c * TILE;
         const y = r * TILE;
         const cell = terrainGrid[r][c];
 
-        // For each path type, resolve corners and draw Wang tiles
         const renderWang = (pathType: number, lookup: ReturnType<typeof buildWangLookup> | null, sheet: HTMLImageElement | HTMLCanvasElement | null) => {
           if (!lookup || !sheet) return false;
-
           const corners = resolveSimpleCorners(terrainGrid, r, c, pathType);
           const quads = [
             { corners: corners.tl, dx: 0, dy: 0 },
@@ -299,7 +317,6 @@ export class GraveyardScene extends Phaser.Scene {
             { corners: corners.bl, dx: 0, dy: WT },
             { corners: corners.br, dx: WT, dy: WT },
           ];
-
           for (const q of quads) {
             const key = cornersToKey(q.corners);
             const tile = lookup.get(key);
@@ -311,71 +328,26 @@ export class GraveyardScene extends Phaser.Scene {
           return true;
         };
 
-        // Determine what to render based on terrain
         if (cell === 1) {
-          // Gravel cell — render gravel Wang tiles
-          if (!renderWang(1, gravelLookup, gravelSheet)) {
-            // Fallback: solid gravel
-            const gravelKey = this.textures.exists('gravel-base') ? 'gravel-base' : 'dirt';
-            const pat = ctx.createPattern(getImage(gravelKey), 'repeat')!;
-            ctx.fillStyle = pat;
-            ctx.fillRect(x, y, TILE, TILE);
-          }
+          renderWang(1, gravelLookup, gravelSheet);
         } else if (cell === 2) {
-          // Dirt cell — render dirt Wang tiles
-          if (!renderWang(2, dirtLookup, dirtSheet)) {
-            const dirtKey = this.textures.exists('dirt-base') ? 'dirt-base' : 'dirt';
-            const pat = ctx.createPattern(getImage(dirtKey), 'repeat')!;
-            ctx.fillStyle = pat;
-            ctx.fillRect(x, y, TILE, TILE);
-          }
+          renderWang(2, dirtLookup, dirtSheet);
         } else {
-          // Grass cell — check if any neighbor is a path (need transition tiles)
-          let rendered = false;
-
-          // Check if gravel is nearby — render gravel Wang for this grass cell
+          // Grass near gravel
           if (gravelLookup && gravelSheet) {
-            const hasGravelNeighbor = [[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[-1,1],[1,-1],[1,1]].some(
+            const nearGravel = [[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[-1,1],[1,-1],[1,1]].some(
               ([dr, dc]) => terrainGrid[r + dr]?.[c + dc] === 1
             );
-            if (hasGravelNeighbor) {
-              renderWang(1, gravelLookup, gravelSheet);
-              rendered = true;
-            }
+            if (nearGravel) renderWang(1, gravelLookup, gravelSheet);
           }
-
-          // Check if dirt is nearby
-          if (!rendered && dirtLookup && dirtSheet) {
-            const hasDirtNeighbor = [[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[-1,1],[1,-1],[1,1]].some(
+          // Grass near dirt
+          if (dirtLookup && dirtSheet) {
+            const nearDirt = [[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[-1,1],[1,-1],[1,1]].some(
               ([dr, dc]) => terrainGrid[r + dr]?.[c + dc] === 2
             );
-            if (hasDirtNeighbor) {
-              renderWang(2, dirtLookup, dirtSheet);
-              rendered = true;
-            }
+            if (nearDirt) renderWang(2, dirtLookup, dirtSheet);
           }
-
-          if (!rendered) {
-            // Pure grass — use the all-lower Wang tile or pattern fill
-            if (gravelLookup && gravelSheet) {
-              // The all-lower tile is solid grass
-              const key = 'lower_lower_lower_lower';
-              const tile = gravelLookup.get(key);
-              if (tile) {
-                const bb = tile.bounding_box;
-                for (let dy = 0; dy < TILE; dy += WT) {
-                  for (let dx = 0; dx < TILE; dx += WT) {
-                    ctx.drawImage(gravelSheet, bb.x, bb.y, bb.width, bb.height, x + dx, y + dy, WT, WT);
-                  }
-                }
-              }
-            } else {
-              const grassKey = this.textures.exists('grass-base') ? 'grass-base' : 'grass';
-              const pat = ctx.createPattern(getImage(grassKey), 'repeat')!;
-              ctx.fillStyle = pat;
-              ctx.fillRect(x, y, TILE, TILE);
-            }
-          }
+          // Pure grass cells already filled in the base pass
         }
       }
     }
