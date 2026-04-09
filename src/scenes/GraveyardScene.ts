@@ -352,6 +352,14 @@ export class GraveyardScene extends Phaser.Scene {
       }
     }
 
+    // Apply dark atmosphere tint — the generated tiles are too bright,
+    // so we darken the whole ground with a semi-transparent overlay.
+    // This also adds a slight blue/green cast for the gritty dusk mood.
+    ctx.globalCompositeOperation = 'multiply';
+    ctx.fillStyle = '#5a6855'; // dark olive-gray tint
+    ctx.fillRect(0, 0, MAP_W, MAP_H);
+    ctx.globalCompositeOperation = 'source-over';
+
     this.textures.addCanvas('ground-map', canvas);
     this.add.image(MAP_W / 2, MAP_H / 2, 'ground-map').setDepth(0);
 
