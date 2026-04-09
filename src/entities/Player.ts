@@ -17,8 +17,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     scene.physics.add.existing(this);
 
     this.setCollideWorldBounds(false);
-    this.setSize(16, 12);
-    this.setOffset(8, 34);
+    // 92x92 sprite — collision box at feet area
+    this.setSize(20, 14);
+    this.setOffset(36, 72);
     this.setDepth(10);
   }
 

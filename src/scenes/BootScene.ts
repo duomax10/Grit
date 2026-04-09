@@ -56,9 +56,9 @@ export class BootScene extends Phaser.Scene {
     this.load.image('gabe-east', 'assets/sprites/gabe-east.png');
     this.load.image('gabe-west', 'assets/sprites/gabe-west.png');
 
-    // Walk animation frames (4 per direction) — optional, loaded if available
+    // Walk animation frames (up to 6 per direction) — optional, loaded if available
     for (const dir of ['south', 'north', 'east', 'west']) {
-      for (let f = 0; f < 4; f++) {
+      for (let f = 0; f < 6; f++) {
         this.load.image({
           key: `gabe-${dir}-walk-${f}`,
           url: `assets/sprites/gabe-${dir}-walk-${f}.png`,
@@ -130,12 +130,22 @@ export class BootScene extends Phaser.Scene {
 
     for (const dir of directions) {
       const gameDir = dirMap[dir];
-      const hasWalk = this.textures.exists(`gabe-${dir}-walk-0`);
 
-      if (hasWalk) {
+      // Count how many walk frames exist for this direction
+      let walkFrameCount = 0;
+      for (let f = 0; f < 6; f++) {
+        if (this.textures.exists(`gabe-${dir}-walk-${f}`)) walkFrameCount++;
+        else break;
+      }
+
+      if (walkFrameCount >= 2) {
+        const frames = [];
+        for (let f = 0; f < walkFrameCount; f++) {
+          frames.push({ key: `gabe-${dir}-walk-${f}` });
+        }
         this.anims.create({
           key: `gabe-walk-${gameDir}`,
-          frames: [0, 1, 2, 3].map(f => ({ key: `gabe-${dir}-walk-${f}` })),
+          frames,
           frameRate: 8,
           repeat: -1,
         });
