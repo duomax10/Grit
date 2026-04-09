@@ -100,13 +100,13 @@ async function main() {
   const tilesets = [
     {
       name: 'grass-to-gravel',
-      lower: 'dark green cemetery grass, short mowed lawn, pixel art, top-down view',
-      upper: 'gray gravel crushed stone path, small pebbles, pixel art, top-down view',
+      lower_description: 'dark green cemetery grass, short mowed lawn, pixel art, top-down view',
+      upper_description: 'gray gravel crushed stone path, small pebbles, pixel art, top-down view',
     },
     {
       name: 'grass-to-dirt',
-      lower: 'dark green cemetery grass, short mowed lawn, pixel art, top-down view',
-      upper: 'brown packed dirt worn earth path, pixel art, top-down view',
+      lower_description: 'dark green cemetery grass, short mowed lawn, pixel art, top-down view',
+      upper_description: 'brown packed dirt worn earth path, pixel art, top-down view',
     },
   ];
 
@@ -114,8 +114,8 @@ async function main() {
     console.log(`\nGenerating: ${ts.name}`);
     try {
       const result = await callMcpTool('create_topdown_tileset', {
-        lower: ts.lower,
-        upper: ts.upper,
+        lower_description: ts.lower_description,
+        upper_description: ts.upper_description,
       });
 
       console.log('  MCP response received');
