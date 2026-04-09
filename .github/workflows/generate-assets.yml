@@ -9,6 +9,7 @@ on:
         type: choice
         options:
           - walk-anims
+          - wang-tilesets
           - character
           - tiles
           - graveyard-tiles
@@ -38,7 +39,12 @@ jobs:
       - name: Generate ${{ inputs.target }} assets
         env:
           PIXELLAB_SECRET: ${{ secrets.PIXELLAB_SECRET }}
-        run: node scripts/generate-targeted.mjs ${{ inputs.target }}
+        run: |
+          if [ "${{ inputs.target }}" = "wang-tilesets" ]; then
+            node scripts/generate-wang-tiles.mjs
+          else
+            node scripts/generate-targeted.mjs ${{ inputs.target }}
+          fi
 
       - name: Commit and push
         run: |
