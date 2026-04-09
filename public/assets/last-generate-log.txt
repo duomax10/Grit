@@ -1,106 +1,166 @@
 === Wang Tileset Generator (PixelLab MCP) ===
 
 Listing available MCP tools...
-Could not list tools: MCP_URL is not defined
+Available tools:
+  - create_character: Queue a character creation job with 4 or 8 directional views.
+
+Two generation modes:
+- **standard** 
+  - animate_character: Queue animation jobs for an existing character (humanoid or quadruped).
+
+Automatically generates the
+  - get_character: Get complete character information including rotations, animations, and download link.
+
+Returns:
+- C
+  - list_characters: List all your created characters.
+
+Returns a paginated list of characters with basic information.
+Us
+  - delete_character: Delete a character and all its associated data. Set confirm=true to proceed.
+  - create_isometric_tile: Create an isometric tile with pixel art style.
+
+This tool starts an asynchronous tile generation tha
+  - get_isometric_tile: Retrieve an isometric tile by ID. Returns tile data if completed, or status information if still pro
+  - list_isometric_tiles: List all your created isometric tiles.
+
+Returns a paginated list of tiles with basic information.
+Us
+  - delete_isometric_tile: Delete an isometric tile by ID. Only the owner can delete their own tiles.
+
+This action is permanent
+  - create_topdown_tileset: Generate a Wang tileset for top-down game maps with corner-based autotiling.
+
+This tool starts an as
+  - get_topdown_tileset: Retrieve a topdown tileset by ID. Returns tileset data with PNG and metadata download links if compl
+  - list_topdown_tilesets: List all tilesets created by the authenticated user.
+
+Returns:
+    Array of tileset summaries with I
+  - delete_topdown_tileset: Delete a topdown tileset by ID. Only the owner can delete their own tilesets.
+  - create_sidescroller_tileset: Generate a sidescroller tileset for 2D platformer games with side-view perspective.
+
+This tool start
+  - get_sidescroller_tileset: Retrieve a sidescroller tileset by ID. Returns tileset data with PNG and metadata download links if 
+  - list_sidescroller_tilesets: List all sidescroller tilesets created by the authenticated user.
+
+Returns both completed and in-pro
+  - delete_sidescroller_tileset: Delete a sidescroller tileset by ID. Only the owner can delete their own sidescroller tilesets.
+  - create_map_object: Create a pixel art object with transparent background for use in game maps.
+
+**Canvas Size:**
+- MCP 
+  - get_map_object: Get map object information and status.
+
+Returns:
+- Object details and metadata
+- Generation status a
+  - create_tiles_pro: Create pixel art tiles (pro).
+
+Generates multiple tile variations by drawing tile shape outlines and
+  - get_tiles_pro: Retrieve tiles pro by ID. Returns tile data if completed, or status if processing.
+
+The tile will in
+  - list_tiles_pro: List all your created tiles (pro).
+
+Returns a paginated list of tiles with basic information.
+Use ge
+  - delete_tiles_pro: Delete tiles pro by ID. Only the owner can delete their own tiles.
+
+This action is permanent and can
 
 Submitting: grass-to-gravel
   Calling MCP tool: create_topdown_tileset...
   Args: {"lower_description":"dark olive-green cemetery grass, short and slightly unkempt, muted forest green with subtle yellow-brown patches and bare spots, low contrast between shades, pixel art, muted dark color palette, no bright or neon colors, low saturation, gritty fantasy style, high top-down","upper_description":"gray-brown gravel pathway, small crushed pebbles, muted gray and tan tones, flat worn ground texture, old and weathered, pixel art, muted dark color palette, no bright or neon colors, low saturation, gritty fantasy style, high top-down"}
-  ✗ FAILED: MCP_URL is not defined
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775764101792,"method":"tools/call","params":{"name":"create_topdown_tileset","arguments":{"lower_description":"dark olive-green cemetery grass, short and slightly unkempt, muted forest green with subtle yellow-brown patches and bare spots, low contrast between shades, pixel art, muted dark color palette, no bright or neon colors, low saturation, gritty fantasy style, high top-down","upper_description":"gray-brown gravel pathway, small crushed pebbles, muted gray and tan tones, flat worn ground texture, old and weathered, pixel art, muted dark color palette, no bright or neon colors, low saturation, gritty fantasy style, high top-down"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 3534
+  Response (first 1000 chars): event: message
+data: {"method":"notifications/message","params":{"level":"debug","data":{"msg":"Starting tileset generation","extra":null}},"jsonrpc":"2.0"}
+
+event: message
+data: {"method":"notifications/message","params":{"level":"info","data":{"msg":"Lower terrain: dark olive-green cemetery grass, short and slightly unkempt, muted forest green with subtle yellow-brown patches and bare spots, low contrast between shades, pixel art, muted dark color palette, no bright or neon colors, low saturation, gritty fantasy style, high top-down","extra":null}},"jsonrpc":"2.0"}
+
+event: message
+data: {"method":"notifications/message","params":{"level":"info","data":{"msg":"Upper terrain: gray-brown gravel pathway, small crushed pebbles, muted gray and tan tones, flat worn ground texture, old and weathered, pixel art, muted dark color palette, no bright or neon colors, low saturation, gritty fantasy style, high top-down","extra":null}},"jsonrpc":"2.0"}
+
+event: message
+data: {"method":"not
+  ✓ Submitted. Tileset ID: 00bbd559-ea09-4391-9cb1-6219b3d30153
 
 Submitting: grass-to-dirt
   Calling MCP tool: create_topdown_tileset...
   Args: {"lower_description":"dark olive-green cemetery grass, short and slightly unkempt, muted forest green with subtle yellow-brown patches and bare spots, low contrast between shades, pixel art, muted dark color palette, no bright or neon colors, low saturation, gritty fantasy style, high top-down","upper_description":"dark brown packed dirt path, worn compacted earth, muted brown tones, flat ground texture, some small stones and dried grass, pixel art, muted dark color palette, no bright or neon colors, low saturation, gritty fantasy style, high top-down"}
-  ✗ FAILED: MCP_URL is not defined
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775764102347,"method":"tools/call","params":{"name":"create_topdown_tileset","arguments":{"lower_description":"dark olive-green cemetery grass, short and slightly unkempt, muted forest green with subtle yellow-brown patches and bare spots, low contrast between shades, pixel art, muted dark color palette, no bright or neon colors, low saturation, gritty fantasy style, high top-down","upper_description":"dark brown packed dirt path, worn compacted earth, muted brown tones, flat ground texture, some small stones and dried grass, pixel art, muted dark color palette, no bright or neon colors, low saturation, gritty fantasy style, high top-down"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 3549
+  Response (first 1000 chars): event: message
+data: {"method":"notifications/message","params":{"level":"debug","data":{"msg":"Starting tileset generation","extra":null}},"jsonrpc":"2.0"}
 
-No tilesets submitted successfully.
-=== Grit Asset Generator — Target: monuments ===
-Balance: $0.00
+event: message
+data: {"method":"notifications/message","params":{"level":"info","data":{"msg":"Lower terrain: dark olive-green cemetery grass, short and slightly unkempt, muted forest green with subtle yellow-brown patches and bare spots, low contrast between shades, pixel art, muted dark color palette, no bright or neon colors, low saturation, gritty fantasy style, high top-down","extra":null}},"jsonrpc":"2.0"}
 
-=== Interactive Monuments ===
-  Generating: Angel statue...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/monument-0.png ($0.0000)
-  Generating: Obelisk...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/monument-1.png ($0.0000)
-  Generating: Celtic cross...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/monument-2.png ($0.0000)
-  Generating: Ornate headstone...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/monument-3.png ($0.0000)
-  Generating: Stone crypt...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/monument-4.png ($0.0000)
+event: message
+data: {"method":"notifications/message","params":{"level":"info","data":{"msg":"Upper terrain: dark brown packed dirt path, worn compacted earth, muted brown tones, flat ground texture, some small stones and dried grass, pixel art, muted dark color palette, no bright or neon colors, low saturation, gritty fantasy style, high top-down","extra":null}},"jsonrpc":"2.0"}
 
-=== Done ===
-=== Grit Asset Generator — Target: environment ===
-Balance: $0.00
+event: message
+data: {"method"
+  ✓ Submitted. Tileset ID: df46164c-7df4-4f01-8d18-6dd900a20993
 
-=== Environment Objects ===
-  Generating: Oak tree...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/tree-oak.png ($0.0000)
-  Generating: Evergreen tree...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/tree-evergreen.png ($0.0000)
-  Generating: Dead tree...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/dead-tree.png ($0.0000)
-  Generating: Fountain...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/fountain.png ($0.0000)
-  Generating: Bench...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/bench.png ($0.0000)
-  Generating: Bush...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/bush.png ($0.0000)
-  Generating: Flowers...
-    ✗ Flowers: Canvas must be size 32x32 area or larger
-  Generating: Fence section...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/fence.png ($0.0000)
-  Generating: Fence post...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/fence-post.png ($0.0000)
+Waiting 60s for initial processing...
 
-=== Done ===
-=== Grit Asset Generator — Target: house ===
-Balance: $0.00
+Downloading: grass-to-gravel (00bbd559-ea09-4391-9cb1-6219b3d30153)
+  Polling for tileset 00bbd559-ea09-4391-9cb1-6219b3d30153...
+    Attempt 1/20...
+  Calling MCP tool: get_topdown_tileset...
+  Args: {"tileset_id":"00bbd559-ea09-4391-9cb1-6219b3d30153"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775764162606,"method":"tools/call","params":{"name":"get_topdown_tileset","arguments":{"tileset_id":"00bbd559-ea09-4391-9cb1-6219b3d30153"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 7211
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775764162606,"result":{"content":[{"type":"text","text":"✅ Tileset: dark olive-green cemetery grass, short and slightly unkempt, muted forest green with subtle yellow-brown patches and bare spots, low contrast between shades, pixel art, muted dark color palette, no bright or neon colors, low saturation, gritty fantasy style, high top-down ↔ gray-brown gravel pathway, small crushed pebbles, muted gray and tan tones, flat worn ground texture, old and weathered, pixel art, muted dark color palette, no bright or neon colors, low saturation, gritty fantasy style, high top-down\n\n**Total tiles:** 16\n**Tile size:** 16x16px\n**Style:** View: high top-down\n\n**📥 Download:**\n- [PNG file](https://api.pixellab.ai/mcp/tilesets/00bbd559-ea09-4391-9cb1-6219b3d30153/image) - 4×4 tileset image\n- [Metadata JSON](https://api.pixellab.ai/mcp/tilesets/00bbd559-ea09-4391-9cb1-6219b3d30153/metadata) - Tile data with bounding boxes\n- ⚠️ **Always use `curl --
+  ✓ Tileset ready! Downloading...
+  Downloading PNG: https://api.pixellab.ai/mcp/tilesets/00bbd559-ea09-4391-9cb1-6219b3d30153/image
+    ✓ Saved: /home/runner/work/Grit/Grit/public/assets/tiles/grass-to-gravel.png (3608 bytes)
+  Downloading metadata: https://api.pixellab.ai/mcp/tilesets/00bbd559-ea09-4391-9cb1-6219b3d30153/metadata
+    ✓ Saved: /home/runner/work/Grit/Grit/public/assets/tiles/grass-to-gravel.json
 
-=== Caretaker House ===
-  Generating: Caretaker's house...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/caretaker-house.png ($0.0000)
+Downloading: grass-to-dirt (df46164c-7df4-4f01-8d18-6dd900a20993)
+  Polling for tileset df46164c-7df4-4f01-8d18-6dd900a20993...
+    Attempt 1/20...
+  Calling MCP tool: get_topdown_tileset...
+  Args: {"tileset_id":"df46164c-7df4-4f01-8d18-6dd900a20993"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775764166044,"method":"tools/call","params":{"name":"get_topdown_tileset","arguments":{"tileset_id":"df46164c-7df4-4f01-8d18-6dd900a20993"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 434
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775764166044,"result":{"content":[{"type":"text","text":"⏳ Tileset is still being generated (35% complete). ETA: ~118s\n\n**Download behavior:**\n- Returns HTTP 423 with `Retry-After: 118` header\n- Response body is JSON error (not tileset JSON)\n- Use `curl --fail` to properly handle this\n- Without `--fail`, you'll save ~100 byte error instead of >10KB tileset"}],"isError":false}}
 
-=== Done ===
-=== Grit Asset Generator — Target: flat-graves ===
-Balance: $0.00
 
-=== Flat Grave Markers ===
-  Generating: Flat grave 0...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/flat-grave-0.png ($0.0000)
-  Generating: Flat grave 1...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/flat-grave-1.png ($0.0000)
-  Generating: Flat grave 2...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/flat-grave-2.png ($0.0000)
-  Generating: Flat grave 3...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/flat-grave-3.png ($0.0000)
-
-=== Done ===
-=== Grit Asset Generator — Target: character ===
-Balance: $0.00
-
-=== Character Sprites ===
-  Generating: Gabe south...
-    ✓ /home/runner/work/Grit/Grit/public/assets/sprites/gabe-south.png ($0.0000)
-  Generating: Gabe north...
-    ✓ /home/runner/work/Grit/Grit/public/assets/sprites/gabe-north.png ($0.0000)
-  Generating: Gabe east...
-    ✓ /home/runner/work/Grit/Grit/public/assets/sprites/gabe-east.png ($0.0000)
-  Generating: Gabe west...
-    ✓ /home/runner/work/Grit/Grit/public/assets/sprites/gabe-west.png ($0.0000)
-
-=== Done ===
-=== Grit Asset Generator — Target: walk-anims ===
-Balance: $0.00
-
-=== Walk Animation Frames ===
-  Generating south walk cycle (animateWithText)...
-    ✗ FAILED south: [object Object],[object Object]
-  Generating north walk cycle (animateWithText)...
-    ✗ FAILED north: [object Object],[object Object]
-  Generating east walk cycle (animateWithText)...
-    ✗ FAILED east: [object Object],[object Object]
-  Generating west walk cycle (animateWithText)...
-    ✗ FAILED west: [object Object],[object Object]
+    35% complete...
+    Waiting 10s...
+    Attempt 2/20...
+  Calling MCP tool: get_topdown_tileset...
+  Args: {"tileset_id":"df46164c-7df4-4f01-8d18-6dd900a20993"}
+  POST https://api.pixellab.ai/mcp
+  Body: {"jsonrpc":"2.0","id":1775764176224,"method":"tools/call","params":{"name":"get_topdown_tileset","arguments":{"tileset_id":"df46164c-7df4-4f01-8d18-6dd900a20993"}}}
+  Status: 200 OK
+  Content-Type: text/event-stream
+  Response length: 5669
+  Response (first 1000 chars): event: message
+data: {"jsonrpc":"2.0","id":1775764176224,"result":{"content":[{"type":"text","text":"✅ Tileset: dark olive-green cemetery grass, short and slightly unkempt, muted forest green with subtle yellow-brown patches and bare spots, low contrast between shades, pixel art, muted dark color palette, no bright or neon colors, low saturation, gritty fantasy style, high top-down ↔ dark brown packed dirt path, worn compacted earth, muted brown tones, flat ground texture, some small stones and dried grass, pixel art, muted dark color palette, no bright or neon colors, low saturation, gritty fantasy style, high top-down\n\n**Total tiles:** 16\n**Tile size:** 16x16px\n**Style:** View: high top-down\n\n**📥 Download:**\n- [PNG file](https://api.pixellab.ai/mcp/tilesets/df46164c-7df4-4f01-8d18-6dd900a20993/image) - 4×4 tileset image\n- [Metadata JSON](https://api.pixellab.ai/mcp/tilesets/df46164c-7df4-4f01-8d18-6dd900a20993/metadata) - Tile data with bounding boxes\n- ⚠️ **Always use `cu
+  ✓ Tileset ready! Downloading...
+  Downloading PNG: https://api.pixellab.ai/mcp/tilesets/df46164c-7df4-4f01-8d18-6dd900a20993/image
+    ✓ Saved: /home/runner/work/Grit/Grit/public/assets/tiles/grass-to-dirt.png (2095 bytes)
+  Downloading metadata: https://api.pixellab.ai/mcp/tilesets/df46164c-7df4-4f01-8d18-6dd900a20993/metadata
+    ✓ Saved: /home/runner/work/Grit/Grit/public/assets/tiles/grass-to-dirt.json
 
 === Done ===
