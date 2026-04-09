@@ -128,9 +128,12 @@ async function waitAndDownload(tilesetId, name) {
         imageCount++;
       } else if (item.type === 'text') {
         console.log(`    Status: ${item.text.slice(0, 200)}`);
-        // Check if still processing
+        if (item.text.includes('Unknown tool')) {
+          console.error(`    ✗ Tool not found — aborting`);
+          return false;
+        }
         if (item.text.includes('still processing') || item.text.includes('Processing')) {
-          break; // wait and retry
+          break;
         }
       }
     }
@@ -151,6 +154,44 @@ async function waitAndDownload(tilesetId, name) {
 
 async function main() {
   console.log('=== Wang Tileset Generator (PixelLab MCP) ===\n');
+
+  // First, list available tools to discover the right names
+  console.log('Listing available MCP tools...');
+  try {
+    const listBody = {
+      jsonrpc: '2.0',
+      id: Date.now(),
+      method: 'tools/list',
+      params: {},
+    };
+    const listResp = await fetch(MCP_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${API_KEY}`,
+        'Accept': 'application/json, text/event-stream',
+      },
+      body: JSON.stringify(listBody),
+    });
+    const listText = await listResp.text();
+    // Parse SSE or JSON
+    const lines = listText.split('\n');
+    for (const line of lines) {
+      if (line.startsWith('data: ')) {
+        try {
+          const data = JSON.parse(line.slice(6));
+          if (data.result && data.result.tools) {
+            console.log('Available tools:');
+            for (const tool of data.result.tools) {
+              console.log(`  - ${tool.name}: ${(tool.description || '').slice(0, 100)}`);
+            }
+          }
+        } catch (_e) { /* skip */ }
+      }
+    }
+  } catch (err) {
+    console.log('Could not list tools:', err.message);
+  }
 
   const tilesets = [
     {
