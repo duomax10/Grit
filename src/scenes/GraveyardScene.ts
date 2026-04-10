@@ -594,6 +594,48 @@ export class GraveyardScene extends Phaser.Scene {
     const z = this.add.zone(x, y, 64, 64);
     this.physics.add.existing(z, true);
     this.objectColliders.add(z);
+
+    // === Animated water ===
+    // Create a small 4x4 white circle texture for water particles
+    if (!this.textures.exists('water-drop')) {
+      const g = this.make.graphics({ x: 0, y: 0 }, false);
+      g.fillStyle(0xa8c8e0, 1);
+      g.fillCircle(2, 2, 2);
+      g.generateTexture('water-drop', 4, 4);
+      g.destroy();
+    }
+
+    // Particle emitter — water drops rising and falling back into basin
+    // Centered on the fountain's spout (approx y - 8 above center)
+    const spoutY = y - 14;
+    const emitter = this.add.particles(x, spoutY, 'water-drop', {
+      speed: { min: 30, max: 55 },
+      angle: { min: -110, max: -70 }, // upward spray
+      gravityY: 180,
+      lifespan: 900,
+      quantity: 2,
+      frequency: 60,
+      scale: { start: 1, end: 0.6 },
+      alpha: { start: 0.9, end: 0 },
+      blendMode: 'ADD',
+    });
+    emitter.setDepth(5); // above fountain sprite
+
+    // Gentle basin ripple — a subtle pulsing circle to imply water movement
+    const ripple = this.add.graphics();
+    ripple.setDepth(4.5);
+    this.tweens.add({
+      targets: { scale: 0.5 },
+      scale: 1.3,
+      duration: 2000,
+      repeat: -1,
+      ease: 'Sine.easeOut',
+      onUpdate: (_tween, target) => {
+        ripple.clear();
+        ripple.lineStyle(1, 0xa8c8e0, 0.3 * (1.3 - target.scale));
+        ripple.strokeCircle(x, y + 6, 10 * target.scale);
+      },
+    });
   }
 
   private placeEntranceLight(): void {
@@ -680,19 +722,18 @@ export class GraveyardScene extends Phaser.Scene {
   }
 
   private createTwilightOverlay(): void {
-    // Full-screen dark blue-purple multiply overlay for twilight mood.
-    // Uses MULTIPLY blend mode — darkens the scene while adding a cool
-    // color cast. Doesn't scroll with the camera (fixed to viewport).
+    // Full-screen overlay for a gentle twilight cast.
+    // MULTIPLY + lighter color = subtle darkening and tint.
     const overlay = this.add.graphics();
-    overlay.setDepth(18); // above world, below vignette/fog/UI
+    overlay.setDepth(18);
     overlay.setScrollFactor(0);
     overlay.setBlendMode(Phaser.BlendModes.MULTIPLY);
 
     const draw = () => {
       const { width, height } = this.scale;
       overlay.clear();
-      // Dark blue-purple tint
-      overlay.fillStyle(0x4a4060, 1);
+      // Lighter blue-purple — less intense than before
+      overlay.fillStyle(0x8878a0, 1);
       overlay.fillRect(0, 0, width, height);
     };
     draw();
