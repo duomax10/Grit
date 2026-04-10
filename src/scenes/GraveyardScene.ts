@@ -75,14 +75,17 @@ function seededRand(seed: number): () => number {
 // - Some gaps for trees/decoration
 // - Some stones tilted/missing
 // ============================================================
+// ============================================================
+// STRUCTURED GRAVE PLACEMENT
+// Organized rows and columns with occasional gaps for trees/bushes.
+// Small variety in column offset keeps it from feeling mechanical.
+// ============================================================
 function buildGravePositions(): GravePos[] {
   const graves: GravePos[] = [];
   const rand = seededRand(12345);
 
-  // Helper: check if a grid cell is valid for a grave
   const isValid = (c: number, r: number) => {
     if (c < 2 || c >= MAP_COLS - 2 || r < 2 || r >= MAP_ROWS - 2) return false;
-    // Not on path
     if (LAYOUT[r][c] !== G) return false;
     // Not adjacent to path (1-tile buffer)
     for (let dr = -1; dr <= 1; dr++) {
@@ -98,34 +101,33 @@ function buildGravePositions(): GravePos[] {
     return true;
   };
 
-  // Place graves in loose rows — left section
-  // Row positions with slight wobble, spacing 2-3 tiles
-  const leftRows = [6, 9, 12, 18, 21, 24, 27];
-  for (const baseR of leftRows) {
-    // Loose column positions — not perfectly aligned
-    const cols = [3, 5, 7, 9];
-    for (const baseC of cols) {
-      // Wobble: small random offset
-      const r = baseR + (rand() < 0.3 ? (rand() < 0.5 ? -1 : 1) : 0);
-      const c = baseC + (rand() < 0.25 ? (rand() < 0.5 ? -1 : 1) : 0);
-      // Gaps: 15% chance to skip
-      if (rand() < 0.15) continue;
-      if (isValid(c, r)) {
-        graves.push({ c, r, variant: Math.floor(rand() * 8) });
-      }
-    }
-  }
+  // Structured rows — every 2 rows, with cleaner columns
+  // Columns are at fixed positions for each side
+  const leftCols = [3, 5, 7, 9];
+  const rightCols = [14, 16, 18, 20];
 
-  // Right section
-  const rightRows = [6, 9, 12, 18, 21, 24, 27];
-  for (const baseR of rightRows) {
-    const cols = [14, 16, 18, 20];
-    for (const baseC of cols) {
-      const r = baseR + (rand() < 0.3 ? (rand() < 0.5 ? -1 : 1) : 0);
-      const c = baseC + (rand() < 0.25 ? (rand() < 0.5 ? -1 : 1) : 0);
-      if (rand() < 0.15) continue;
-      if (isValid(c, r)) {
-        graves.push({ c, r, variant: Math.floor(rand() * 8) });
+  // Row bands — skip rows around fountain (rows 12-17) and gate (rows 28-29)
+  const rowBands = [
+    { from: 3, to: 11 },   // upper graves
+    { from: 18, to: 26 },  // lower graves
+  ];
+
+  for (const band of rowBands) {
+    for (let r = band.from; r <= band.to; r += 2) {
+      // Left columns
+      for (const c of leftCols) {
+        // 12% chance to leave a gap (for tree/bush placement later)
+        if (rand() < 0.12) continue;
+        if (isValid(c, r)) {
+          graves.push({ c, r, variant: Math.floor(rand() * 8) });
+        }
+      }
+      // Right columns
+      for (const c of rightCols) {
+        if (rand() < 0.12) continue;
+        if (isValid(c, r)) {
+          graves.push({ c, r, variant: Math.floor(rand() * 8) });
+        }
       }
     }
   }
@@ -235,42 +237,54 @@ function buildDecorations(): Deco[] {
     return placed;
   };
 
-  // TREE CLUSTERS — 2-3 loose clusters of trees
-  // Cluster 1: upper-left
-  const oakCluster1 = [
-    { c: 3, r: 6 },
-    { c: 4, r: 8 },
-    { c: 2, r: 10 },
-  ];
-  // Cluster 2: upper-right
-  const oakCluster2 = [
-    { c: 21, r: 7 },
-    { c: 20, r: 10 },
-    { c: 22, r: 14 },
-  ];
-  // Cluster 3: lower-right (dead tree area)
-  const oakCluster3 = [
+  // TREES — lots of trees around the edges, some scattered inside
+  // OAK TREES — lining the outer edges
+  const oakTrees = [
+    // Left edge
+    { c: 2, r: 4 },
+    { c: 2, r: 8 },
+    { c: 2, r: 13 },
+    { c: 2, r: 17 },
+    { c: 2, r: 22 },
+    { c: 2, r: 26 },
+    // Right edge
+    { c: 21, r: 4 },
+    { c: 21, r: 8 },
+    { c: 21, r: 13 },
+    { c: 21, r: 17 },
     { c: 21, r: 22 },
-    { c: 20, r: 25 },
+    { c: 21, r: 26 },
+    // Top edge
+    { c: 6, r: 2 },
+    { c: 12, r: 2 },
+    { c: 17, r: 2 },
+    // A few interior ones breaking up grave rows
+    { c: 11, r: 8 },
+    { c: 14, r: 20 },
   ];
-
-  placeWithMinDist([...oakCluster1, ...oakCluster2, ...oakCluster3], 2.5,
+  placeWithMinDist(oakTrees, 2.5,
     'tree-oak', { collide: true, colW: 16, colH: 12, depth: 8 });
 
-  // Evergreens — along edges, flanking gate
+  // EVERGREENS — flanking the gate and scattered on edges
   const evergreens = [
-    { c: 2, r: 14 },
-    { c: 21, r: 18 },
-    { c: 9, r: 28 },
-    { c: 14, r: 28 },
-    { c: 3, r: 27 },
+    { c: 9, r: 28 },     // left of gate
+    { c: 14, r: 28 },    // right of gate
+    { c: 4, r: 28 },     // outer left at gate
+    { c: 19, r: 28 },    // outer right at gate
+    { c: 5, r: 2 },      // top edge
+    { c: 18, r: 2 },     // top edge
+    { c: 2, r: 11 },     // left edge
+    { c: 21, r: 11 },    // right edge
   ];
   placeWithMinDist(evergreens, 2.5,
     'tree-evergreen', { collide: true, colW: 12, colH: 10, depth: 8 });
 
-  // Dead tree — atmospheric
-  placeWithMinDist([{ c: 18, r: 6 }, { c: 6, r: 25 }], 2,
-    'tree-dead', { collide: true, colW: 12, colH: 10, depth: 8 });
+  // DEAD TREES — atmospheric spots
+  placeWithMinDist([
+    { c: 15, r: 5 },
+    { c: 5, r: 16 },
+    { c: 19, r: 19 },
+  ], 2, 'tree-dead', { collide: true, colW: 12, colH: 10, depth: 8 });
 
   // BUSHES — denser, minimum distance 2 tiles, clustered near trees
   const bushCandidates: Array<{ c: number; r: number }> = [];
@@ -581,9 +595,9 @@ export class GraveyardScene extends Phaser.Scene {
   }
 
   private placeEntranceLight(): void {
-    // Position at the entrance — bottom of the stone path
-    // The gate opening is at columns 11-12, row MAP_ROWS-1
-    const lampX = 11.5 * TILE;
+    // Position at the entrance, just to the SIDE of the stone path
+    // Stone path is columns 11-12, lamp goes on column 13 (right side)
+    const lampX = 13.5 * TILE;
     const lampY = (MAP_ROWS - 2) * TILE;
 
     // Draw a simple lamp post (pixel art style) as graphics
