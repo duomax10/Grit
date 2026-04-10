@@ -123,6 +123,27 @@ export const ENVIRONMENT = {
 };
 
 // =============================================
+// INVENTORY ITEMS
+// Small icons shown in the inventory panel. Top-down / flat-lay
+// composition, transparent background, tight framing so they read
+// well at ~32px.
+// =============================================
+export const ITEMS = [
+  {
+    name: 'Spade',
+    file: 'item-spade',
+    description: `small folding hand spade tool, dark wood T-shaped handle, weathered steel blade, diagonal angle across frame, centered on transparent background, single isolated item flat lay, inventory icon, ${GLOBAL}, ${OBJ_VIEW}`,
+    size: { width: 32, height: 32 },
+  },
+  {
+    name: 'Sample Container',
+    file: 'item-container',
+    description: `small glass sample vial with cork stopper, partially filled with dark soil or liquid, centered on transparent background, single isolated item flat lay, inventory icon, ${GLOBAL}, ${OBJ_VIEW}`,
+    size: { width: 32, height: 32 },
+  },
+];
+
+// =============================================
 // BUILDINGS
 // =============================================
 export const BUILDINGS = {

@@ -8,14 +8,15 @@ export interface GameItem {
   id: string;
   name: string;
   description: string;
-  slot: EquipSlot;
+  /** If set, the item can be equipped into this slot. Otherwise it
+   *  lives only in the backpack. */
+  slot?: EquipSlot;
+  /** Phaser texture key for the inventory icon. */
+  icon?: string;
   damage?: number;
   defense?: number;
   special?: string;
 }
-
-// Items will be added as we develop more of the game.
-// For now, define the structure and a few placeholder items.
 
 export const ITEMS: Record<string, GameItem> = {
   fists: {
@@ -24,5 +25,19 @@ export const ITEMS: Record<string, GameItem> = {
     description: 'Your own two hands. Not much, but they\'ll do.',
     slot: 'leftHand',
     damage: 1,
+  },
+  spade: {
+    id: 'spade',
+    name: 'Spade',
+    description: 'A small folding spade. Good for digging up soil samples.',
+    slot: 'rightHand',
+    icon: 'item-spade',
+    damage: 2,
+  },
+  sampleContainer: {
+    id: 'sampleContainer',
+    name: 'Sample Container',
+    description: 'A small glass vial with a cork stopper. Holds one soil sample.',
+    icon: 'item-container',
   },
 };

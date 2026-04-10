@@ -22,6 +22,7 @@ on:
           - environment
           - house
           - flat-graves
+          - items
           - all
 
 permissions:

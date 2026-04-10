@@ -20,7 +20,7 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import {
   CHARACTER, MONUMENTS as MONUMENT_DESCS, FLAT_GRAVE, TREES, ENVIRONMENT,
-  BUILDINGS, SPRITE_STYLE, TILE_STYLE,
+  BUILDINGS, ITEMS as ITEM_DESCS, SPRITE_STYLE, TILE_STYLE,
 } from './asset-config.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -35,7 +35,7 @@ if (!API_KEY) {
 const client = new PixelLabClient(API_KEY);
 
 // Ensure dirs
-for (const d of ['sprites', 'tiles', 'objects']) {
+for (const d of ['sprites', 'tiles', 'objects', 'items']) {
   const p = join(ASSETS, d);
   if (!existsSync(p)) mkdirSync(p, { recursive: true });
 }
@@ -245,6 +245,19 @@ async function generateFlatGraves() {
   }
 }
 
+// --- TARGET: items ---
+async function generateItems() {
+  console.log('\n=== Inventory Items ===');
+  for (const item of ITEM_DESCS) {
+    await gen(item.name, {
+      description: item.description,
+      imageSize: item.size,
+      noBackground: true,
+      ...STYLE,
+    }, join(ASSETS, 'items', `${item.file}.png`));
+  }
+}
+
 // --- MAIN ---
 const TARGETS = {
   'walk-anims': generateWalkAnims,
@@ -254,6 +267,7 @@ const TARGETS = {
   'environment': generateEnvironment,
   'house': generateHouse,
   'flat-graves': generateFlatGraves,
+  'items': generateItems,
 };
 
 async function main() {

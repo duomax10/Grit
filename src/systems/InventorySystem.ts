@@ -1,9 +1,11 @@
 /**
- * Inventory system with equipment slots.
+ * Inventory system with equipment slots and a 10-slot backpack.
  * Slots: leftHand, rightHand, ring, pendant, blessing
  */
 
-import { GameItem, EquipSlot } from '../data/items';
+import { GameItem, EquipSlot, ITEMS } from '../data/items';
+
+export const BACKPACK_CAPACITY = 10;
 
 export class InventorySystem {
   private static instance: InventorySystem;
@@ -21,8 +23,25 @@ export class InventorySystem {
   static getInstance(): InventorySystem {
     if (!InventorySystem.instance) {
       InventorySystem.instance = new InventorySystem();
+      InventorySystem.instance.seedStartingItems();
     }
     return InventorySystem.instance;
+  }
+
+  /**
+   * Seed the inventory with Gabe's starting loadout for the first
+   * mission: a spade (equipped in the right hand) and two sample
+   * containers in the backpack.
+   */
+  private seedStartingItems(): void {
+    const spade = ITEMS.spade;
+    if (spade) this.equipped.set('rightHand', { ...spade });
+
+    const container = ITEMS.sampleContainer;
+    if (container) {
+      this.backpack.push({ ...container });
+      this.backpack.push({ ...container });
+    }
   }
 
   equip(slot: EquipSlot, item: GameItem): GameItem | null {

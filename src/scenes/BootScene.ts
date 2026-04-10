@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { generateAudio } from '../assets/AudioGenerator';
+import { generateItemIcons } from '../assets/ItemIconGenerator';
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -72,6 +73,10 @@ export class BootScene extends Phaser.Scene {
     // Details
     this.load.image('rocks', 'assets/objects/rocks.png');
     this.load.image('grassTufts', 'assets/objects/grassTufts.png');
+
+    // Inventory items (optional — procedural fallbacks drawn in create())
+    this.load.image({ key: 'item-spade', url: 'assets/items/item-spade.png' });
+    this.load.image({ key: 'item-container', url: 'assets/items/item-container.png' });
   }
 
   create(): void {
@@ -97,6 +102,9 @@ export class BootScene extends Phaser.Scene {
 
       this.anims.create({ key: `gabe-idle-${gameDir}`, frames: [{ key: `gabe-${dir}` }], frameRate: 1, repeat: -1 });
     }
+
+    // Generate procedural item icons for the inventory
+    generateItemIcons(this);
 
     // Generate procedural audio (fire and forget — don't block scene transition)
     generateAudio(this).catch(() => {});

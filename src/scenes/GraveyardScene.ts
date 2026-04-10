@@ -150,21 +150,73 @@ function buildGravePositions(): GravePos[] {
     }
   }
 
-  // Pick 5 interactive gravestones spread across the map
-  const wellSpread: number[] = [];
+  // Pick 5 interactive gravestones, but pin specific ones for the
+  // mission targets so they're always findable:
+  //   dialogIdx 0 (Rebecca Johnson) → top-right quadrant
+  //   dialogIdx 2 (Vera Thorne)     → top-left quadrant
+  // The other 3 (Thomas, Elias, Unmarked) are picked from the rest
+  // with a min-distance spacing so they don't clump.
+  const pickedIdx: number[] = [];
+
+  // "Top" = upper row band (rows 3..11). Top-right = right half of map.
+  // Score candidates by closeness to the corner so picks are consistent.
+  const isTop = (g: GravePos) => g.r <= 11;
+  const isLeft = (g: GravePos) => g.c < MAP_COLS / 2;
+  const isRight = (g: GravePos) => g.c >= MAP_COLS / 2;
+
+  const findCornerGrave = (
+    pred: (g: GravePos) => boolean,
+    cornerC: number,
+    cornerR: number,
+  ): number => {
+    let best = -1;
+    let bestDist = Infinity;
+    for (let i = 0; i < graves.length; i++) {
+      if (!pred(graves[i])) continue;
+      const dx = graves[i].c - cornerC;
+      const dy = graves[i].r - cornerR;
+      const d = dx * dx + dy * dy;
+      if (d < bestDist) { bestDist = d; best = i; }
+    }
+    return best;
+  };
+
+  const rebeccaIdx = findCornerGrave(
+    (g) => isTop(g) && isRight(g),
+    MAP_COLS - 2, 3, // top-right corner
+  );
+  const veraIdx = findCornerGrave(
+    (g) => isTop(g) && isLeft(g),
+    2, 3, // top-left corner
+  );
+
+  if (rebeccaIdx >= 0) {
+    graves[rebeccaIdx].interactive = true;
+    graves[rebeccaIdx].dialogIdx = 0; // GRAVESTONE_INSPECT_1 — Rebecca
+    pickedIdx.push(rebeccaIdx);
+  }
+  if (veraIdx >= 0) {
+    graves[veraIdx].interactive = true;
+    graves[veraIdx].dialogIdx = 2; // GRAVESTONE_INSPECT_3 — Vera
+    pickedIdx.push(veraIdx);
+  }
+
+  // Fill remaining 3 slots (dialogIdx 1, 3, 4) with well-spread graves.
+  const remainingDialogs = [1, 3, 4];
   const minDist = 8;
-  for (let i = 0; i < graves.length && wellSpread.length < 5; i++) {
+  let nextDialog = 0;
+  for (let i = 0; i < graves.length && nextDialog < remainingDialogs.length; i++) {
+    if (pickedIdx.includes(i)) continue;
     let ok = true;
-    for (const j of wellSpread) {
+    for (const j of pickedIdx) {
       const dx = graves[i].c - graves[j].c;
       const dy = graves[i].r - graves[j].r;
       if (dx * dx + dy * dy < minDist * minDist) { ok = false; break; }
     }
-    if (ok) wellSpread.push(i);
-  }
-  for (let i = 0; i < wellSpread.length; i++) {
-    graves[wellSpread[i]].interactive = true;
-    graves[wellSpread[i]].dialogIdx = i;
+    if (!ok) continue;
+    graves[i].interactive = true;
+    graves[i].dialogIdx = remainingDialogs[nextDialog++];
+    pickedIdx.push(i);
   }
 
   return graves;
