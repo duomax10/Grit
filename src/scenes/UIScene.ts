@@ -68,7 +68,11 @@ export class UIScene extends Phaser.Scene {
 
     // Show the sticky note on level start
     this.events.once('show-mission', () => {
-      this.stickyNote.show();
+      this.stickyNote.show(() => {
+        // After the first dismissal (level start), fire an event so
+        // the GraveyardScene can proceed with the intro dialog
+        this.events.emit('mission-note-dismissed');
+      });
     });
 
     // Listen for interaction state changes from GraveyardScene

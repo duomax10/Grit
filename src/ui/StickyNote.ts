@@ -1,8 +1,10 @@
 /**
  * Sticky note UI — shows the current mission objectives.
- * Drawn procedurally with Phaser graphics (no asset needed).
- * Yellow note with slight rotation, dark handwritten-style text.
- * Tap anywhere on it to dismiss.
+ * Rendered to an offscreen canvas with anti-aliasing enabled so
+ * it stays smooth when rotated (the game uses pixelArt mode which
+ * would otherwise make rotated Graphics look jaggy).
+ *
+ * Tap to dismiss. Strike-through shown on completed objectives.
  */
 
 import Phaser from 'phaser';
@@ -11,15 +13,17 @@ import { MissionSystem } from '../systems/MissionSystem';
 export class StickyNote {
   private scene: Phaser.Scene;
   private container!: Phaser.GameObjects.Container;
-  private bg!: Phaser.GameObjects.Graphics;
-  private titleText!: Phaser.GameObjects.Text;
-  private objectiveTexts: Phaser.GameObjects.Text[] = [];
-  private strikes: Phaser.GameObjects.Graphics[] = [];
+  private noteImage!: Phaser.GameObjects.Image;
   private visible = false;
   private onDismiss?: () => void;
+  private textureKey = 'sticky-note-dyn';
+  private regenCount = 0;
 
+  // Render the sticky note at 2x native size for crisper anti-aliasing,
+  // then display at half scale.
   private readonly NOTE_WIDTH = 220;
   private readonly NOTE_HEIGHT = 140;
+  private readonly SCALE_FACTOR = 2;
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
@@ -28,44 +32,23 @@ export class StickyNote {
 
   private createUI(): void {
     this.container = this.scene.add.container(0, 0);
-    this.container.setDepth(10001); // above dialog
+    this.container.setDepth(10001);
     this.container.setScrollFactor(0);
     this.container.setVisible(false);
-    this.container.setAngle(-3); // slight tilt for sticky feel
 
-    this.bg = this.scene.add.graphics();
-    this.container.add(this.bg);
+    // Generate initial texture
+    const texKey = this.regenerateTexture();
 
-    // Title
-    this.titleText = this.scene.add.text(0, 0, '', {
-      fontFamily: 'Georgia, serif',
-      fontSize: '13px',
-      color: '#3a3020',
-      fontStyle: 'bold',
-    });
-    this.container.add(this.titleText);
+    this.noteImage = this.scene.add.image(0, 0, texKey);
+    this.noteImage.setOrigin(0.5, 0.5);
+    this.noteImage.setScale(1 / this.SCALE_FACTOR);
+    this.noteImage.setAngle(-3); // slight tilt
+    this.container.add(this.noteImage);
 
-    // Dismiss hint
-    const hint = this.scene.add.text(
-      this.NOTE_WIDTH / 2,
-      this.NOTE_HEIGHT - 12,
-      'tap to dismiss',
-      {
-        fontFamily: 'Georgia, serif',
-        fontSize: '9px',
-        color: '#7a6848',
-        fontStyle: 'italic',
-      },
-    ).setOrigin(0.5);
-    this.container.add(hint);
-
-    // Interactive zone for dismiss
-    const zone = this.scene.add.zone(
-      this.NOTE_WIDTH / 2,
-      this.NOTE_HEIGHT / 2,
-      this.NOTE_WIDTH + 20,
-      this.NOTE_HEIGHT + 20,
-    ).setInteractive().setOrigin(0.5);
+    // Interactive zone for dismiss (covers the whole note)
+    const zone = this.scene.add.zone(0, 0, this.NOTE_WIDTH + 20, this.NOTE_HEIGHT + 20)
+      .setInteractive()
+      .setOrigin(0.5);
     this.container.add(zone);
     zone.on('pointerdown', (_p: Phaser.Input.Pointer, _x: number, _y: number, event: Phaser.Types.Input.EventData) => {
       event.stopPropagation();
@@ -75,47 +58,147 @@ export class StickyNote {
     this.scene.scale.on('resize', () => this.reposition());
   }
 
-  private drawBackground(): void {
-    this.bg.clear();
+  /**
+   * Draw the sticky note to an offscreen canvas with anti-aliasing,
+   * then add/replace it in Phaser's texture cache with LINEAR filter.
+   * Returns the texture key.
+   */
+  private regenerateTexture(): string {
+    const key = `${this.textureKey}-${this.regenCount++}`;
+    const w = this.NOTE_WIDTH * this.SCALE_FACTOR;
+    const h = this.NOTE_HEIGHT * this.SCALE_FACTOR;
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d')!;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    // Scale so drawing happens at 2x resolution
+    ctx.scale(this.SCALE_FACTOR, this.SCALE_FACTOR);
+
+    this.drawNote(ctx);
+
+    // Register with Phaser's texture manager
+    if (this.scene.textures.exists(key)) {
+      this.scene.textures.remove(key);
+    }
+    this.scene.textures.addCanvas(key, canvas);
+    // Enable linear filtering for smooth rotation
+    this.scene.textures.get(key).setFilter(Phaser.Textures.FilterMode.LINEAR);
+    return key;
+  }
+
+  private drawNote(ctx: CanvasRenderingContext2D): void {
+    const w = this.NOTE_WIDTH;
+    const h = this.NOTE_HEIGHT;
+
     // Shadow
-    this.bg.fillStyle(0x000000, 0.3);
-    this.bg.fillRoundedRect(4, 4, this.NOTE_WIDTH, this.NOTE_HEIGHT, 2);
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    this.roundedRect(ctx, 4, 4, w, h, 3);
+    ctx.fill();
+
     // Main yellow note
-    this.bg.fillStyle(0xf4e48a, 1);
-    this.bg.fillRoundedRect(0, 0, this.NOTE_WIDTH, this.NOTE_HEIGHT, 2);
-    // Darker border shading on bottom/right
-    this.bg.fillStyle(0xd4c06a, 1);
-    this.bg.fillRect(0, this.NOTE_HEIGHT - 2, this.NOTE_WIDTH, 2);
-    this.bg.fillRect(this.NOTE_WIDTH - 2, 0, 2, this.NOTE_HEIGHT);
-    // Torn/curled corner hint (top-right small triangle)
-    this.bg.fillStyle(0xe8d870, 1);
-    this.bg.fillTriangle(
-      this.NOTE_WIDTH - 14, 0,
-      this.NOTE_WIDTH, 0,
-      this.NOTE_WIDTH, 14,
-    );
-    // "Tape" at top
-    this.bg.fillStyle(0xffffff, 0.5);
-    this.bg.fillRect(this.NOTE_WIDTH / 2 - 20, -6, 40, 10);
+    ctx.fillStyle = '#f4e48a';
+    this.roundedRect(ctx, 0, 0, w, h, 3);
+    ctx.fill();
+
+    // Darker bottom/right edge
+    ctx.fillStyle = '#d4c06a';
+    ctx.fillRect(0, h - 2, w, 2);
+    ctx.fillRect(w - 2, 0, 2, h);
+
+    // Top-right curled corner
+    ctx.fillStyle = '#e8d870';
+    ctx.beginPath();
+    ctx.moveTo(w - 14, 0);
+    ctx.lineTo(w, 0);
+    ctx.lineTo(w, 14);
+    ctx.closePath();
+    ctx.fill();
+
+    // Tape at top
+    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    ctx.fillRect(w / 2 - 20, -6, 40, 10);
+
+    // Title
+    const mission = MissionSystem.getInstance().getCurrentMission();
+    const title = mission?.title ?? 'Mission';
+    ctx.fillStyle = '#3a3020';
+    ctx.font = 'bold 14px Georgia, serif';
+    ctx.textBaseline = 'top';
+    ctx.fillText(title, 16, 14);
+
+    // Objectives
+    if (mission) {
+      const startY = 40;
+      const lineHeight = 22;
+      for (let i = 0; i < mission.objectives.length; i++) {
+        const obj = mission.objectives[i];
+        const completed = MissionSystem.getInstance().isCompleted(obj.id);
+        const y = startY + i * lineHeight;
+
+        const bullet = completed ? '\u2713 ' : '\u2022 ';
+        const text = bullet + obj.text;
+
+        ctx.fillStyle = completed ? '#7a6848' : '#2a2010';
+        ctx.font = `${completed ? 'italic ' : ''}13px Georgia, serif`;
+        ctx.fillText(text, 16, y);
+
+        if (completed) {
+          const metrics = ctx.measureText(text);
+          ctx.strokeStyle = '#3a2818';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(16, y + 7);
+          ctx.lineTo(16 + metrics.width, y + 7);
+          ctx.stroke();
+        }
+      }
+    }
+
+    // Dismiss hint
+    ctx.fillStyle = '#7a6848';
+    ctx.font = 'italic 10px Georgia, serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('tap to dismiss', w / 2, h - 18);
+    ctx.textAlign = 'left';
+  }
+
+  private roundedRect(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    r: number,
+  ): void {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
   }
 
   private reposition(): void {
     if (!this.visible) return;
     const { width } = this.scene.scale;
-    this.container.setPosition(
-      (width - this.NOTE_WIDTH) / 2,
-      70,
-    );
+    this.container.setPosition(width / 2, 70 + this.NOTE_HEIGHT / 2);
   }
 
   show(onDismiss?: () => void): void {
     this.onDismiss = onDismiss;
-    this.renderMission();
+    this.refresh(); // re-render with latest mission state
     this.visible = true;
     this.reposition();
     this.container.setVisible(true);
 
-    // Small pop-in animation
+    // Pop-in animation
     this.container.setScale(0.9);
     this.container.setAlpha(0);
     this.scene.tweens.add({
@@ -127,60 +210,11 @@ export class StickyNote {
     });
   }
 
-  private renderMission(): void {
-    // Clear existing objective texts
-    for (const t of this.objectiveTexts) t.destroy();
-    for (const s of this.strikes) s.destroy();
-    this.objectiveTexts = [];
-    this.strikes = [];
-
-    this.drawBackground();
-
-    const mission = MissionSystem.getInstance().getCurrentMission();
-    if (!mission) {
-      this.titleText.setText('No mission');
-      this.titleText.setPosition(16, 14);
-      return;
-    }
-
-    this.titleText.setText(mission.title);
-    this.titleText.setPosition(16, 14);
-
-    // Render each objective with a bullet or strike-through
-    const startY = 40;
-    const lineHeight = 20;
-    for (let i = 0; i < mission.objectives.length; i++) {
-      const obj = mission.objectives[i];
-      const completed = MissionSystem.getInstance().isCompleted(obj.id);
-      const y = startY + i * lineHeight;
-
-      const bullet = completed ? '\u2713 ' : '\u2022 ';
-      const t = this.scene.add.text(16, y, bullet + obj.text, {
-        fontFamily: 'Georgia, serif',
-        fontSize: '12px',
-        color: completed ? '#7a6848' : '#2a2010',
-        fontStyle: completed ? 'italic' : 'normal',
-        wordWrap: { width: this.NOTE_WIDTH - 32 },
-      });
-      this.container.add(t);
-      this.objectiveTexts.push(t);
-
-      if (completed) {
-        // Draw strike-through line
-        const strike = this.scene.add.graphics();
-        strike.lineStyle(1.5, 0x3a2818, 0.8);
-        const bounds = t.getBounds();
-        const localY = y + t.height / 2;
-        strike.lineBetween(16, localY, 16 + t.width, localY);
-        this.container.add(strike);
-        this.strikes.push(strike);
-      }
-    }
-  }
-
   dismiss(): void {
     if (!this.visible) return;
     this.visible = false;
+    const cb = this.onDismiss;
+    this.onDismiss = undefined;
     this.scene.tweens.add({
       targets: this.container,
       scale: 0.9,
@@ -189,14 +223,15 @@ export class StickyNote {
       ease: 'Back.easeIn',
       onComplete: () => {
         this.container.setVisible(false);
-        this.onDismiss?.();
+        cb?.();
       },
     });
   }
 
   /** Re-render (e.g., after an objective completes) */
   refresh(): void {
-    if (this.visible) this.renderMission();
+    const newKey = this.regenerateTexture();
+    this.noteImage.setTexture(newKey);
   }
 
   get isVisible(): boolean {

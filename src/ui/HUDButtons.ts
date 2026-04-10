@@ -125,19 +125,19 @@ export class HUDButtons {
     this.missionContainer.setDepth(200);
     this.missionContainer.setScrollFactor(0);
 
+    // Match the inventory button styling exactly
     this.missionBg = this.scene.add.graphics();
-    // Yellow sticky-note themed button
-    this.missionBg.fillStyle(0xd4c070, 0.85);
+    this.missionBg.fillStyle(0x2a2a30, 0.7);
     this.missionBg.fillRoundedRect(-20, -20, 40, 40, 6);
-    this.missionBg.lineStyle(1, 0x8a7040, 0.9);
+    this.missionBg.lineStyle(1, 0x4a4a50, 0.8);
     this.missionBg.strokeRoundedRect(-20, -20, 40, 40, 6);
     this.missionContainer.add(this.missionBg);
 
     // Exclamation mark icon
     this.missionText = this.scene.add.text(0, 0, '!', {
       fontFamily: 'Georgia, serif',
-      fontSize: '20px',
-      color: '#2a2010',
+      fontSize: '18px',
+      color: '#8a8a90',
       fontStyle: 'bold',
     }).setOrigin(0.5);
     this.missionContainer.add(this.missionText);

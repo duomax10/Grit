@@ -438,15 +438,12 @@ export class GraveyardScene extends Phaser.Scene {
     // Set the mission for this level
     MissionSystem.getInstance().setMission('graveyard_intro');
 
-    // Intro dialog, then show sticky note mission
+    // Show mission sticky note first, then intro dialog after dismissal
     this.time.delayedCall(800, () => {
       if (!this.introPlayed) {
         this.introPlayed = true;
-        this.dialogSystem.showDialog(Dialogs.GRAVEYARD_INTRO, () => {
-          // After intro dialog closes, show the sticky note
-          const uiScene = this.scene.get('UIScene');
-          if (uiScene) uiScene.events.emit('show-mission');
-        });
+        const uiScene = this.scene.get('UIScene');
+        if (uiScene) uiScene.events.emit('show-mission');
         StateManager.getInstance().setFlag('graveyard_intro_seen', true);
       }
     });
@@ -458,6 +455,12 @@ export class GraveyardScene extends Phaser.Scene {
     if (uiScene) {
       uiScene.events.on('interact-pressed', () => this.handleInteract());
       uiScene.events.on('inventory-pressed', () => this.player.stopMovement());
+      // After the mission sticky note is dismissed, play the intro dialog
+      uiScene.events.once('mission-note-dismissed', () => {
+        this.time.delayedCall(300, () => {
+          this.dialogSystem.showDialog(Dialogs.GRAVEYARD_INTRO);
+        });
+      });
     }
   }
 
