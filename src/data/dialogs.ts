@@ -21,8 +21,8 @@ export const GRAVEYARD_INTRO: DialogSequence = [
 ];
 
 export const GRAVESTONE_INSPECT_1: DialogSequence = [
-  { type: 'thought', text: 'Margaret Holloway. 1842-1891.' },
-  { type: 'thought', text: '"Beloved wife and mother." Rest easy, Margaret.' },
+  { type: 'thought', text: 'Rebecca Johnson. 1942-2025.' },
+  { type: 'thought', text: '"Beloved wife and mother." Rest easy, Rebecca.' },
 ];
 
 export const GRAVESTONE_INSPECT_2: DialogSequence = [
@@ -32,8 +32,8 @@ export const GRAVESTONE_INSPECT_2: DialogSequence = [
 ];
 
 export const GRAVESTONE_INSPECT_3: DialogSequence = [
-  { type: 'thought', text: 'This one\'s too weathered to read.' },
-  { type: 'thought', text: 'Looks old. Really old.' },
+  { type: 'thought', text: 'Vera Thorne. 1990-2025.' },
+  { type: 'thought', text: '"She left us too early."' },
 ];
 
 export const GRAVESTONE_INSPECT_4: DialogSequence = [
