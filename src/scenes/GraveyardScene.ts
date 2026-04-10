@@ -518,7 +518,10 @@ export class GraveyardScene extends Phaser.Scene {
           const y = r * TILE + TILE / 2;
           // Determine orientation based on edge
           const isTopOrBottom = (r === 0 || r === MAP_ROWS - 1);
-          const sprite = isTopOrBottom ? 'fence' : 'fence-vertical';
+          // Use vertical fence sprite if available, else fall back to horizontal
+          const sprite = isTopOrBottom
+            ? 'fence'
+            : this.textures.exists('fence-vertical') ? 'fence-vertical' : 'fence';
           this.add.image(x, y, sprite).setDepth(1);
           const z = this.add.zone(x, y, TILE, TILE);
           this.physics.add.existing(z, true);
@@ -537,10 +540,22 @@ export class GraveyardScene extends Phaser.Scene {
       Dialogs.GRAVESTONE_INSPECT_5,
     ];
 
+    // Find which gravestone textures are actually available
+    const availableVariants: number[] = [];
+    for (let i = 0; i < 18; i++) {
+      if (this.textures.exists(`gravestone-${i}`)) availableVariants.push(i);
+    }
+    if (availableVariants.length === 0) {
+      console.warn('No gravestone textures loaded');
+      return;
+    }
+
     for (const g of GRAVE_POSITIONS) {
       const x = g.c * TILE + TILE / 2;
       const y = g.r * TILE + TILE / 2;
-      const texKey = `gravestone-${g.variant}`;
+      // Map the precomputed variant to an available one
+      const variantIdx = availableVariants[g.variant % availableVariants.length];
+      const texKey = `gravestone-${variantIdx}`;
 
       // Visual sprite
       const img = this.add.image(x, y, texKey).setDepth(4);

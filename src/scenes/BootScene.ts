@@ -26,6 +26,11 @@ export class BootScene extends Phaser.Scene {
       color: '#5a5a60',
     }).setOrigin(0.5);
 
+    // Gracefully handle missing asset files (they may not be generated yet)
+    this.load.on('loaderror', (file: Phaser.Loader.File) => {
+      console.warn(`Missing asset: ${file.key} at ${file.url}`);
+    });
+
     // Character sprites
     this.load.image('gabe-south', 'assets/sprites/gabe-south.png');
     this.load.image('gabe-north', 'assets/sprites/gabe-north.png');
@@ -43,9 +48,9 @@ export class BootScene extends Phaser.Scene {
     this.load.image('grass', 'assets/tiles/grass.png');
     this.load.image('gravel', 'assets/tiles/stone_path.png');
 
-    // Gravestones (18 variants)
+    // Gravestones (up to 18 variants — any missing are skipped)
     for (let i = 0; i < 18; i++) {
-      this.load.image(`gravestone-${i}`, `assets/objects/gravestone-${i}.png`);
+      this.load.image({ key: `gravestone-${i}`, url: `assets/objects/gravestone-${i}.png` });
     }
 
     // Trees
