@@ -116,11 +116,17 @@ export class HUDButtons {
   private repositionButtons(): void {
     const { width, height } = this.scene.scale;
 
-    // Interact button: bottom-right area
+    // Interact/Attack button: primary thumb zone (bottom-right corner)
+    // This button changes to 'attack' in combat and is the most-used
+    // button, so it gets the prime thumb position.
     this.interactContainer.setPosition(width - 50, height - 70);
 
-    // Inventory button: top-right
-    this.inventoryContainer.setPosition(width - 30, 35);
+    // Inventory button: diagonally up-left from the interact button
+    // so the right thumb can reach it by moving up+left (natural motion)
+    // but it's far enough away that combat mashing the attack button
+    // won't accidentally open the inventory.
+    // Placed 72px above and 58px left of the interact button center.
+    this.inventoryContainer.setPosition(width - 108, height - 142);
   }
 
   showInteract(): void {

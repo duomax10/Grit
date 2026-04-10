@@ -88,7 +88,7 @@ export class DialogSystem {
 
   private drawBackground(): void {
     const { width } = this.scene.scale;
-    const boxY = 8;
+    const boxY = 48; // offset for mobile status bars/notches
 
     this.bgGraphics.clear();
 
@@ -106,7 +106,7 @@ export class DialogSystem {
 
   private positionText(): void {
     const { width } = this.scene.scale;
-    const boxY = 8; // TOP of screen
+    const boxY = 48;
     const p = this.BOX_PADDING;
 
     if (this.currentLine?.type === 'speech' && this.currentLine.speaker) {
