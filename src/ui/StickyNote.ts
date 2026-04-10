@@ -130,32 +130,73 @@ export class StickyNote {
 
     // Objectives
     if (mission) {
-      const startY = 40;
-      const lineHeight = 22;
+      const leftX = 16;
+      const lineHeight = 16;
+      const objGap = 4;
+      const maxTextWidth = w - leftX * 2;
+      let y = 40;
+
       for (let i = 0; i < mission.objectives.length; i++) {
         const obj = mission.objectives[i];
         const completed = MissionSystem.getInstance().isCompleted(obj.id);
-        const y = startY + i * lineHeight;
 
-        const bullet = completed ? '\u2713 ' : '\u2022 ';
-        const text = bullet + obj.text;
+        // Completed uses a check; incomplete uses a small en dash.
+        const bullet = completed ? '\u2713 ' : '\u2013 ';
 
         ctx.fillStyle = completed ? '#7a6848' : '#2a2010';
         ctx.font = `${completed ? 'italic ' : ''}13px Georgia, serif`;
-        ctx.fillText(text, 16, y);
 
-        if (completed) {
-          const metrics = ctx.measureText(text);
-          ctx.strokeStyle = '#3a2818';
-          ctx.lineWidth = 1.5;
-          ctx.beginPath();
-          ctx.moveTo(16, y + 7);
-          ctx.lineTo(16 + metrics.width, y + 7);
-          ctx.stroke();
+        const bulletWidth = ctx.measureText(bullet).width;
+        const lines = this.wrapText(ctx, obj.text, maxTextWidth - bulletWidth);
+
+        for (let j = 0; j < lines.length; j++) {
+          const isFirst = j === 0;
+          const prefix = isFirst ? bullet : '';
+          const xLine = isFirst ? leftX : leftX + bulletWidth;
+          const drawn = prefix + lines[j];
+          ctx.fillText(drawn, xLine, y);
+
+          if (completed) {
+            const metrics = ctx.measureText(drawn);
+            ctx.strokeStyle = '#3a2818';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(xLine, y + 7);
+            ctx.lineTo(xLine + metrics.width, y + 7);
+            ctx.stroke();
+          }
+
+          y += lineHeight;
         }
+        y += objGap;
       }
     }
 
+  }
+
+  /**
+   * Word-wrap `text` so each returned line fits within `maxWidth`
+   * given the current ctx font. Long single words will still overflow.
+   */
+  private wrapText(
+    ctx: CanvasRenderingContext2D,
+    text: string,
+    maxWidth: number,
+  ): string[] {
+    const words = text.split(' ');
+    const lines: string[] = [];
+    let current = '';
+    for (const word of words) {
+      const test = current ? current + ' ' + word : word;
+      if (ctx.measureText(test).width > maxWidth && current) {
+        lines.push(current);
+        current = word;
+      } else {
+        current = test;
+      }
+    }
+    if (current) lines.push(current);
+    return lines;
   }
 
   private roundedRect(
