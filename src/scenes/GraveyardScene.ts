@@ -76,6 +76,21 @@ function seededRand(seed: number): () => number {
 // Organized rows and columns with occasional gaps for trees/bushes.
 // Small variety in column offset keeps it from feeling mechanical.
 // ============================================================
+// Tree positions are shared between grave placement and decoration placement
+// so graves can avoid tree positions
+const TREE_POSITIONS: Array<{ c: number; r: number }> = [
+  // Oak trees — edges and interior
+  { c: 2, r: 4 }, { c: 2, r: 8 }, { c: 2, r: 13 }, { c: 2, r: 17 }, { c: 2, r: 22 }, { c: 2, r: 26 },
+  { c: 21, r: 4 }, { c: 21, r: 8 }, { c: 21, r: 13 }, { c: 21, r: 17 }, { c: 21, r: 22 }, { c: 21, r: 26 },
+  { c: 6, r: 2 }, { c: 12, r: 2 }, { c: 17, r: 2 },
+  { c: 11, r: 8 }, { c: 14, r: 20 },
+  // Evergreens
+  { c: 9, r: 28 }, { c: 14, r: 28 }, { c: 4, r: 28 }, { c: 19, r: 28 },
+  { c: 5, r: 2 }, { c: 18, r: 2 }, { c: 2, r: 11 }, { c: 21, r: 11 },
+  // Dead trees
+  { c: 15, r: 5 }, { c: 5, r: 16 }, { c: 19, r: 19 },
+];
+
 function buildGravePositions(): GravePos[] {
   const graves: GravePos[] = [];
   const rand = seededRand(12345);
@@ -93,6 +108,11 @@ function buildGravePositions(): GravePos[] {
     for (const g of graves) {
       const dx = g.c - c, dy = g.r - r;
       if (dx * dx + dy * dy < 2.2) return false;
+    }
+    // Not too close to trees — trees are bigger now so need more buffer
+    for (const t of TREE_POSITIONS) {
+      const dx = t.c - c, dy = t.r - r;
+      if (dx * dx + dy * dy < 6) return false; // ~2.5 tile buffer
     }
     return true;
   };
@@ -592,9 +612,38 @@ export class GraveyardScene extends Phaser.Scene {
     for (const d of DECORATIONS) {
       const x = d.c * TILE + TILE / 2;
       const y = d.r * TILE + TILE / 2;
+
+      // For trees, draw a grass-blend shadow underneath to soften the
+      // hard circular base of the sprite against the grass
+      if (d.tex.startsWith('tree-')) {
+        const baseY = y + 24;
+        // Soft dark ellipse — draws below the tree
+        const shadow = this.add.graphics();
+        shadow.setDepth(1000 + y - 2);
+        shadow.fillStyle(0x0a1808, 0.4);
+        shadow.fillEllipse(x, baseY, 40, 14);
+        shadow.fillStyle(0x0a1808, 0.25);
+        shadow.fillEllipse(x, baseY, 52, 20);
+
+        // Small grass tuft sprites around the base for blending
+        if (this.textures.exists('grassTufts')) {
+          const offsets = [
+            { dx: -14, dy: 10 },
+            { dx: 12, dy: 8 },
+            { dx: -8, dy: 18 },
+            { dx: 10, dy: 20 },
+          ];
+          for (const o of offsets) {
+            const tuft = this.add.image(x + o.dx, y + o.dy, 'grassTufts');
+            tuft.setScale(0.6);
+            tuft.setAlpha(0.8);
+            tuft.setDepth(1000 + y + o.dy);
+          }
+        }
+      }
+
       const img = this.add.image(x, y, d.tex);
       // Y-sorted depth: objects further down the screen draw on top
-      // Trees use their base (bottom of sprite) as the sort key
       if (d.tex.startsWith('tree-')) {
         // Tree base = y + half height; sort above ground but below player
         img.setDepth(1000 + y + (img.height / 2));
@@ -689,7 +738,7 @@ export class GraveyardScene extends Phaser.Scene {
     // Circular radial glow around the lamp
     const glowRadius = 90;
     const glow = this.add.graphics();
-    glow.setDepth(25); // above vignette/fog but below UI
+    glow.setDepth(8500); // above world/fog, below twilight overlay
     glow.setBlendMode(Phaser.BlendModes.ADD);
 
     // Draw concentric circles for a radial falloff effect
@@ -721,7 +770,7 @@ export class GraveyardScene extends Phaser.Scene {
   private createFogEffects(): void {
     for (let i = 0; i < 6; i++) {
       const fog = this.add.graphics();
-      fog.setDepth(15);
+      fog.setDepth(8000);
       fog.setAlpha(0.03 + Math.random() * 0.03);
       const startX = Math.random() * MAP_W;
       const startY = Math.random() * MAP_H;
@@ -748,7 +797,7 @@ export class GraveyardScene extends Phaser.Scene {
     // Full-screen overlay for a gentle twilight cast.
     // MULTIPLY + lighter color = subtle darkening and tint.
     const overlay = this.add.graphics();
-    overlay.setDepth(18);
+    overlay.setDepth(9000);
     overlay.setScrollFactor(0);
     overlay.setBlendMode(Phaser.BlendModes.MULTIPLY);
 
@@ -765,7 +814,7 @@ export class GraveyardScene extends Phaser.Scene {
 
   private createVignette(): void {
     const vignette = this.add.graphics();
-    vignette.setDepth(20);
+    vignette.setDepth(9010);
     vignette.setScrollFactor(0);
 
     const drawVignette = () => {
