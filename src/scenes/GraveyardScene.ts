@@ -3,6 +3,7 @@ import { Player } from '../entities/Player';
 import { InteractiveObject } from '../entities/InteractiveObject';
 import { InteractionSystem } from '../systems/InteractionSystem';
 import { DialogSystem } from '../systems/DialogSystem';
+import type { UIScene } from './UIScene';
 import { StateManager } from '../systems/StateManager';
 import { MissionSystem } from '../systems/MissionSystem';
 import * as Dialogs from '../data/dialogs';
@@ -403,7 +404,14 @@ export class GraveyardScene extends Phaser.Scene {
     this.player.play('gabe-idle-down');
 
     // Dialog
-    this.dialogSystem = new DialogSystem(this);
+    // Dialog is owned by UIScene (for proper depth over HUD buttons).
+    // UIScene.create() runs after this, so we resolve it lazily.
+    // The first dialog use is delayed 800ms by the intro timer.
+    this.dialogSystem = null as unknown as DialogSystem;
+    this.time.delayedCall(0, () => {
+      const uiScene = this.scene.get('UIScene') as UIScene;
+      this.dialogSystem = uiScene.dialogSystem;
+    });
 
     // Interaction
     this.interactionSystem = new InteractionSystem(this.player);
@@ -458,7 +466,7 @@ export class GraveyardScene extends Phaser.Scene {
       // After the mission sticky note is dismissed, play the intro dialog
       uiScene.events.once('mission-note-dismissed', () => {
         this.time.delayedCall(300, () => {
-          this.dialogSystem.showDialog(Dialogs.GRAVEYARD_INTRO);
+          this.dialogSystem?.showDialog(Dialogs.GRAVEYARD_INTRO);
         });
       });
     }
@@ -611,7 +619,7 @@ export class GraveyardScene extends Phaser.Scene {
           inspectData: { texture: texKey },
           onInteract: () => {
             this.player.stopMovement();
-            this.dialogSystem.showDialog(gravestoneDialogs[g.dialogIdx!]);
+            this.dialogSystem?.showDialog(gravestoneDialogs[g.dialogIdx!]);
           },
         });
         obj.setVisible(false);
@@ -884,7 +892,7 @@ export class GraveyardScene extends Phaser.Scene {
   }
 
   private handleInteract(): void {
-    if (this.dialogSystem.active) {
+    if (this.dialogSystem?.active) {
       this.dialogSystem.advance();
       return;
     }
@@ -893,12 +901,13 @@ export class GraveyardScene extends Phaser.Scene {
 
   update(_time: number, delta: number): void {
     const uiScene = this.scene.get('UIScene');
+    const dialogActive = this.dialogSystem?.active ?? false;
     if (uiScene) {
       const joyData = (uiScene as { joystickData?: { x: number; y: number } }).joystickData;
-      if (joyData && !this.dialogSystem.active) {
+      if (joyData && !dialogActive) {
         this.player.inputX = joyData.x;
         this.player.inputY = joyData.y;
-      } else if (this.dialogSystem.active) {
+      } else if (dialogActive) {
         this.player.inputX = 0;
         this.player.inputY = 0;
       }

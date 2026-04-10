@@ -45,18 +45,18 @@ export class StickyNote {
     this.noteImage.setAngle(-3); // slight tilt
     this.container.add(this.noteImage);
 
-    // Interactive zone for dismiss (covers the whole note)
-    const zone = this.scene.add.zone(0, 0, this.NOTE_WIDTH + 20, this.NOTE_HEIGHT + 20)
-      .setInteractive()
-      .setOrigin(0.5);
-    this.container.add(zone);
-    zone.on('pointerdown', (_p: Phaser.Input.Pointer, _x: number, _y: number, event: Phaser.Types.Input.EventData) => {
-      event.stopPropagation();
-      this.dismiss();
-    });
+    // Dismiss on ANY tap on the screen (not just the note)
+    this.scene.input.on('pointerdown', this.handleTap, this);
 
     this.scene.scale.on('resize', () => this.reposition());
   }
+
+  private handleTap = (_p: Phaser.Input.Pointer, _x: number, _y: number, event?: Phaser.Types.Input.EventData): void => {
+    if (this.visible) {
+      if (event) event.stopPropagation();
+      this.dismiss();
+    }
+  };
 
   /**
    * Draw the sticky note to an offscreen canvas with anti-aliasing,
@@ -156,12 +156,6 @@ export class StickyNote {
       }
     }
 
-    // Dismiss hint
-    ctx.fillStyle = '#7a6848';
-    ctx.font = 'italic 10px Georgia, serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('tap to dismiss', w / 2, h - 18);
-    ctx.textAlign = 'left';
   }
 
   private roundedRect(

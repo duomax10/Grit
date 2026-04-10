@@ -5,12 +5,14 @@ import { InventoryUI } from '../ui/InventoryUI';
 import { StickyNote } from '../ui/StickyNote';
 import { InteractiveObject } from '../entities/InteractiveObject';
 import { MissionSystem } from '../systems/MissionSystem';
+import { DialogSystem } from '../systems/DialogSystem';
 
 export class UIScene extends Phaser.Scene {
   private joystick!: VirtualJoystick;
   private hudButtons!: HUDButtons;
   private inventoryUI!: InventoryUI;
   private stickyNote!: StickyNote;
+  public dialogSystem!: DialogSystem;
 
   // Exposed for GraveyardScene to read
   public joystickData = { x: 0, y: 0 };
@@ -57,6 +59,9 @@ export class UIScene extends Phaser.Scene {
 
     // Sticky note (mission display)
     this.stickyNote = new StickyNote(this);
+
+    // Dialog system lives here so it renders above HUD buttons
+    this.dialogSystem = new DialogSystem(this);
 
     // Listen for objective completions to refresh the note
     MissionSystem.getInstance().on('objective-completed', () => {
