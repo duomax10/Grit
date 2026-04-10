@@ -2,12 +2,15 @@ import Phaser from 'phaser';
 import { VirtualJoystick } from '../ui/VirtualJoystick';
 import { HUDButtons } from '../ui/HUDButtons';
 import { InventoryUI } from '../ui/InventoryUI';
+import { StickyNote } from '../ui/StickyNote';
 import { InteractiveObject } from '../entities/InteractiveObject';
+import { MissionSystem } from '../systems/MissionSystem';
 
 export class UIScene extends Phaser.Scene {
   private joystick!: VirtualJoystick;
   private hudButtons!: HUDButtons;
   private inventoryUI!: InventoryUI;
+  private stickyNote!: StickyNote;
 
   // Exposed for GraveyardScene to read
   public joystickData = { x: 0, y: 0 };
@@ -24,7 +27,7 @@ export class UIScene extends Phaser.Scene {
     this.hudButtons = new HUDButtons(this);
 
     this.hudButtons.onInteract = () => {
-      if (this.inventoryUI.active) return;
+      if (this.inventoryUI.active || this.stickyNote.isVisible) return;
       this.events.emit('interact-pressed');
     };
 
@@ -37,11 +40,36 @@ export class UIScene extends Phaser.Scene {
       }
     };
 
+    this.hudButtons.onMission = () => {
+      if (this.stickyNote.isVisible) {
+        this.stickyNote.dismiss();
+      } else {
+        this.stickyNote.show();
+        this.events.emit('inventory-pressed'); // stop player movement
+      }
+    };
+
     // Inventory UI
     this.inventoryUI = new InventoryUI(this);
     this.inventoryUI.onClose = () => {
       // Resume game
     };
+
+    // Sticky note (mission display)
+    this.stickyNote = new StickyNote(this);
+
+    // Listen for objective completions to refresh the note
+    MissionSystem.getInstance().on('objective-completed', () => {
+      this.stickyNote.refresh();
+    });
+    MissionSystem.getInstance().on('mission-changed', () => {
+      this.stickyNote.refresh();
+    });
+
+    // Show the sticky note on level start
+    this.events.once('show-mission', () => {
+      this.stickyNote.show();
+    });
 
     // Listen for interaction state changes from GraveyardScene
     this.events.on('nearest-interactive-changed', (obj: InteractiveObject | null) => {

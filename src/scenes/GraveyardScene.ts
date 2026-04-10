@@ -4,6 +4,7 @@ import { InteractiveObject } from '../entities/InteractiveObject';
 import { InteractionSystem } from '../systems/InteractionSystem';
 import { DialogSystem } from '../systems/DialogSystem';
 import { StateManager } from '../systems/StateManager';
+import { MissionSystem } from '../systems/MissionSystem';
 import * as Dialogs from '../data/dialogs';
 
 // Map layout matching the reference image
@@ -434,11 +435,18 @@ export class GraveyardScene extends Phaser.Scene {
     this.createVignette();
     this.startAmbientAudio();
 
-    // Intro dialog
+    // Set the mission for this level
+    MissionSystem.getInstance().setMission('graveyard_intro');
+
+    // Intro dialog, then show sticky note mission
     this.time.delayedCall(800, () => {
       if (!this.introPlayed) {
         this.introPlayed = true;
-        this.dialogSystem.showDialog(Dialogs.GRAVEYARD_INTRO);
+        this.dialogSystem.showDialog(Dialogs.GRAVEYARD_INTRO, () => {
+          // After intro dialog closes, show the sticky note
+          const uiScene = this.scene.get('UIScene');
+          if (uiScene) uiScene.events.emit('show-mission');
+        });
         StateManager.getInstance().setFlag('graveyard_intro_seen', true);
       }
     });

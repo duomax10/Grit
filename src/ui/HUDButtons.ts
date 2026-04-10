@@ -19,9 +19,15 @@ export class HUDButtons {
   private inventoryBg!: Phaser.GameObjects.Graphics;
   private inventoryText!: Phaser.GameObjects.Text;
 
+  // Mission button
+  private missionContainer!: Phaser.GameObjects.Container;
+  private missionBg!: Phaser.GameObjects.Graphics;
+  private missionText!: Phaser.GameObjects.Text;
+
   // Callbacks
   public onInteract?: () => void;
   public onInventory?: () => void;
+  public onMission?: () => void;
 
   private readonly BTN_SIZE = 48;
 
@@ -29,6 +35,7 @@ export class HUDButtons {
     this.scene = scene;
     this.createInteractButton();
     this.createInventoryButton();
+    this.createMissionButton();
     this.repositionButtons();
 
     scene.scale.on('resize', () => this.repositionButtons());
@@ -113,14 +120,49 @@ export class HUDButtons {
     });
   }
 
+  private createMissionButton(): void {
+    this.missionContainer = this.scene.add.container(0, 0);
+    this.missionContainer.setDepth(200);
+    this.missionContainer.setScrollFactor(0);
+
+    this.missionBg = this.scene.add.graphics();
+    // Yellow sticky-note themed button
+    this.missionBg.fillStyle(0xd4c070, 0.85);
+    this.missionBg.fillRoundedRect(-20, -20, 40, 40, 6);
+    this.missionBg.lineStyle(1, 0x8a7040, 0.9);
+    this.missionBg.strokeRoundedRect(-20, -20, 40, 40, 6);
+    this.missionContainer.add(this.missionBg);
+
+    // Exclamation mark icon
+    this.missionText = this.scene.add.text(0, 0, '!', {
+      fontFamily: 'Georgia, serif',
+      fontSize: '20px',
+      color: '#2a2010',
+      fontStyle: 'bold',
+    }).setOrigin(0.5);
+    this.missionContainer.add(this.missionText);
+
+    const zone = this.scene.add.zone(0, 0, 50, 50)
+      .setInteractive()
+      .setOrigin(0.5);
+    this.missionContainer.add(zone);
+
+    zone.on('pointerdown', () => {
+      this.onMission?.();
+    });
+  }
+
   private repositionButtons(): void {
     const { width, height } = this.scene.scale;
 
     // Interact/Attack button: primary thumb zone (bottom-right corner)
     this.interactContainer.setPosition(width - 50, height - 70);
 
-    // Inventory button: top-right corner, below the mobile status bar
+    // Inventory button: top-right corner, below mobile status bar
     this.inventoryContainer.setPosition(width - 34, 58);
+
+    // Mission button: just left of the inventory button
+    this.missionContainer.setPosition(width - 82, 58);
   }
 
   showInteract(): void {
