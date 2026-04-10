@@ -647,9 +647,9 @@ export class GraveyardScene extends Phaser.Scene {
     // Placed on grass tiles only, with some density variation.
     const rand = seededRand(99999);
     const placed: Array<{ x: number; y: number }> = [];
-    const MIN_SPACING = 24; // minimum pixels between tufts
+    const MIN_SPACING = 42; // larger spacing for sparser distribution
 
-    for (let attempt = 0; attempt < 400; attempt++) {
+    for (let attempt = 0; attempt < 140; attempt++) {
       // Random position inside the map bounds
       const c = Math.floor(rand() * (MAP_COLS - 4)) + 2;
       const r = Math.floor(rand() * (MAP_ROWS - 4)) + 2;
