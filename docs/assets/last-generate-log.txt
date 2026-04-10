@@ -1,16 +1,7 @@
-Running target: level-assets
-=== Level 1 Asset Generation ===
-Using descriptions from level-asset-descriptions.mjs
+Running target: level-objects
+=== Level 1 Object Assets Only ===
 
 Balance: $0.00
-
-Ground Tiles:
-  grass...
-    ✓ /home/runner/work/Grit/Grit/public/assets/tiles/grass.png ($0.0000)
-  gravel...
-    ✓ /home/runner/work/Grit/Grit/public/assets/tiles/gravel.png ($0.0000)
-  dirt...
-    ✓ /home/runner/work/Grit/Grit/public/assets/tiles/dirt.png ($0.0000)
 
 Gravestones:
   Simple rounded headstone...
@@ -56,7 +47,7 @@ Fence:
   fence post...
     ✓ /home/runner/work/Grit/Grit/public/assets/objects/fence-post.png ($0.0000)
 
-Small Details:
+Details:
   rocks...
     ✓ /home/runner/work/Grit/Grit/public/assets/objects/rocks.png ($0.0000)
   grassTufts...
