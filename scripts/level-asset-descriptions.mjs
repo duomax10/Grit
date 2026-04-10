@@ -211,11 +211,13 @@ export const FENCE = {
     size: { width: 32, height: 48 },
   },
   vertical: {
-    // Vertical fence section — used on left/right cemetery edges
-    // Should look like the horizontal fence rotated 90 degrees,
-    // viewed from above/angled so the spear tips point sideways
-    // and the bars run down the screen showing their tops
-    description: `isolated wrought iron fence row viewed from above on pure transparent background, near-black metal #000000 #101010 #181818, row of vertical iron spear-tip bars lined up pointing out sideways from a horizontal rail, the rail runs top-to-bottom down the image, looks like the top of a row of fence spikes, no posts, ${PIXEL_STYLE}`,
+    // Vertical fence section for left/right cemetery edges.
+    // Top-down perspective: the fence runs north-to-south along the
+    // side of the map, so from above you only see the narrow top edge
+    // with spike tips. It should look like a thin column of spike
+    // points running vertically down the sprite, not a side view of
+    // a tall fence.
+    description: `top-down view of a wrought iron fence running north to south, sprite is a thin narrow vertical strip showing only the top of the fence as seen from directly above, column of 4 small pointed iron spear tips running down the middle of the sprite, near-black metal #000000 #101010 #181818, the rest is pure transparent background, isolated fence top row, no ground, no side view, bird's eye view, ${PIXEL_STYLE}`,
     size: { width: 32, height: 32 },
   },
 };
