@@ -9,6 +9,8 @@ on:
         type: choice
         options:
           - level-assets
+          - level-tiles
+          - level-objects
           - graveyard-from-reference
           - graveyard-full
           - walk-anims
@@ -47,6 +49,10 @@ jobs:
           echo "Running target: ${{ inputs.target }}" | tee /tmp/generate-log.txt
           if [ "${{ inputs.target }}" = "level-assets" ]; then
             node scripts/generate-level-assets.mjs 2>&1 | tee -a /tmp/generate-log.txt
+          elif [ "${{ inputs.target }}" = "level-tiles" ]; then
+            node scripts/generate-level-tiles.mjs 2>&1 | tee -a /tmp/generate-log.txt
+          elif [ "${{ inputs.target }}" = "level-objects" ]; then
+            node scripts/generate-level-objects.mjs 2>&1 | tee -a /tmp/generate-log.txt
           elif [ "${{ inputs.target }}" = "graveyard-from-reference" ]; then
             node scripts/generate-from-reference.mjs 2>&1 | tee /tmp/generate-log.txt
           elif [ "${{ inputs.target }}" = "wang-tilesets" ]; then
