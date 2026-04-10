@@ -162,17 +162,21 @@ export const GRAVESTONES = [
 // ===========================================================
 // TREES (various sizes, transparent bg)
 // ===========================================================
+// Small grass tufts at tree base for natural blending.
+// Must match the grass tile hex codes exactly.
+const TREE_BASE = `small uneven tufts of grass blades scattered around the base (very dark forest green #183018 #203820 #284028), irregular organic shape at the bottom that fades into grass, NOT a round circle base, tufts stick out irregularly in different directions`;
+
 export const TREES = {
   oak: {
-    description: `isolated oak tree object on pure transparent background, large tree with full round leafy canopy, highly detailed trunk bark texture, VERY DARK canopy colors #182818 #203020 #283820, dark brown trunk #201810 #302818, MUTED and DARK not bright, ${GRASS_AT_BASE}, ${PIXEL_STYLE}`,
+    description: `isolated oak tree object on pure transparent background, large tree with full round leafy canopy, highly detailed trunk bark texture, VERY DARK canopy colors #182818 #203020 #283820, dark brown trunk #201810 #302818, MUTED and DARK not bright, ${TREE_BASE}, ${PIXEL_STYLE}`,
     size: { width: 112, height: 112 },
   },
   dead: {
-    description: `isolated dead tree object on pure transparent background, leafless gnarled tree, detailed twisted bark texture, near-black bark #201008 #302018, bare twisted branches, ${GRASS_AT_BASE}, ${PIXEL_STYLE}`,
+    description: `isolated dead tree object on pure transparent background, leafless gnarled tree, detailed twisted bark texture, near-black bark #201008 #302018, bare twisted branches, ${TREE_BASE}, ${PIXEL_STYLE}`,
     size: { width: 80, height: 112 },
   },
   evergreen: {
-    description: `isolated pine tree object on pure transparent background, tall dark cypress tree, detailed needle texture, very dark green needles #182818 #203820 #284028, dark brown trunk, ${GRASS_AT_BASE}, ${PIXEL_STYLE}`,
+    description: `isolated pine tree object on pure transparent background, tall dark cypress tree, detailed needle texture, very dark green needles #182818 #203820 #284028, dark brown trunk, ${TREE_BASE}, ${PIXEL_STYLE}`,
     size: { width: 80, height: 112 },
   },
 };

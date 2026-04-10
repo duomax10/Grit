@@ -415,6 +415,7 @@ export class GraveyardScene extends Phaser.Scene {
     this.buildMap();
     this.placeGravestones();
     this.placeDecorations();
+    this.scatterGrassTufts();
     this.placeFountain();
     this.placeEntranceLight();
 
@@ -613,33 +614,12 @@ export class GraveyardScene extends Phaser.Scene {
       const x = d.c * TILE + TILE / 2;
       const y = d.r * TILE + TILE / 2;
 
-      // For trees, draw a grass-blend shadow underneath to soften the
-      // hard circular base of the sprite against the grass
+      // For trees, draw a subtle shadow underneath to seat them on the ground
       if (d.tex.startsWith('tree-')) {
-        const baseY = y + 24;
-        // Soft dark ellipse — draws below the tree
         const shadow = this.add.graphics();
         shadow.setDepth(1000 + y - 2);
-        shadow.fillStyle(0x0a1808, 0.4);
-        shadow.fillEllipse(x, baseY, 40, 14);
-        shadow.fillStyle(0x0a1808, 0.25);
-        shadow.fillEllipse(x, baseY, 52, 20);
-
-        // Small grass tuft sprites around the base for blending
-        if (this.textures.exists('grassTufts')) {
-          const offsets = [
-            { dx: -14, dy: 10 },
-            { dx: 12, dy: 8 },
-            { dx: -8, dy: 18 },
-            { dx: 10, dy: 20 },
-          ];
-          for (const o of offsets) {
-            const tuft = this.add.image(x + o.dx, y + o.dy, 'grassTufts');
-            tuft.setScale(0.6);
-            tuft.setAlpha(0.8);
-            tuft.setDepth(1000 + y + o.dy);
-          }
-        }
+        shadow.fillStyle(0x0a1808, 0.35);
+        shadow.fillEllipse(x, y + 24, 44, 14);
       }
 
       const img = this.add.image(x, y, d.tex);
@@ -656,6 +636,44 @@ export class GraveyardScene extends Phaser.Scene {
         this.physics.add.existing(z, true);
         this.objectColliders.add(z);
       }
+    }
+  }
+
+  private scatterGrassTufts(): void {
+    if (!this.textures.exists('grassTufts')) return;
+    // Deterministic seeded scatter of grass tuft sprites across the map.
+    // Placed on grass tiles only, with some density variation.
+    const rand = seededRand(99999);
+    const placed: Array<{ x: number; y: number }> = [];
+    const MIN_SPACING = 24; // minimum pixels between tufts
+
+    for (let attempt = 0; attempt < 400; attempt++) {
+      // Random position inside the map bounds
+      const c = Math.floor(rand() * (MAP_COLS - 4)) + 2;
+      const r = Math.floor(rand() * (MAP_ROWS - 4)) + 2;
+      const cell = LAYOUT[r]?.[c];
+      if (cell !== G) continue;
+
+      // Random sub-tile offset so tufts aren't grid-aligned
+      const px = c * TILE + TILE / 2 + (rand() - 0.5) * TILE;
+      const py = r * TILE + TILE / 2 + (rand() - 0.5) * TILE;
+
+      // Check min spacing from other tufts
+      let ok = true;
+      for (const p of placed) {
+        const dx = p.x - px, dy = p.y - py;
+        if (dx * dx + dy * dy < MIN_SPACING * MIN_SPACING) { ok = false; break; }
+      }
+      if (!ok) continue;
+
+      placed.push({ x: px, y: py });
+
+      const tuft = this.add.image(px, py, 'grassTufts');
+      // Slight scale and alpha variation for natural look
+      const scale = 0.45 + rand() * 0.3;
+      tuft.setScale(scale);
+      tuft.setAlpha(0.7 + rand() * 0.3);
+      tuft.setDepth(1000 + py);
     }
   }
 
