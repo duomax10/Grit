@@ -163,18 +163,44 @@ interface Deco {
   depth?: number; scale?: number;
 }
 
+// Helper: is this cell on a stone/gravel path?
+function isOnPath(c: number, r: number): boolean {
+  return LAYOUT[r]?.[c] === V;
+}
+
+// Helper: is this cell adjacent to a stone path (within a radius)?
+function isNearPath(c: number, r: number, radius: number = 1): boolean {
+  for (let dr = -radius; dr <= radius; dr++) {
+    for (let dc = -radius; dc <= radius; dc++) {
+      if (LAYOUT[r + dr]?.[c + dc] === V) return true;
+    }
+  }
+  return false;
+}
+
 function buildDecorations(): Deco[] {
   const decos: Deco[] = [];
   const rand = seededRand(54321);
 
   // Collect all occupied cells (paths, fence, graves)
+  // Mark the path AND adjacent cells as occupied so no decorations
+  // are placed on or directly bordering the stone path
   const occupied = new Set<string>();
   for (let r = 0; r < MAP_ROWS; r++) {
     for (let c = 0; c < MAP_COLS; c++) {
-      if (LAYOUT[r][c] !== G) occupied.add(`${c},${r}`);
+      // Non-grass tiles (path, fence) — fully blocked
+      if (LAYOUT[r][c] !== G) {
+        occupied.add(`${c},${r}`);
+        continue;
+      }
+      // Grass cells adjacent to path — blocked for decorations
+      // (path is only for the fountain)
+      if (isNearPath(c, r, 1)) {
+        occupied.add(`${c},${r}`);
+      }
     }
   }
-  // Add fountain area
+  // Add fountain area (fountain goes on the path — that's the exception)
   for (let dr = -3; dr <= 3; dr++) {
     for (let dc = -3; dc <= 3; dc++) {
       occupied.add(`${Math.round(11.5 + dc)},${14 + dr}`);
