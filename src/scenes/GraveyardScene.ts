@@ -386,6 +386,7 @@ export class GraveyardScene extends Phaser.Scene {
     this.placeGravestones();
     this.placeDecorations();
     this.placeFountain();
+    this.placeEntranceLight();
 
     // Camera
     this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
@@ -575,6 +576,63 @@ export class GraveyardScene extends Phaser.Scene {
     const y = 14 * TILE;
     this.add.image(x, y, 'fountain').setDepth(4);
     const z = this.add.zone(x, y, 64, 64);
+    this.physics.add.existing(z, true);
+    this.objectColliders.add(z);
+  }
+
+  private placeEntranceLight(): void {
+    // Position at the entrance — bottom of the stone path
+    // The gate opening is at columns 11-12, row MAP_ROWS-1
+    const lampX = 11.5 * TILE;
+    const lampY = (MAP_ROWS - 2) * TILE;
+
+    // Draw a simple lamp post (pixel art style) as graphics
+    const lamp = this.add.graphics();
+    lamp.setDepth(5);
+    // Post (dark iron)
+    lamp.fillStyle(0x1a1a1a, 1);
+    lamp.fillRect(lampX - 2, lampY - 24, 4, 24);
+    // Base
+    lamp.fillStyle(0x0a0a0a, 1);
+    lamp.fillRect(lampX - 5, lampY, 10, 3);
+    // Lamp housing (top)
+    lamp.fillStyle(0x2a2a2a, 1);
+    lamp.fillRect(lampX - 6, lampY - 32, 12, 8);
+    // Warm glow bulb
+    lamp.fillStyle(0xffd88a, 1);
+    lamp.fillRect(lampX - 4, lampY - 30, 8, 4);
+    // Top cap
+    lamp.fillStyle(0x0a0a0a, 1);
+    lamp.fillRect(lampX - 7, lampY - 34, 14, 2);
+
+    // Circular radial glow around the lamp
+    const glowRadius = 90;
+    const glow = this.add.graphics();
+    glow.setDepth(25); // above vignette/fog but below UI
+    glow.setBlendMode(Phaser.BlendModes.ADD);
+
+    // Draw concentric circles for a radial falloff effect
+    const steps = 20;
+    for (let i = steps; i >= 0; i--) {
+      const t = i / steps;
+      const r = glowRadius * t;
+      const alpha = (1 - t) * 0.08; // max ~8% opacity, fades with radius
+      glow.fillStyle(0xffb060, alpha);
+      glow.fillCircle(lampX, lampY - 28, r);
+    }
+
+    // Subtle pulse animation for the bulb brightness
+    this.tweens.add({
+      targets: glow,
+      alpha: { from: 0.9, to: 1.1 },
+      duration: 1800,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
+
+    // Collider so player can't walk through the lamp post
+    const z = this.add.zone(lampX, lampY, 10, 8);
     this.physics.add.existing(z, true);
     this.objectColliders.add(z);
   }
