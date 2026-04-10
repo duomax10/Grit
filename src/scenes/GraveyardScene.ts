@@ -632,7 +632,9 @@ export class GraveyardScene extends Phaser.Scene {
       }
       if (d.scale) img.setScale(d.scale);
       if (d.collide) {
-        const z = this.add.zone(x, y + 6, d.colW ?? 20, d.colH ?? 10);
+        // Collider at the base of the sprite (trees are tall, so use bottom)
+        const colOffsetY = d.tex.startsWith('tree-') ? (img.height / 2 - 8) : 6;
+        const z = this.add.zone(x, y + colOffsetY, d.colW ?? 20, d.colH ?? 10);
         this.physics.add.existing(z, true);
         this.objectColliders.add(z);
       }

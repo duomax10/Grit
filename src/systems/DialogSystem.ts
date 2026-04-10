@@ -24,8 +24,8 @@ export class DialogSystem {
   private onComplete?: () => void;
 
   private readonly CHARS_PER_SECOND = 30;
-  private readonly BOX_PADDING = 10;
-  private readonly BOX_HEIGHT = 70;
+  private readonly BOX_PADDING = 12;
+  private readonly BOX_HEIGHT = 90;
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
@@ -36,7 +36,8 @@ export class DialogSystem {
     const { width, height } = this.scene.scale;
 
     this.container = this.scene.add.container(0, 0);
-    this.container.setDepth(100);
+    // Very high depth so it renders above all world objects, twilight, fog
+    this.container.setDepth(10000);
     this.container.setScrollFactor(0);
     this.container.setVisible(false);
 
@@ -47,7 +48,7 @@ export class DialogSystem {
     // Speaker name
     this.speakerText = this.scene.add.text(0, 0, '', {
       fontFamily: 'Georgia, serif',
-      fontSize: '11px',
+      fontSize: '14px',
       color: '#c0a880',
       fontStyle: 'bold',
     });
@@ -56,18 +57,18 @@ export class DialogSystem {
     // Dialog body
     this.bodyText = this.scene.add.text(0, 0, '', {
       fontFamily: 'Georgia, serif',
-      fontSize: '11px',
-      color: '#d0d0d0',
+      fontSize: '14px',
+      color: '#e8e8e8',
       wordWrap: { width: 280 },
-      lineSpacing: 2,
+      lineSpacing: 4,
     });
     this.container.add(this.bodyText);
 
     // Advance indicator
     this.advanceIndicator = this.scene.add.text(0, 0, '\u25BC', {
       fontFamily: 'monospace',
-      fontSize: '10px',
-      color: '#6b4226',
+      fontSize: '12px',
+      color: '#c0a880',
     });
     this.advanceIndicator.setVisible(false);
     this.container.add(this.advanceIndicator);
@@ -87,18 +88,20 @@ export class DialogSystem {
 
   private drawBackground(): void {
     const { width } = this.scene.scale;
-    const boxY = 8; // TOP of screen
+    const boxY = 8;
 
     this.bgGraphics.clear();
 
+    // More opaque background — 0.92/0.95 vs old 0.75/0.85
     this.bgGraphics.fillStyle(
       this.currentLine?.type === 'thought' ? 0x0a0a1a : 0x0a0a0a,
-      this.currentLine?.type === 'thought' ? 0.75 : 0.85,
+      this.currentLine?.type === 'thought' ? 0.92 : 0.95,
     );
-    this.bgGraphics.fillRoundedRect(8, boxY, width - 16, this.BOX_HEIGHT, 4);
+    this.bgGraphics.fillRoundedRect(8, boxY, width - 16, this.BOX_HEIGHT, 6);
 
-    this.bgGraphics.lineStyle(1, this.currentLine?.type === 'thought' ? 0x3a3a5a : 0x3a3a3e, 0.8);
-    this.bgGraphics.strokeRoundedRect(8, boxY, width - 16, this.BOX_HEIGHT, 4);
+    // Thicker, more visible border
+    this.bgGraphics.lineStyle(2, this.currentLine?.type === 'thought' ? 0x6060a0 : 0x8a6a40, 1);
+    this.bgGraphics.strokeRoundedRect(8, boxY, width - 16, this.BOX_HEIGHT, 6);
   }
 
   private positionText(): void {
@@ -109,20 +112,19 @@ export class DialogSystem {
     if (this.currentLine?.type === 'speech' && this.currentLine.speaker) {
       this.speakerText.setPosition(8 + p, boxY + p);
       this.speakerText.setVisible(true);
-      this.bodyText.setPosition(8 + p, boxY + p + 16);
+      this.bodyText.setPosition(8 + p, boxY + p + 22);
     } else if (this.currentLine?.type === 'thought') {
-      // Thoughts show speaker name too (default "Gabe")
       this.speakerText.setText(this.currentLine.speaker || 'Gabe');
       this.speakerText.setPosition(8 + p, boxY + p);
       this.speakerText.setVisible(true);
-      this.bodyText.setPosition(8 + p, boxY + p + 16);
+      this.bodyText.setPosition(8 + p, boxY + p + 22);
     } else {
       this.speakerText.setVisible(false);
       this.bodyText.setPosition(8 + p, boxY + p + 4);
     }
 
     this.bodyText.setWordWrapWidth(width - 16 - p * 2);
-    this.advanceIndicator.setPosition(width - 24, boxY + this.BOX_HEIGHT - 16);
+    this.advanceIndicator.setPosition(width - 28, boxY + this.BOX_HEIGHT - 20);
   }
 
   showDialog(sequence: DialogSequence, onComplete?: () => void): void {
