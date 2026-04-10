@@ -115,14 +115,14 @@ function buildGravePositions(): GravePos[] {
         // 12% chance to leave a gap (for tree/bush placement later)
         if (rand() < 0.12) continue;
         if (isValid(c, r)) {
-          graves.push({ c, r, variant: Math.floor(rand() * 8) });
+          graves.push({ c, r, variant: Math.floor(rand() * 18) });
         }
       }
       // Right columns
       for (const c of rightCols) {
         if (rand() < 0.12) continue;
         if (isValid(c, r)) {
-          graves.push({ c, r, variant: Math.floor(rand() * 8) });
+          graves.push({ c, r, variant: Math.floor(rand() * 18) });
         }
       }
     }

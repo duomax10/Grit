@@ -59,6 +59,7 @@ export const TILES = {
 const GRASS_AT_BASE = `small tufts of dark forest green grass ${GRASS_HEX} at the base`;
 
 export const GRAVESTONES = [
+  // --- Original 8 ---
   {
     name: 'Simple rounded headstone',
     description: `isolated gravestone object on pure transparent background, simple rounded-top tombstone, dark weathered gray stone #383838 #484848 #585858, ${GRASS_AT_BASE}, ${PIXEL_STYLE}`,
@@ -97,6 +98,63 @@ export const GRAVESTONES = [
   {
     name: 'Short worn headstone',
     description: `isolated short tombstone on pure transparent background, simple rectangular worn stone, dark weathered gray #303030 #484848, ${GRASS_AT_BASE}, ${PIXEL_STYLE}`,
+    size: { width: 32, height: 32 },
+  },
+
+  // --- 10 new variants ---
+  // Larger / taller
+  {
+    name: 'Tall obelisk',
+    description: `isolated stone obelisk grave monument on pure transparent background, tall pointed four-sided pillar tapering to a point, dark weathered gray stone #383838 #484848 #585858, ${GRASS_AT_BASE}, ${PIXEL_STYLE}`,
+    size: { width: 32, height: 64 },
+  },
+  {
+    name: 'Angel statue',
+    description: `isolated stone angel statue grave monument on pure transparent background, standing weeping angel with wings folded, dark weathered gray stone #383838 #484848 #585858, detailed carved angel figure, ${GRASS_AT_BASE}, ${PIXEL_STYLE}`,
+    size: { width: 48, height: 64 },
+  },
+  {
+    name: 'Large family plot stone',
+    description: `isolated large family plot gravestone on pure transparent background, wide rectangular monument with multiple carved names, dark weathered gray stone #383838 #484848, ${GRASS_AT_BASE}, ${PIXEL_STYLE}`,
+    size: { width: 48, height: 48 },
+  },
+  {
+    name: 'Ornate tall headstone with urn',
+    description: `isolated tall ornate gravestone with decorative stone urn on top, dark weathered gray stone #383838 #484848 #585858, Victorian style, ${GRASS_AT_BASE}, ${PIXEL_STYLE}`,
+    size: { width: 32, height: 64 },
+  },
+
+  // Smaller / flat
+  {
+    name: 'Small flat marker',
+    description: `isolated small flat rectangular grave marker on pure transparent background, set low to the ground, dark weathered gray stone #383838 #484848, ${GRASS_AT_BASE}, ${PIXEL_STYLE}`,
+    size: { width: 32, height: 32 },
+  },
+  {
+    name: 'Tiny child grave marker',
+    description: `isolated very small child's grave marker on pure transparent background, tiny rounded stone with simple carving, dark weathered gray stone #383838 #484848, ${GRASS_AT_BASE}, ${PIXEL_STYLE}`,
+    size: { width: 32, height: 32 },
+  },
+  {
+    name: 'Worn stone slab',
+    description: `isolated old flat stone grave slab on pure transparent background, weather-worn smooth rectangular stone, dark weathered gray #303030 #484848, ${GRASS_AT_BASE}, ${PIXEL_STYLE}`,
+    size: { width: 32, height: 32 },
+  },
+
+  // Cracked / broken (3)
+  {
+    name: 'Cracked leaning headstone',
+    description: `isolated cracked and leaning gravestone on pure transparent background, tombstone tilted to one side with visible cracks running across its surface, dark weathered gray stone #383838 #484848, ${GRASS_AT_BASE}, ${PIXEL_STYLE}`,
+    size: { width: 32, height: 48 },
+  },
+  {
+    name: 'Broken toppled gravestone',
+    description: `isolated broken gravestone on pure transparent background, stone cracked and fallen partially over, broken top lying nearby, dark weathered gray stone #303030 #484848, ${GRASS_AT_BASE}, ${PIXEL_STYLE}`,
+    size: { width: 48, height: 32 },
+  },
+  {
+    name: 'Shattered gravestone stump',
+    description: `isolated shattered gravestone stump on pure transparent background, only the broken base of a tombstone remaining, jagged broken edge, dark weathered gray stone #303030 #484848, ${GRASS_AT_BASE}, ${PIXEL_STYLE}`,
     size: { width: 32, height: 32 },
   },
 ];

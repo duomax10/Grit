@@ -43,8 +43,8 @@ export class BootScene extends Phaser.Scene {
     this.load.image('grass', 'assets/tiles/grass.png');
     this.load.image('gravel', 'assets/tiles/stone_path.png');
 
-    // Gravestones
-    for (let i = 0; i < 8; i++) {
+    // Gravestones (18 variants)
+    for (let i = 0; i < 18; i++) {
       this.load.image(`gravestone-${i}`, `assets/objects/gravestone-${i}.png`);
     }
 
