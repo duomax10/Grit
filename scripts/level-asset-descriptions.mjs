@@ -42,12 +42,9 @@ export const OBJECT_API_SETTINGS = {
 
 // ===========================================================
 // GROUND TILES (32x32, seamless, no outline)
+// NOTE: grass.png is user-supplied and should NOT be regenerated
 // ===========================================================
 export const TILES = {
-  grass: {
-    description: `very dark forest green grass ground, exact colors ${GRASS_HEX}, short mowed cemetery lawn with subtle blade texture, seamless tileable, ${PIXEL_STYLE}, top-down view`,
-    size: { width: 32, height: 32 },
-  },
   gravel: {
     description: `dark gray stone gravel pathway, colors #303030 #404040 #505050, small tightly packed crushed pebbles, seamless tileable, ${PIXEL_STYLE}, top-down view`,
     size: { width: 32, height: 32 },
