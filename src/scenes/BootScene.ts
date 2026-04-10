@@ -108,12 +108,12 @@ export class BootScene extends Phaser.Scene {
   async create(): Promise<void> {
     this.progressText.setText('Summoning the darkness...');
 
-    // Generate procedural audio (kept since PixelLab doesn't do audio)
-    try {
-      await generateAudio(this);
-    } catch (e) {
-      console.warn('Audio generation failed, continuing without sound:', e);
-    }
+    // Audio generation disabled temporarily — was causing blank screen
+    // try {
+    //   await generateAudio(this);
+    // } catch (e) {
+    //   console.warn('Audio generation failed, continuing without sound:', e);
+    // }
 
     // Create player animations — walk frames if available, static fallback
     const directions = ['south', 'north', 'east', 'west'] as const;
