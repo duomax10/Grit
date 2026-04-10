@@ -814,22 +814,21 @@ export class GraveyardScene extends Phaser.Scene {
   }
 
   private createTwilightOverlay(): void {
-    // Full-screen overlay for a gentle twilight cast.
-    // MULTIPLY + lighter color = subtle darkening and tint.
-    const overlay = this.add.graphics();
+    // Full-screen twilight tint. Uses a Rectangle game object (not
+    // Graphics) because Rectangles go through the normal sprite
+    // pipeline and properly honor blend modes. Graphics objects
+    // often silently drop MULTIPLY blend mode depending on the
+    // renderer state, which is why the twilight kept 'disappearing'.
+    const { width, height } = this.scale;
+    const overlay = this.add.rectangle(0, 0, width, height, 0x8878a0, 1);
+    overlay.setOrigin(0, 0);
     overlay.setDepth(9000);
     overlay.setScrollFactor(0);
     overlay.setBlendMode(Phaser.BlendModes.MULTIPLY);
 
-    const draw = () => {
-      const { width, height } = this.scale;
-      overlay.clear();
-      // Lighter blue-purple — less intense than before
-      overlay.fillStyle(0x8878a0, 1);
-      overlay.fillRect(0, 0, width, height);
-    };
-    draw();
-    this.scale.on('resize', draw);
+    this.scale.on('resize', () => {
+      overlay.setSize(this.scale.width, this.scale.height);
+    });
   }
 
   private createVignette(): void {
