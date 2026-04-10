@@ -33,7 +33,7 @@ export const GRAVESTONE_INSPECT_2: DialogSequence = [
 
 export const GRAVESTONE_INSPECT_3: DialogSequence = [
   { type: 'thought', text: 'Vera Thorne. 1990-2025.' },
-  { type: 'thought', text: '"She left us too early."' },
+  { type: 'thought', text: '"She left us too early. Her soul will be missed."' },
 ];
 
 export const GRAVESTONE_INSPECT_4: DialogSequence = [
