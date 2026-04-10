@@ -17,7 +17,6 @@ const MAP_H = MAP_ROWS * TILE;
 const G = 0;  // grass
 const V = 1;  // gravel (main path)
 const F = 3;  // fence
-const P = 4;  // fence post
 
 function buildLayout(): number[][] {
   const L: number[][] = [];
@@ -32,10 +31,7 @@ function buildLayout(): number[][] {
         if (r === MAP_ROWS - 1 && c >= 11 && c <= 12) {
           L[r][c] = V; // gate opening is gravel
         } else {
-          const isCorner = (r === 0 || r === MAP_ROWS - 1) && (c === 0 || c === MAP_COLS - 1);
-          const isHPost = (r === 0 || r === MAP_ROWS - 1) && c % 5 === 0;
-          const isVPost = (c === 0 || c === MAP_COLS - 1) && r % 5 === 0;
-          L[r][c] = (isCorner || isHPost || isVPost) ? P : F;
+          L[r][c] = F;
         }
       }
 
@@ -468,7 +464,7 @@ export class GraveyardScene extends Phaser.Scene {
           const feather = 6;
           for (const [dr, dc, side] of [[-1,0,'top'],[1,0,'bottom'],[0,-1,'left'],[0,1,'right']] as const) {
             const neighbor = LAYOUT[r + dr]?.[c + dc];
-            if (neighbor === G || neighbor === F || neighbor === P) {
+            if (neighbor === G || neighbor === F) {
               ctx.save();
               let grad: CanvasGradient;
               if (side === 'top') {
@@ -511,13 +507,18 @@ export class GraveyardScene extends Phaser.Scene {
     this.add.image(MAP_W / 2, MAP_H / 2, 'ground-map').setDepth(0);
 
     // Fence sprites + colliders
+    // Top/bottom rows use horizontal fence sprite
+    // Left/right columns use vertical fence sprite
     for (let r = 0; r < MAP_ROWS; r++) {
       for (let c = 0; c < MAP_COLS; c++) {
         const cell = LAYOUT[r][c];
-        if (cell === F || cell === P) {
+        if (cell === F) {
           const x = c * TILE + TILE / 2;
           const y = r * TILE + TILE / 2;
-          this.add.image(x, y, cell === P ? 'fence-post' : 'fence').setDepth(1);
+          // Determine orientation based on edge
+          const isTopOrBottom = (r === 0 || r === MAP_ROWS - 1);
+          const sprite = isTopOrBottom ? 'fence' : 'fence-vertical';
+          this.add.image(x, y, sprite).setDepth(1);
           const z = this.add.zone(x, y, TILE, TILE);
           this.physics.add.existing(z, true);
           this.fenceColliders.add(z);

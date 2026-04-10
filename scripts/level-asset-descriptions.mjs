@@ -148,12 +148,16 @@ export const LARGE_OBJECTS = {
 // ===========================================================
 export const FENCE = {
   section: {
-    description: `isolated fence section on pure transparent background, wrought iron cemetery fence with pointed spear-tip bars, near-black metal #000000 #101010 #181818, vertical bars with horizontal rails, ${PIXEL_STYLE}, front view`,
+    // Horizontal fence section — used on top/bottom edges of the cemetery
+    // The bars point up (spears at top), viewed from the front
+    description: `isolated fence section on pure transparent background, wrought iron cemetery fence with pointed spear-tip bars pointing up, near-black metal #000000 #101010 #181818, vertical bars with horizontal rails, ${PIXEL_STYLE}, front view, no posts`,
     size: { width: 32, height: 48 },
   },
-  post: {
-    description: `isolated fence post on pure transparent background, wrought iron pillar with decorative cap, near-black metal #000000 #101010, ${PIXEL_STYLE}, front view`,
-    size: { width: 32, height: 48 },
+  vertical: {
+    // Vertical fence section — used on left/right edges of the cemetery
+    // Running top to bottom from the viewer's angle (appears as a side fence)
+    description: `isolated fence side section on pure transparent background, wrought iron cemetery fence viewed from the side running vertically top to bottom, near-black metal #000000 #101010 #181818, thin straight fence bars going down the page, no posts, ${PIXEL_STYLE}, top-down view`,
+    size: { width: 32, height: 32 },
   },
 };
 

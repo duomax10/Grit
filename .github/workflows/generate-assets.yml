@@ -8,6 +8,7 @@ on:
         required: true
         type: choice
         options:
+          - level-new
           - level-assets
           - level-tiles
           - level-objects
@@ -47,7 +48,9 @@ jobs:
         run: |
           set +e
           echo "Running target: ${{ inputs.target }}" | tee /tmp/generate-log.txt
-          if [ "${{ inputs.target }}" = "level-assets" ]; then
+          if [ "${{ inputs.target }}" = "level-new" ]; then
+            node scripts/generate-level-new.mjs 2>&1 | tee -a /tmp/generate-log.txt
+          elif [ "${{ inputs.target }}" = "level-assets" ]; then
             node scripts/generate-level-assets.mjs 2>&1 | tee -a /tmp/generate-log.txt
           elif [ "${{ inputs.target }}" = "level-tiles" ]; then
             node scripts/generate-level-tiles.mjs 2>&1 | tee -a /tmp/generate-log.txt

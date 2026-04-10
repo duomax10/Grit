@@ -1,6 +1,6 @@
 /**
- * Generate all non-character level assets using descriptions from
- * level-asset-descriptions.mjs. Uses PixelLab Pixflux API.
+ * Generate only NEW assets — ones that don't already have a file.
+ * Useful for adding new objects without regenerating existing ones.
  */
 
 import { PixelLabClient } from '@pixellab-code/pixellab';
@@ -27,8 +27,15 @@ for (const d of ['tiles', 'objects']) {
 }
 
 let totalCost = 0;
+let generated = 0;
+let skipped = 0;
 
-async function gen(name, description, imageSize, apiSettings, outPath, noBackground = true) {
+async function genIfMissing(name, description, imageSize, apiSettings, outPath, noBackground = true) {
+  if (existsSync(outPath)) {
+    console.log(`  ⊙ ${name} — already exists, skipping`);
+    skipped++;
+    return;
+  }
   console.log(`  ${name}...`);
   try {
     const r = await client.generateImagePixflux({
@@ -39,6 +46,7 @@ async function gen(name, description, imageSize, apiSettings, outPath, noBackgro
     });
     await r.image.saveToFile(outPath);
     totalCost += r.usage.usd;
+    generated++;
     console.log(`    ✓ ${outPath} ($${r.usage.usd.toFixed(4)})`);
   } catch (err) {
     console.error(`    ✗ ${name}: ${err.message}`);
@@ -46,66 +54,65 @@ async function gen(name, description, imageSize, apiSettings, outPath, noBackgro
 }
 
 async function main() {
-  console.log('=== Level 1 Asset Generation ===');
-  console.log('Using descriptions from level-asset-descriptions.mjs\n');
+  console.log('=== Generate NEW Assets Only (missing files) ===\n');
 
   try {
     const b = await client.getBalance();
     console.log(`Balance: $${b.usd.toFixed(2)}\n`);
   } catch (e) { console.warn('Could not check balance'); }
 
-  // --- GROUND TILES ---
-  console.log('Ground Tiles:');
+  // Tiles
+  console.log('Tiles:');
   for (const [key, tile] of Object.entries(TILES)) {
-    await gen(key, tile.description, tile.size, TILE_API_SETTINGS,
+    await genIfMissing(key, tile.description, tile.size, TILE_API_SETTINGS,
       join(ASSETS, 'tiles', `${key}.png`), false);
   }
 
-  // --- GRAVESTONES ---
+  // Gravestones
   console.log('\nGravestones:');
   for (let i = 0; i < GRAVESTONES.length; i++) {
     const gs = GRAVESTONES[i];
-    await gen(gs.name, gs.description, gs.size, OBJECT_API_SETTINGS,
+    await genIfMissing(gs.name, gs.description, gs.size, OBJECT_API_SETTINGS,
       join(ASSETS, 'objects', `gravestone-${i}.png`));
   }
 
-  // --- TREES ---
+  // Trees
   console.log('\nTrees:');
   for (const [key, tree] of Object.entries(TREES)) {
-    await gen(key, tree.description, tree.size, OBJECT_API_SETTINGS,
+    await genIfMissing(key, tree.description, tree.size, OBJECT_API_SETTINGS,
       join(ASSETS, 'objects', `tree-${key}.png`));
   }
 
-  // --- BUSHES ---
+  // Bushes
   console.log('\nBushes:');
   for (const [key, bush] of Object.entries(BUSHES)) {
-    await gen(key, bush.description, bush.size, OBJECT_API_SETTINGS,
+    await genIfMissing(key, bush.description, bush.size, OBJECT_API_SETTINGS,
       join(ASSETS, 'objects', `bush-${key}.png`));
   }
 
-  // --- LARGE OBJECTS ---
+  // Large objects
   console.log('\nLarge Objects:');
-  await gen('fountain', LARGE_OBJECTS.fountain.description,
-    LARGE_OBJECTS.fountain.size, OBJECT_API_SETTINGS,
-    join(ASSETS, 'objects', 'fountain.png'));
+  for (const [key, obj] of Object.entries(LARGE_OBJECTS)) {
+    await genIfMissing(key, obj.description, obj.size, OBJECT_API_SETTINGS,
+      join(ASSETS, 'objects', `${key === 'caretakerHouse' ? 'caretaker-house' : key}.png`));
+  }
 
-  // --- FENCE ---
+  // Fence
   console.log('\nFence:');
-  await gen('fence section', FENCE.section.description,
-    FENCE.section.size, OBJECT_API_SETTINGS,
-    join(ASSETS, 'objects', 'fence.png'));
-  await gen('fence vertical', FENCE.vertical.description,
-    FENCE.vertical.size, OBJECT_API_SETTINGS,
-    join(ASSETS, 'objects', 'fence-vertical.png'));
+  for (const [key, obj] of Object.entries(FENCE)) {
+    const filename = key === 'section' ? 'fence.png' : `fence-${key}.png`;
+    await genIfMissing(`fence ${key}`, obj.description, obj.size, OBJECT_API_SETTINGS,
+      join(ASSETS, 'objects', filename));
+  }
 
-  // --- SMALL DETAILS ---
-  console.log('\nSmall Details:');
+  // Details
+  console.log('\nDetails:');
   for (const [key, detail] of Object.entries(DETAILS)) {
-    await gen(key, detail.description, detail.size, OBJECT_API_SETTINGS,
+    await genIfMissing(key, detail.description, detail.size, OBJECT_API_SETTINGS,
       join(ASSETS, 'objects', `${key}.png`));
   }
 
-  console.log(`\n=== Done! Total cost: $${totalCost.toFixed(4)} ===`);
+  console.log(`\n=== Done! Generated: ${generated}, Skipped: ${skipped}, Cost: $${totalCost.toFixed(4)} ===`);
 }
 
 main().catch(console.error);

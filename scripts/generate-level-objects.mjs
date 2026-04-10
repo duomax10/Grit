@@ -81,8 +81,8 @@ async function main() {
   console.log('\nFence:');
   await gen('fence section', FENCE.section.description,
     FENCE.section.size, join(objDir, 'fence.png'));
-  await gen('fence post', FENCE.post.description,
-    FENCE.post.size, join(objDir, 'fence-post.png'));
+  await gen('fence vertical', FENCE.vertical.description,
+    FENCE.vertical.size, join(objDir, 'fence-vertical.png'));
 
   // Details
   console.log('\nDetails:');

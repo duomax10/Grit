@@ -62,7 +62,7 @@ export class BootScene extends Phaser.Scene {
 
     // Fence
     this.load.image('fence', 'assets/objects/fence.png');
-    this.load.image('fence-post', 'assets/objects/fence-post.png');
+    this.load.image('fence-vertical', 'assets/objects/fence-vertical.png');
 
     // Details
     this.load.image('rocks', 'assets/objects/rocks.png');
