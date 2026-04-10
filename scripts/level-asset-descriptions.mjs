@@ -178,8 +178,8 @@ export const TREES = {
     size: { width: 80, height: 112 },
   },
   evergreen: {
-    // Needles should match grass hex exactly so it blends seamlessly
-    description: `pine cypress tree, needles colors #0f1808 #182818 #203020 only almost black dark green, trunk colors #180c04 #201008 only nearly black brown, no bright colors, tall conical shape, isolated object on pure transparent background, ${TREE_BASE}, ${PIXEL_STYLE}`,
+    // Keep the previous color (was fine), just fix the base
+    description: `isolated pine tree object on pure transparent background, tall dark cypress tree, detailed needle texture, very dark green needles #182818 #203820 #284028, dark brown trunk, ${TREE_BASE}, ${PIXEL_STYLE}`,
     size: { width: 80, height: 112 },
   },
 };
