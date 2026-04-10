@@ -74,7 +74,7 @@ export class BootScene extends Phaser.Scene {
 
     // === Ground tiles ===
     this.load.image('grass', 'assets/tiles/grass.png');
-    this.load.image('gravel', 'assets/tiles/gravel.png');
+    this.load.image('gravel', 'assets/tiles/stone_path.png');
     this.load.image('dirt', 'assets/tiles/dirt.png');
 
     // Gravestones (8 variants)
