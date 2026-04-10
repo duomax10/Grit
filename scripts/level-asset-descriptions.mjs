@@ -22,7 +22,7 @@
 const PIXEL_STYLE = 'pixel art, 16-bit retro style';
 
 // Lighting context — this level is at twilight/night
-const LIGHTING = 'twilight night scene, low light, muted shadows, no bright highlights, dark atmospheric lighting';
+const LIGHTING = 'twilight night scene, subdued lighting, low light, muted shadows, no bright highlights, dark atmospheric lighting, heavy shadows';
 
 // When objects need to blend with the grass, use this exact grass color
 const GRASS_COLOR = '#183018 #203820 #284028 (very dark forest green, not bright)';
@@ -113,7 +113,7 @@ export const GRAVESTONES = [
 // ===========================================================
 export const TREES = {
   oak: {
-    description: `large oak tree with full round leafy canopy in dark green at night, dark canopy colors #284028 #305028 #386028, dark brown trunk #402818 #604020, NO bright green, tree base blends into dark grass ${GRASS_COLOR}, ${LIGHTING}, ${PIXEL_STYLE}, 3/4 top-down view`,
+    description: `large oak tree with full round leafy canopy at night, VERY DARK canopy colors #182818 #203020 #283820, dark brown trunk #201810 #302818, MUTED and DARK not bright, deep shadows in canopy, tree base blends into dark grass #183018 #203820 #284028, ${LIGHTING}, ${PIXEL_STYLE}, 3/4 top-down view`,
     size: { width: 64, height: 64 },
   },
   dead: {
