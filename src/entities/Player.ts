@@ -21,6 +21,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.setSize(20, 14);
     this.setOffset(36, 72);
     this.setDepth(10);
+
+    // Night tint — darken Gabe to match the twilight atmosphere
+    this.setTint(0x7a8090);
   }
 
   get direction(): Direction {

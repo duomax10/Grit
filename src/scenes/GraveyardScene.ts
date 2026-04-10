@@ -59,51 +59,92 @@ const LAYOUT = buildLayout();
 // ============================================================
 interface GravePos { c: number; r: number; variant: number; interactive?: boolean; dialogIdx?: number; }
 
+// Deterministic pseudo-random (so layout is stable across reloads)
+function seededRand(seed: number): () => number {
+  let s = seed;
+  return () => {
+    s = (s * 16807 + 1) % 2147483647;
+    return (s - 1) / 2147483646;
+  };
+}
+
+// ============================================================
+// ORGANIC GRAVESTONE PLACEMENT
+// Cemeteries have row structure but with variation:
+// - Rows are offset and wobbly
+// - Some gaps for trees/decoration
+// - Some stones tilted/missing
+// ============================================================
 function buildGravePositions(): GravePos[] {
   const graves: GravePos[] = [];
+  const rand = seededRand(12345);
 
-  // Left side of path — rows of gravestones
-  // Upper-left section (rows 6-11)
-  for (let r = 6; r <= 11; r += 2) {
-    for (let c = 2; c <= 9; c += 2) {
-      graves.push({ c, r, variant: (c + r) % 8 });
+  // Helper: check if a grid cell is valid for a grave
+  const isValid = (c: number, r: number) => {
+    if (c < 2 || c >= MAP_COLS - 2 || r < 2 || r >= MAP_ROWS - 2) return false;
+    // Not on path
+    if (LAYOUT[r][c] !== G) return false;
+    // Not adjacent to path (1-tile buffer)
+    for (let dr = -1; dr <= 1; dr++) {
+      for (let dc = -1; dc <= 1; dc++) {
+        if (LAYOUT[r + dr]?.[c + dc] !== G) return false;
+      }
     }
-  }
-  // Lower-left section (rows 17-26)
-  for (let r = 17; r <= 26; r += 2) {
-    for (let c = 2; c <= 9; c += 2) {
-      graves.push({ c, r, variant: (c + r + 1) % 8 });
+    // Not too close to other graves (min distance 1.5 tiles)
+    for (const g of graves) {
+      const dx = g.c - c, dy = g.r - r;
+      if (dx * dx + dy * dy < 2.2) return false;
+    }
+    return true;
+  };
+
+  // Place graves in loose rows — left section
+  // Row positions with slight wobble, spacing 2-3 tiles
+  const leftRows = [6, 9, 12, 18, 21, 24, 27];
+  for (const baseR of leftRows) {
+    // Loose column positions — not perfectly aligned
+    const cols = [3, 5, 7, 9];
+    for (const baseC of cols) {
+      // Wobble: small random offset
+      const r = baseR + (rand() < 0.3 ? (rand() < 0.5 ? -1 : 1) : 0);
+      const c = baseC + (rand() < 0.25 ? (rand() < 0.5 ? -1 : 1) : 0);
+      // Gaps: 15% chance to skip
+      if (rand() < 0.15) continue;
+      if (isValid(c, r)) {
+        graves.push({ c, r, variant: Math.floor(rand() * 8) });
+      }
     }
   }
 
-  // Right side of path — rows of gravestones
-  // Upper-right section (rows 6-11)
-  for (let r = 6; r <= 11; r += 2) {
-    for (let c = 14; c <= 21; c += 2) {
-      graves.push({ c, r, variant: (c + r + 2) % 8 });
-    }
-  }
-  // Lower-right section (rows 17-26)
-  for (let r = 17; r <= 26; r += 2) {
-    for (let c = 14; c <= 21; c += 2) {
-      graves.push({ c, r, variant: (c + r + 3) % 8 });
+  // Right section
+  const rightRows = [6, 9, 12, 18, 21, 24, 27];
+  for (const baseR of rightRows) {
+    const cols = [14, 16, 18, 20];
+    for (const baseC of cols) {
+      const r = baseR + (rand() < 0.3 ? (rand() < 0.5 ? -1 : 1) : 0);
+      const c = baseC + (rand() < 0.25 ? (rand() < 0.5 ? -1 : 1) : 0);
+      if (rand() < 0.15) continue;
+      if (isValid(c, r)) {
+        graves.push({ c, r, variant: Math.floor(rand() * 8) });
+      }
     }
   }
 
-  // Mark 5 special interactive gravestones
-  const interactive = [
-    { c: 4, r: 8 },   // left upper
-    { c: 18, r: 8 },  // right upper
-    { c: 6, r: 20 },  // left lower
-    { c: 16, r: 22 }, // right lower
-    { c: 8, r: 24 },  // left bottom
-  ];
-  for (let i = 0; i < interactive.length; i++) {
-    const g = graves.find(g => g.c === interactive[i].c && g.r === interactive[i].r);
-    if (g) {
-      g.interactive = true;
-      g.dialogIdx = i;
+  // Pick 5 interactive gravestones spread across the map
+  const wellSpread: number[] = [];
+  const minDist = 8;
+  for (let i = 0; i < graves.length && wellSpread.length < 5; i++) {
+    let ok = true;
+    for (const j of wellSpread) {
+      const dx = graves[i].c - graves[j].c;
+      const dy = graves[i].r - graves[j].r;
+      if (dx * dx + dy * dy < minDist * minDist) { ok = false; break; }
     }
+    if (ok) wellSpread.push(i);
+  }
+  for (let i = 0; i < wellSpread.length; i++) {
+    graves[wellSpread[i]].interactive = true;
+    graves[wellSpread[i]].dialogIdx = i;
   }
 
   return graves;
@@ -112,7 +153,9 @@ function buildGravePositions(): GravePos[] {
 const GRAVE_POSITIONS = buildGravePositions();
 
 // ============================================================
-// DECORATIONS — trees, bushes, details
+// ORGANIC DECORATION PLACEMENT
+// Trees in loose clusters (2-3 per cluster), bushes denser,
+// details scattered everywhere with minimum spacing.
 // ============================================================
 interface Deco {
   c: number; r: number; tex: string;
@@ -120,40 +163,164 @@ interface Deco {
   depth?: number; scale?: number;
 }
 
-const DECORATIONS: Deco[] = [
-  // Oak trees — scattered like the reference
-  { c: 3, r: 13, tex: 'tree-oak', collide: true, colW: 16, colH: 12, depth: 8 },
-  { c: 20, r: 13, tex: 'tree-oak', collide: true, colW: 16, colH: 12, depth: 8 },
-  { c: 7, r: 27, tex: 'tree-oak', collide: true, colW: 16, colH: 12, depth: 8 },
-  { c: 19, r: 6, tex: 'tree-oak', collide: true, colW: 16, colH: 12, depth: 8 },
+function buildDecorations(): Deco[] {
+  const decos: Deco[] = [];
+  const rand = seededRand(54321);
+
+  // Collect all occupied cells (paths, fence, graves)
+  const occupied = new Set<string>();
+  for (let r = 0; r < MAP_ROWS; r++) {
+    for (let c = 0; c < MAP_COLS; c++) {
+      if (LAYOUT[r][c] !== G) occupied.add(`${c},${r}`);
+    }
+  }
+  // Add fountain area
+  for (let dr = -3; dr <= 3; dr++) {
+    for (let dc = -3; dc <= 3; dc++) {
+      occupied.add(`${Math.round(11.5 + dc)},${14 + dr}`);
+    }
+  }
+  for (const g of GRAVE_POSITIONS) {
+    occupied.add(`${g.c},${g.r}`);
+  }
+
+  // Poisson-like placement with minimum distance
+  const placeWithMinDist = (
+    candidates: Array<{ c: number; r: number }>,
+    minDist: number,
+    tex: string,
+    props: Partial<Deco> = {},
+  ): number => {
+    let placed = 0;
+    for (const cand of candidates) {
+      if (occupied.has(`${cand.c},${cand.r}`)) continue;
+      // Check min distance to existing decorations
+      let ok = true;
+      for (const d of decos) {
+        const dx = d.c - cand.c, dy = d.r - cand.r;
+        if (dx * dx + dy * dy < minDist * minDist) { ok = false; break; }
+      }
+      if (ok) {
+        decos.push({ c: cand.c, r: cand.r, tex, ...props });
+        occupied.add(`${cand.c},${cand.r}`);
+        placed++;
+      }
+    }
+    return placed;
+  };
+
+  // TREE CLUSTERS — 2-3 loose clusters of trees
+  // Cluster 1: upper-left
+  const oakCluster1 = [
+    { c: 3, r: 6 },
+    { c: 4, r: 8 },
+    { c: 2, r: 10 },
+  ];
+  // Cluster 2: upper-right
+  const oakCluster2 = [
+    { c: 21, r: 7 },
+    { c: 20, r: 10 },
+    { c: 22, r: 14 },
+  ];
+  // Cluster 3: lower-right (dead tree area)
+  const oakCluster3 = [
+    { c: 21, r: 22 },
+    { c: 20, r: 25 },
+  ];
+
+  placeWithMinDist([...oakCluster1, ...oakCluster2, ...oakCluster3], 2.5,
+    'tree-oak', { collide: true, colW: 16, colH: 12, depth: 8 });
 
   // Evergreens — along edges, flanking gate
-  { c: 2, r: 15, tex: 'tree-evergreen', collide: true, colW: 12, colH: 10, depth: 8 },
-  { c: 21, r: 15, tex: 'tree-evergreen', collide: true, colW: 12, colH: 10, depth: 8 },
-  { c: 9, r: 28, tex: 'tree-evergreen', collide: true, colW: 12, colH: 10, depth: 8 },
-  { c: 14, r: 28, tex: 'tree-evergreen', collide: true, colW: 12, colH: 10, depth: 8 },
+  const evergreens = [
+    { c: 2, r: 14 },
+    { c: 21, r: 18 },
+    { c: 9, r: 28 },
+    { c: 14, r: 28 },
+    { c: 3, r: 27 },
+  ];
+  placeWithMinDist(evergreens, 2.5,
+    'tree-evergreen', { collide: true, colW: 12, colH: 10, depth: 8 });
 
-  // Dead tree — one for atmosphere
-  { c: 21, r: 24, tex: 'tree-dead', collide: true, colW: 12, colH: 10, depth: 8 },
+  // Dead tree — atmospheric
+  placeWithMinDist([{ c: 18, r: 6 }, { c: 6, r: 25 }], 2,
+    'tree-dead', { collide: true, colW: 12, colH: 10, depth: 8 });
 
-  // Bushes — along fence edges and scattered
-  { c: 2, r: 7, tex: 'bush-large', collide: true, colW: 20, colH: 12 },
-  { c: 21, r: 9, tex: 'bush-large', collide: true, colW: 20, colH: 12 },
-  { c: 2, r: 25, tex: 'bush-small' },
-  { c: 21, r: 27, tex: 'bush-small' },
-  { c: 10, r: 13, tex: 'bush-small' },
-  { c: 13, r: 13, tex: 'bush-small' },
+  // BUSHES — denser, minimum distance 2 tiles, clustered near trees
+  const bushCandidates: Array<{ c: number; r: number }> = [];
+  for (let r = 3; r < MAP_ROWS - 3; r++) {
+    for (let c = 2; c < MAP_COLS - 2; c++) {
+      if (rand() < 0.08) bushCandidates.push({ c, r });
+    }
+  }
+  // Shuffle
+  for (let i = bushCandidates.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [bushCandidates[i], bushCandidates[j]] = [bushCandidates[j], bushCandidates[i]];
+  }
+  // Place up to 12 large bushes
+  let largeBushCount = 0;
+  for (const cand of bushCandidates) {
+    if (largeBushCount >= 12) break;
+    if (occupied.has(`${cand.c},${cand.r}`)) continue;
+    let ok = true;
+    for (const d of decos) {
+      const dx = d.c - cand.c, dy = d.r - cand.r;
+      if (dx * dx + dy * dy < 9) { ok = false; break; }
+    }
+    if (ok) {
+      decos.push({ c: cand.c, r: cand.r, tex: 'bush-large', collide: true, colW: 20, colH: 12 });
+      occupied.add(`${cand.c},${cand.r}`);
+      largeBushCount++;
+    }
+  }
+  // Small bushes fill gaps
+  let smallBushCount = 0;
+  for (const cand of bushCandidates) {
+    if (smallBushCount >= 10) break;
+    if (occupied.has(`${cand.c},${cand.r}`)) continue;
+    let ok = true;
+    for (const d of decos) {
+      const dx = d.c - cand.c, dy = d.r - cand.r;
+      if (dx * dx + dy * dy < 4) { ok = false; break; }
+    }
+    if (ok) {
+      decos.push({ c: cand.c, r: cand.r, tex: 'bush-small' });
+      occupied.add(`${cand.c},${cand.r}`);
+      smallBushCount++;
+    }
+  }
 
-  // Small details — rocks, grass tufts, leaves
-  { c: 5, r: 14, tex: 'rocks' },
-  { c: 18, r: 16, tex: 'rocks' },
-  { c: 3, r: 19, tex: 'grassTufts' },
-  { c: 20, r: 21, tex: 'grassTufts' },
-  { c: 8, r: 12, tex: 'grassTufts' },
-  { c: 15, r: 12, tex: 'grassTufts' },
-  { c: 6, r: 26, tex: 'fallenLeaves' },
-  { c: 17, r: 18, tex: 'fallenLeaves' },
-];
+  // DETAILS — rocks, grass tufts, fallen leaves (small, non-colliding)
+  const detailTextures = ['rocks', 'grassTufts', 'fallenLeaves'];
+  const detailCandidates: Array<{ c: number; r: number; tex: string }> = [];
+  for (let r = 2; r < MAP_ROWS - 2; r++) {
+    for (let c = 2; c < MAP_COLS - 2; c++) {
+      if (rand() < 0.06) {
+        detailCandidates.push({ c, r, tex: detailTextures[Math.floor(rand() * 3)] });
+      }
+    }
+  }
+  let detailCount = 0;
+  for (const cand of detailCandidates) {
+    if (detailCount >= 25) break;
+    if (occupied.has(`${cand.c},${cand.r}`)) continue;
+    let ok = true;
+    for (const d of decos) {
+      const dx = d.c - cand.c, dy = d.r - cand.r;
+      if (dx * dx + dy * dy < 3) { ok = false; break; }
+    }
+    if (ok) {
+      decos.push({ c: cand.c, r: cand.r, tex: cand.tex });
+      occupied.add(`${cand.c},${cand.r}`);
+      detailCount++;
+    }
+  }
+
+  return decos;
+}
+
+const DECORATIONS: Deco[] = buildDecorations();
 
 export class GraveyardScene extends Phaser.Scene {
   private player!: Player;
