@@ -1,61 +1,40 @@
-Running target: level-assets
-=== Level 1 Asset Generation ===
-Using descriptions from level-asset-descriptions.mjs
+Running target: level-new
+=== Generate NEW Assets Only (missing files) ===
 
 Balance: $0.00
 
-Ground Tiles:
-  grass...
-    ✓ /home/runner/work/Grit/Grit/public/assets/tiles/grass.png ($0.0000)
-  gravel...
-    ✓ /home/runner/work/Grit/Grit/public/assets/tiles/gravel.png ($0.0000)
+Tiles:
+  ⊙ gravel — already exists, skipping
 
 Gravestones:
-  Simple rounded headstone...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/gravestone-0.png ($0.0000)
-  Cross-top headstone...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/gravestone-1.png ($0.0000)
-  Tall cross headstone...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/gravestone-2.png ($0.0000)
-  Ornate Victorian headstone...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/gravestone-3.png ($0.0000)
-  Cross-shaped marker...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/gravestone-4.png ($0.0000)
-  Occult symbol stone...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/gravestone-5.png ($0.0000)
-  Small mausoleum crypt...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/gravestone-6.png ($0.0000)
-  Short worn headstone...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/gravestone-7.png ($0.0000)
+  ⊙ Simple rounded headstone — already exists, skipping
+  ⊙ Cross-top headstone — already exists, skipping
+  ⊙ Tall cross headstone — already exists, skipping
+  ⊙ Ornate Victorian headstone — already exists, skipping
+  ⊙ Cross-shaped marker — already exists, skipping
+  ⊙ Occult symbol stone — already exists, skipping
+  ⊙ Small mausoleum crypt — already exists, skipping
+  ⊙ Short worn headstone — already exists, skipping
 
 Trees:
-  oak...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/tree-oak.png ($0.0000)
-  dead...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/tree-dead.png ($0.0000)
-  evergreen...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/tree-evergreen.png ($0.0000)
+  ⊙ oak — already exists, skipping
+  ⊙ dead — already exists, skipping
+  ⊙ evergreen — already exists, skipping
 
 Bushes:
-  large...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/bush-large.png ($0.0000)
-  small...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/bush-small.png ($0.0000)
+  ⊙ large — already exists, skipping
+  ⊙ small — already exists, skipping
 
 Large Objects:
-  fountain...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/fountain.png ($0.0000)
+  ⊙ fountain — already exists, skipping
 
 Fence:
-  fence section...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/fence.png ($0.0000)
-  fence post...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/fence-post.png ($0.0000)
+  ⊙ fence section — already exists, skipping
+  fence vertical...
+    ✓ /home/runner/work/Grit/Grit/public/assets/objects/fence-vertical.png ($0.0000)
 
-Small Details:
-  rocks...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/rocks.png ($0.0000)
-  grassTufts...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/grassTufts.png ($0.0000)
+Details:
+  ⊙ rocks — already exists, skipping
+  ⊙ grassTufts — already exists, skipping
 
-=== Done! Total cost: $0.0000 ===
+=== Done! Generated: 1, Skipped: 18, Cost: $0.0000 ===
