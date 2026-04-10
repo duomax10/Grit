@@ -243,14 +243,9 @@ export class GraveyardScene extends Phaser.Scene {
     const getImage = (key: string) =>
       this.textures.get(key).getSourceImage() as HTMLImageElement | HTMLCanvasElement;
 
-    // Determine available tile keys
-    const grassKey = this.textures.exists('grass') ? 'grass' : 'grass-base';
-    const gravelKey = this.textures.exists('gravel') ? 'gravel' : 'gravel-base';
-    const dirtKey = this.textures.exists('dirt') ? 'dirt' : 'dirt-base';
-
-    const grassImg = getImage(grassKey);
-    const gravelImg = getImage(gravelKey);
-    const dirtImg = getImage(dirtKey);
+    const grassImg = getImage('grass');
+    const gravelImg = getImage('gravel');
+    const dirtImg = getImage('dirt');
 
     // Pattern fill the entire map with grass
     const grassPat = ctx.createPattern(grassImg, 'repeat')!;
