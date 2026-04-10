@@ -15,6 +15,10 @@ export class StickyNote {
   private container!: Phaser.GameObjects.Container;
   private noteImage!: Phaser.GameObjects.Image;
   private visible = false;
+  // Set on show() and cleared on the next frame so the same pointer
+  // event that opened the note doesn't immediately dismiss it via the
+  // scene-level tap-to-dismiss listener.
+  private justShown = false;
   private onDismiss?: () => void;
   private textureKey = 'sticky-note-dyn';
   private regenCount = 0;
@@ -52,7 +56,7 @@ export class StickyNote {
   }
 
   private handleTap = (_p: Phaser.Input.Pointer, _x: number, _y: number, event?: Phaser.Types.Input.EventData): void => {
-    if (this.visible) {
+    if (this.visible && !this.justShown) {
       if (event) event.stopPropagation();
       this.dismiss();
     }
@@ -230,6 +234,12 @@ export class StickyNote {
     this.onDismiss = onDismiss;
     this.refresh(); // re-render with latest mission state
     this.visible = true;
+    // Guard against the scene-level pointerdown that opened this note
+    // firing again on the same tap and immediately dismissing it.
+    this.justShown = true;
+    this.scene.time.delayedCall(0, () => {
+      this.justShown = false;
+    });
     this.reposition();
     this.container.setVisible(true);
 
