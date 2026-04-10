@@ -67,7 +67,6 @@ export class BootScene extends Phaser.Scene {
     // Details
     this.load.image('rocks', 'assets/objects/rocks.png');
     this.load.image('grassTufts', 'assets/objects/grassTufts.png');
-    this.load.image('fallenLeaves', 'assets/objects/fallenLeaves.png');
   }
 
   create(): void {

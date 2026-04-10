@@ -318,12 +318,12 @@ function buildDecorations(): Deco[] {
   }
 
   // DETAILS — rocks, grass tufts, fallen leaves (small, non-colliding)
-  const detailTextures = ['rocks', 'grassTufts', 'fallenLeaves'];
+  const detailTextures = ['rocks', 'grassTufts'];
   const detailCandidates: Array<{ c: number; r: number; tex: string }> = [];
   for (let r = 2; r < MAP_ROWS - 2; r++) {
     for (let c = 2; c < MAP_COLS - 2; c++) {
       if (rand() < 0.06) {
-        detailCandidates.push({ c, r, tex: detailTextures[Math.floor(rand() * 3)] });
+        detailCandidates.push({ c, r, tex: detailTextures[Math.floor(rand() * detailTextures.length)] });
       }
     }
   }
