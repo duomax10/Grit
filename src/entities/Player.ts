@@ -3,7 +3,7 @@ import Phaser from 'phaser';
 export type Direction = 'down' | 'up' | 'left' | 'right';
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
-  private speed = 80;
+  private speed = 110;
   private facing: Direction = 'down';
   private isMoving = false;
 
