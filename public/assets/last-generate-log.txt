@@ -17,9 +17,12 @@ Gravestones:
   ⊙ Short worn headstone — already exists, skipping
 
 Trees:
-  ⊙ oak — already exists, skipping
-  ⊙ dead — already exists, skipping
-  ⊙ evergreen — already exists, skipping
+  oak...
+    ✓ /home/runner/work/Grit/Grit/public/assets/objects/tree-oak.png ($0.0000)
+  dead...
+    ✓ /home/runner/work/Grit/Grit/public/assets/objects/tree-dead.png ($0.0000)
+  evergreen...
+    ✓ /home/runner/work/Grit/Grit/public/assets/objects/tree-evergreen.png ($0.0000)
 
 Bushes:
   ⊙ large — already exists, skipping
@@ -30,11 +33,10 @@ Large Objects:
 
 Fence:
   ⊙ fence section — already exists, skipping
-  fence vertical...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/fence-vertical.png ($0.0000)
+  ⊙ fence vertical — already exists, skipping
 
 Details:
   ⊙ rocks — already exists, skipping
   ⊙ grassTufts — already exists, skipping
 
-=== Done! Generated: 1, Skipped: 18, Cost: $0.0000 ===
+=== Done! Generated: 3, Skipped: 16, Cost: $0.0000 ===
