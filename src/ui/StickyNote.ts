@@ -140,8 +140,8 @@ export class StickyNote {
         const obj = mission.objectives[i];
         const completed = MissionSystem.getInstance().isCompleted(obj.id);
 
-        // Completed uses a check; incomplete uses a small en dash.
-        const bullet = completed ? '\u2713 ' : '\u2013 ';
+        // Always a small en dash; completed lines get struck through.
+        const bullet = '\u2013 ';
 
         ctx.fillStyle = completed ? '#7a6848' : '#2a2010';
         ctx.font = `${completed ? 'italic ' : ''}13px Georgia, serif`;
