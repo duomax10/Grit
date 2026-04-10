@@ -29,6 +29,10 @@ export class MissionSystem extends Phaser.Events.EventEmitter {
     }
     this.currentMission = mission;
     this.completedObjectives.clear();
+    // Pre-mark any objectives flagged as completed in the data.
+    for (const obj of mission.objectives) {
+      if (obj.completed) this.completedObjectives.add(obj.id);
+    }
     this.emit('mission-changed', mission);
   }
 

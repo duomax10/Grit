@@ -9,6 +9,8 @@
 export interface Objective {
   id: string;
   text: string;
+  /** If true, the objective starts already completed (shown crossed out). */
+  completed?: boolean;
 }
 
 export interface Mission {
@@ -22,7 +24,11 @@ export const MISSIONS: Record<string, Mission> = {
     id: 'graveyard_intro',
     title: 'Mission',
     objectives: [
-      { id: 'sample', text: 'Get a sample' },
+      { id: 'dry_cleaning', text: 'Pick up dry cleaning', completed: true },
+      {
+        id: 'soil_samples',
+        text: 'Collect soil samples from graves of Vera Thorne and Rebecca Johnson',
+      },
     ],
   },
 };
