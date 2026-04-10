@@ -31,8 +31,7 @@ Trees:
     ✓ /home/runner/work/Grit/Grit/public/assets/objects/tree-oak.png ($0.0000)
   dead...
     ✓ /home/runner/work/Grit/Grit/public/assets/objects/tree-dead.png ($0.0000)
-  evergreen...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/tree-evergreen.png ($0.0000)
+  ⊙ evergreen — already exists, skipping
 
 Bushes:
   ⊙ large — already exists, skipping
@@ -49,4 +48,4 @@ Details:
   ⊙ rocks — already exists, skipping
   ⊙ grassTufts — already exists, skipping
 
-=== Done! Generated: 3, Skipped: 26, Cost: $0.0000 ===
+=== Done! Generated: 2, Skipped: 27, Cost: $0.0000 ===
