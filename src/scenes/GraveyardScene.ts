@@ -820,7 +820,7 @@ export class GraveyardScene extends Phaser.Scene {
     // often silently drop MULTIPLY blend mode depending on the
     // renderer state, which is why the twilight kept 'disappearing'.
     const { width, height } = this.scale;
-    const overlay = this.add.rectangle(0, 0, width, height, 0x3a3a5a, 1);
+    const overlay = this.add.rectangle(0, 0, width, height, 0x786c92, 1);
     overlay.setOrigin(0, 0);
     overlay.setDepth(9000);
     overlay.setScrollFactor(0);
