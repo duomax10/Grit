@@ -409,6 +409,7 @@ export class GraveyardScene extends Phaser.Scene {
 
     // Atmosphere
     this.createFogEffects();
+    this.createTwilightOverlay();
     this.createVignette();
     this.startAmbientAudio();
 
@@ -676,6 +677,26 @@ export class GraveyardScene extends Phaser.Scene {
         },
       });
     }
+  }
+
+  private createTwilightOverlay(): void {
+    // Full-screen dark blue-purple multiply overlay for twilight mood.
+    // Uses MULTIPLY blend mode — darkens the scene while adding a cool
+    // color cast. Doesn't scroll with the camera (fixed to viewport).
+    const overlay = this.add.graphics();
+    overlay.setDepth(18); // above world, below vignette/fog/UI
+    overlay.setScrollFactor(0);
+    overlay.setBlendMode(Phaser.BlendModes.MULTIPLY);
+
+    const draw = () => {
+      const { width, height } = this.scale;
+      overlay.clear();
+      // Dark blue-purple tint
+      overlay.fillStyle(0x4a4060, 1);
+      overlay.fillRect(0, 0, width, height);
+    };
+    draw();
+    this.scale.on('resize', draw);
   }
 
   private createVignette(): void {
