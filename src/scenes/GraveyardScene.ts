@@ -557,8 +557,8 @@ export class GraveyardScene extends Phaser.Scene {
       const variantIdx = availableVariants[g.variant % availableVariants.length];
       const texKey = `gravestone-${variantIdx}`;
 
-      // Visual sprite
-      const img = this.add.image(x, y, texKey).setDepth(4);
+      // Visual sprite — Y-sorted depth
+      const img = this.add.image(x, y, texKey).setDepth(1000 + y);
       // Scale non-interactive ones slightly smaller for variety
       if (!g.interactive) img.setScale(0.8);
 
@@ -592,7 +592,15 @@ export class GraveyardScene extends Phaser.Scene {
     for (const d of DECORATIONS) {
       const x = d.c * TILE + TILE / 2;
       const y = d.r * TILE + TILE / 2;
-      const img = this.add.image(x, y, d.tex).setDepth(d.depth ?? 2);
+      const img = this.add.image(x, y, d.tex);
+      // Y-sorted depth: objects further down the screen draw on top
+      // Trees use their base (bottom of sprite) as the sort key
+      if (d.tex.startsWith('tree-')) {
+        // Tree base = y + half height; sort above ground but below player
+        img.setDepth(1000 + y + (img.height / 2));
+      } else {
+        img.setDepth(1000 + y);
+      }
       if (d.scale) img.setScale(d.scale);
       if (d.collide) {
         const z = this.add.zone(x, y + 6, d.colW ?? 20, d.colH ?? 10);
@@ -603,9 +611,10 @@ export class GraveyardScene extends Phaser.Scene {
   }
 
   private placeFountain(): void {
-    const x = 11.5 * TILE;
+    // Fountain sits on the right half of the stone path
+    const x = 12 * TILE;
     const y = 14 * TILE;
-    this.add.image(x, y, 'fountain').setDepth(4);
+    const fountainImg = this.add.image(x, y, 'fountain').setDepth(1000 + y);
     const z = this.add.zone(x, y, 64, 64);
     this.physics.add.existing(z, true);
     this.objectColliders.add(z);
@@ -620,9 +629,8 @@ export class GraveyardScene extends Phaser.Scene {
       g.destroy();
     }
 
-    // Particle emitter — water drops rising and falling back into basin
-    // Centered on the fountain's spout (approx y - 8 above center)
-    const spoutY = y - 14;
+    // Particle emitter — water comes from the top of the fountain sprite
+    const spoutY = y - fountainImg.height / 2 + 8;
     const emitter = this.add.particles(x, spoutY, 'water-drop', {
       speed: { min: 30, max: 55 },
       angle: { min: -110, max: -70 }, // upward spray
@@ -634,11 +642,11 @@ export class GraveyardScene extends Phaser.Scene {
       alpha: { start: 0.9, end: 0 },
       blendMode: 'ADD',
     });
-    emitter.setDepth(5); // above fountain sprite
+    emitter.setDepth(1000 + y + 1); // above fountain sprite
 
     // Gentle basin ripple — a subtle pulsing circle to imply water movement
     const ripple = this.add.graphics();
-    ripple.setDepth(4.5);
+    ripple.setDepth(1000 + y - 1);
     this.tweens.add({
       targets: { scale: 0.5 },
       scale: 1.3,
@@ -661,7 +669,7 @@ export class GraveyardScene extends Phaser.Scene {
 
     // Draw a simple lamp post (pixel art style) as graphics
     const lamp = this.add.graphics();
-    lamp.setDepth(5);
+    lamp.setDepth(1000 + lampY);
     // Post (dark iron)
     lamp.fillStyle(0x1a1a1a, 1);
     lamp.fillRect(lampX - 2, lampY - 24, 4, 24);

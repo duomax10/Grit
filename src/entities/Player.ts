@@ -20,7 +20,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     // 92x92 sprite — collision box at feet area
     this.setSize(20, 14);
     this.setOffset(36, 72);
-    this.setDepth(10);
 
     // Night tint — darken Gabe to match the twilight atmosphere
     this.setTint(0x7a8090);
@@ -35,6 +34,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const vy = this.inputY * this.speed;
 
     this.setVelocity(vx, vy);
+
+    // Y-sorted depth so player goes behind tall objects higher on screen
+    this.setDepth(1000 + this.y + 30);
 
     const moving = Math.abs(this.inputX) > 0.1 || Math.abs(this.inputY) > 0.1;
 
