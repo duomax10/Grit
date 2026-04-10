@@ -181,20 +181,9 @@ export class GraveyardScene extends Phaser.Scene {
     this.fenceColliders = this.physics.add.staticGroup();
     this.objectColliders = this.physics.add.staticGroup();
 
-    this.buildMap();
-    this.placeGravestones();
-    this.placeDecorations();
-    this.placeFountain();
-    this.placeHouse();
-
     // Player — spawns at the gate (bottom center)
     this.player = new Player(this, 11.5 * TILE, 28 * TILE);
     this.player.play('gabe-idle-down');
-
-    // Camera
-    this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
-    this.cameras.main.setBounds(0, 0, MAP_W, MAP_H);
-    this.cameras.main.setBackgroundColor('#0a0a0a');
 
     // Dialog
     this.dialogSystem = new DialogSystem(this);
@@ -205,6 +194,18 @@ export class GraveyardScene extends Phaser.Scene {
       const uiScene = this.scene.get('UIScene') as Phaser.Scene;
       uiScene.events.emit('nearest-interactive-changed', obj);
     });
+
+    // Build the map and place objects
+    this.buildMap();
+    this.placeGravestones();
+    this.placeDecorations();
+    this.placeFountain();
+    this.placeHouse();
+
+    // Camera
+    this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
+    this.cameras.main.setBounds(0, 0, MAP_W, MAP_H);
+    this.cameras.main.setBackgroundColor('#0a0a0a');
 
     // Collisions
     this.physics.add.collider(this.player, this.fenceColliders);
