@@ -259,7 +259,7 @@ function buildDecorations(): Deco[] {
     { c: 14, r: 20 },
   ];
   placeWithMinDist(oakTrees, 2.5,
-    'tree-oak', { collide: true, colW: 16, colH: 12, depth: 8 });
+    'tree-oak', { collide: true, colW: 24, colH: 16, depth: 8 });
 
   // EVERGREENS — flanking the gate and scattered on edges
   const evergreens = [
@@ -273,14 +273,14 @@ function buildDecorations(): Deco[] {
     { c: 21, r: 11 },    // right edge
   ];
   placeWithMinDist(evergreens, 2.5,
-    'tree-evergreen', { collide: true, colW: 12, colH: 10, depth: 8 });
+    'tree-evergreen', { collide: true, colW: 18, colH: 14, depth: 8 });
 
   // DEAD TREES — atmospheric spots
   placeWithMinDist([
     { c: 15, r: 5 },
     { c: 5, r: 16 },
     { c: 19, r: 19 },
-  ], 2, 'tree-dead', { collide: true, colW: 12, colH: 10, depth: 8 });
+  ], 2, 'tree-dead', { collide: true, colW: 18, colH: 14, depth: 8 });
 
   // BUSHES — denser, minimum distance 2 tiles, clustered near trees
   const bushCandidates: Array<{ c: number; r: number }> = [];

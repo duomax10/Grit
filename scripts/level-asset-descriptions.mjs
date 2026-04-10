@@ -106,16 +106,16 @@ export const GRAVESTONES = [
 // ===========================================================
 export const TREES = {
   oak: {
-    description: `isolated oak tree object on pure transparent background, large tree with full round leafy canopy, VERY DARK canopy colors #182818 #203020 #283820, dark brown trunk #201810 #302818, MUTED and DARK not bright, ${GRASS_AT_BASE}, ${PIXEL_STYLE}`,
-    size: { width: 64, height: 64 },
+    description: `isolated oak tree object on pure transparent background, large tree with full round leafy canopy, highly detailed trunk bark texture, VERY DARK canopy colors #182818 #203020 #283820, dark brown trunk #201810 #302818, MUTED and DARK not bright, ${GRASS_AT_BASE}, ${PIXEL_STYLE}`,
+    size: { width: 112, height: 112 },
   },
   dead: {
-    description: `isolated dead tree object on pure transparent background, leafless gnarled tree, near-black bark #201008 #302018, bare twisted branches, ${GRASS_AT_BASE}, ${PIXEL_STYLE}`,
-    size: { width: 48, height: 64 },
+    description: `isolated dead tree object on pure transparent background, leafless gnarled tree, detailed twisted bark texture, near-black bark #201008 #302018, bare twisted branches, ${GRASS_AT_BASE}, ${PIXEL_STYLE}`,
+    size: { width: 80, height: 112 },
   },
   evergreen: {
-    description: `isolated pine tree object on pure transparent background, tall dark cypress tree, very dark green needles #182818 #203820 #284028, dark brown trunk, ${GRASS_AT_BASE}, ${PIXEL_STYLE}`,
-    size: { width: 48, height: 64 },
+    description: `isolated pine tree object on pure transparent background, tall dark cypress tree, detailed needle texture, very dark green needles #182818 #203820 #284028, dark brown trunk, ${GRASS_AT_BASE}, ${PIXEL_STYLE}`,
+    size: { width: 80, height: 112 },
   },
 };
 
