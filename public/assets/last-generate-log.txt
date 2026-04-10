@@ -15,31 +15,24 @@ Gravestones:
   ⊙ Occult symbol stone — already exists, skipping
   ⊙ Small mausoleum crypt — already exists, skipping
   ⊙ Short worn headstone — already exists, skipping
-  Tall obelisk...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/gravestone-8.png ($0.0000)
-  Angel statue...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/gravestone-9.png ($0.0000)
-  Large family plot stone...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/gravestone-10.png ($0.0000)
-  Ornate tall headstone with urn...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/gravestone-11.png ($0.0000)
-  Small flat marker...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/gravestone-12.png ($0.0000)
-  Tiny child grave marker...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/gravestone-13.png ($0.0000)
-  Worn stone slab...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/gravestone-14.png ($0.0000)
-  Cracked leaning headstone...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/gravestone-15.png ($0.0000)
-  Broken toppled gravestone...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/gravestone-16.png ($0.0000)
-  Shattered gravestone stump...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/gravestone-17.png ($0.0000)
+  ⊙ Tall obelisk — already exists, skipping
+  ⊙ Angel statue — already exists, skipping
+  ⊙ Large family plot stone — already exists, skipping
+  ⊙ Ornate tall headstone with urn — already exists, skipping
+  ⊙ Small flat marker — already exists, skipping
+  ⊙ Tiny child grave marker — already exists, skipping
+  ⊙ Worn stone slab — already exists, skipping
+  ⊙ Cracked leaning headstone — already exists, skipping
+  ⊙ Broken toppled gravestone — already exists, skipping
+  ⊙ Shattered gravestone stump — already exists, skipping
 
 Trees:
-  ⊙ oak — already exists, skipping
-  ⊙ dead — already exists, skipping
-  ⊙ evergreen — already exists, skipping
+  oak...
+    ✓ /home/runner/work/Grit/Grit/public/assets/objects/tree-oak.png ($0.0000)
+  dead...
+    ✓ /home/runner/work/Grit/Grit/public/assets/objects/tree-dead.png ($0.0000)
+  evergreen...
+    ✓ /home/runner/work/Grit/Grit/public/assets/objects/tree-evergreen.png ($0.0000)
 
 Bushes:
   ⊙ large — already exists, skipping
@@ -50,11 +43,10 @@ Large Objects:
 
 Fence:
   ⊙ fence section — already exists, skipping
-  fence vertical...
-    ✓ /home/runner/work/Grit/Grit/public/assets/objects/fence-vertical.png ($0.0000)
+  ⊙ fence vertical — already exists, skipping
 
 Details:
   ⊙ rocks — already exists, skipping
   ⊙ grassTufts — already exists, skipping
 
-=== Done! Generated: 11, Skipped: 18, Cost: $0.0000 ===
+=== Done! Generated: 3, Skipped: 26, Cost: $0.0000 ===
