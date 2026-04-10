@@ -902,7 +902,7 @@ export class GraveyardScene extends Phaser.Scene {
       if (this.footstepTimer > 350) {
         this.footstepTimer = 0;
         try {
-          this.sound.play(Math.random() > 0.5 ? 'footstep' : 'footstep-alt', { volume: 0.08 + Math.random() * 0.04 });
+          this.sound.play(Math.random() > 0.5 ? 'footstep' : 'footstep-alt', { volume: 0.04 + Math.random() * 0.02 });
         } catch (_e) { /* */ }
       }
     } else {
