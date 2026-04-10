@@ -42,7 +42,6 @@ export class BootScene extends Phaser.Scene {
     // Tiles
     this.load.image('grass', 'assets/tiles/grass.png');
     this.load.image('gravel', 'assets/tiles/stone_path.png');
-    this.load.image('dirt', 'assets/tiles/dirt.png');
 
     // Gravestones
     for (let i = 0; i < 8; i++) {
@@ -60,7 +59,6 @@ export class BootScene extends Phaser.Scene {
 
     // Large objects
     this.load.image('fountain', 'assets/objects/fountain.png');
-    this.load.image('caretaker-house', 'assets/objects/caretaker-house.png');
 
     // Fence
     this.load.image('fence', 'assets/objects/fence.png');

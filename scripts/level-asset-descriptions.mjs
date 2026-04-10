@@ -55,10 +55,6 @@ export const TILES = {
     description: `dark gray stone gravel pathway, colors #303030 #404040 #505050, small tightly packed crushed pebbles, ${LIGHTING}, seamless tileable, ${PIXEL_STYLE}, top-down view`,
     size: { width: 32, height: 32 },
   },
-  dirt: {
-    description: `dark brown packed dirt earth path, colors #583828 #684028 #785038, worn compacted earth with small stones, ${LIGHTING}, seamless tileable, ${PIXEL_STYLE}, top-down view`,
-    size: { width: 32, height: 32 },
-  },
 };
 
 // ===========================================================
@@ -148,10 +144,6 @@ export const LARGE_OBJECTS = {
     description: `old stone water fountain with circular basin at night, dark gray stone #383838 #484848, dark blue water #203048 #304058, base blends into dark grass ${GRASS_COLOR}, ${LIGHTING}, ${PIXEL_STYLE}, 3/4 top-down view`,
     size: { width: 96, height: 96 },
   },
-  caretakerHouse: {
-    description: `small old stone and wood cottage house at night, dark walls #303030 #383838, dark shingled roof #201818, small chimney, single warm lit window amber glow #604020, dark wooden door, base blends into dark grass ${GRASS_COLOR}, ${LIGHTING}, ${PIXEL_STYLE}, 3/4 top-down view`,
-    size: { width: 96, height: 96 },
-  },
 };
 
 // ===========================================================
@@ -177,7 +169,7 @@ export const DETAILS = {
     size: { width: 32, height: 32 },
   },
   grassTufts: {
-    description: `small tufts of tall dark grass blades, very dark green ${GRASS_COLOR}, a few blades sticking up, transparent background, ${LIGHTING}, ${PIXEL_STYLE}, top-down view`,
+    description: `small tufts of tall dark grass blades of color #183018 #203820 #284028, very dark forest green, a few blades sticking up, transparent background, ${LIGHTING}, ${PIXEL_STYLE}, top-down view`,
     size: { width: 32, height: 32 },
   },
   fallenLeaves: {

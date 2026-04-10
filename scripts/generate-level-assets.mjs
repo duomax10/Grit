@@ -88,9 +88,6 @@ async function main() {
   await gen('fountain', LARGE_OBJECTS.fountain.description,
     LARGE_OBJECTS.fountain.size, OBJECT_API_SETTINGS,
     join(ASSETS, 'objects', 'fountain.png'));
-  await gen('caretaker house', LARGE_OBJECTS.caretakerHouse.description,
-    LARGE_OBJECTS.caretakerHouse.size, OBJECT_API_SETTINGS,
-    join(ASSETS, 'objects', 'caretaker-house.png'));
 
   // --- FENCE ---
   console.log('\nFence:');

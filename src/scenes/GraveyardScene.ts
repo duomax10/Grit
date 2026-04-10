@@ -16,7 +16,6 @@ const MAP_H = MAP_ROWS * TILE;
 
 const G = 0;  // grass
 const V = 1;  // gravel (main path)
-const D = 2;  // dirt (side paths to house)
 const F = 3;  // fence
 const P = 4;  // fence post
 
@@ -47,12 +46,6 @@ function buildLayout(): number[][] {
       const fcr = 14, fcc = 11.5;
       const dx = c - fcc, dy = r - fcr;
       if (Math.sqrt(dx * dx + dy * dy) <= 3.2) L[r][c] = V;
-
-      // === DIRT PATH to caretaker's house (top-left) ===
-      // Branch left from main path at row 3
-      if (r >= 3 && r <= 4 && c >= 2 && c <= 11) L[r][c] = D;
-      // Small area in front of house
-      if (r >= 2 && r <= 5 && c >= 2 && c <= 4) L[r][c] = D;
     }
   }
   return L;
@@ -200,7 +193,6 @@ export class GraveyardScene extends Phaser.Scene {
     this.placeGravestones();
     this.placeDecorations();
     this.placeFountain();
-    this.placeHouse();
 
     // Camera
     this.cameras.main.startFollow(this.player, true, 0.08, 0.08);
@@ -246,24 +238,22 @@ export class GraveyardScene extends Phaser.Scene {
 
     const grassImg = getImage('grass');
     const gravelImg = getImage('gravel');
-    const dirtImg = getImage('dirt');
 
     // Pattern fill the entire map with grass
     const grassPat = ctx.createPattern(grassImg, 'repeat')!;
     ctx.fillStyle = grassPat;
     ctx.fillRect(0, 0, MAP_W, MAP_H);
 
-    // Paint gravel and dirt paths
+    // Paint gravel paths
     const gravelPat = ctx.createPattern(gravelImg, 'repeat')!;
-    const dirtPat = ctx.createPattern(dirtImg, 'repeat')!;
 
     for (let r = 0; r < MAP_ROWS; r++) {
       for (let c = 0; c < MAP_COLS; c++) {
         const cell = LAYOUT[r][c];
-        if (cell === V || cell === D) {
+        if (cell === V) {
           const x = c * TILE;
           const y = r * TILE;
-          ctx.fillStyle = cell === V ? gravelPat : dirtPat;
+          ctx.fillStyle = gravelPat;
           ctx.fillRect(x, y, TILE, TILE);
 
           // Feather edges where path meets grass
@@ -394,32 +384,6 @@ export class GraveyardScene extends Phaser.Scene {
     const z = this.add.zone(x, y, 64, 64);
     this.physics.add.existing(z, true);
     this.objectColliders.add(z);
-  }
-
-  private placeHouse(): void {
-    const houseX = 3 * TILE;
-    const houseY = 2 * TILE;
-    this.add.image(houseX, houseY, 'caretaker-house').setDepth(3);
-
-    const cz = this.add.zone(houseX, houseY, TILE * 2.5, TILE * 2.5);
-    this.physics.add.existing(cz, true);
-    this.objectColliders.add(cz);
-
-    const obj = new InteractiveObject({
-      scene: this,
-      x: houseX,
-      y: houseY + TILE * 1.5,
-      texture: 'caretaker-house',
-      interactionType: 'dialog',
-      interactionRadius: 60,
-      label: "Caretaker's House",
-      onInteract: () => {
-        this.player.stopMovement();
-        this.dialogSystem.showDialog(Dialogs.CARETAKER_HOUSE_DIALOG);
-      },
-    });
-    obj.setVisible(false);
-    this.interactionSystem.addObject(obj);
   }
 
   private createFogEffects(): void {

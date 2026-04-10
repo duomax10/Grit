@@ -76,8 +76,6 @@ async function main() {
   console.log('\nLarge Objects:');
   await gen('fountain', LARGE_OBJECTS.fountain.description,
     LARGE_OBJECTS.fountain.size, join(objDir, 'fountain.png'));
-  await gen('caretaker house', LARGE_OBJECTS.caretakerHouse.description,
-    LARGE_OBJECTS.caretakerHouse.size, join(objDir, 'caretaker-house.png'));
 
   // Fence
   console.log('\nFence:');
