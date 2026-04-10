@@ -34,6 +34,21 @@
   <script type="module" crossorigin src="./assets/index-DSSVWQX1.js"></script>
 </head>
 <body>
+  <div id="error-display" style="display:none;position:fixed;top:0;left:0;right:0;padding:10px;background:red;color:white;font-size:12px;z-index:9999;word-wrap:break-word;max-height:50%;overflow:auto;"></div>
   <div id="game-container"></div>
+  <script>
+    window.onerror = function(msg, url, line, col, err) {
+      var el = document.getElementById('error-display');
+      el.style.display = 'block';
+      el.innerHTML += '<b>Error:</b> ' + msg + '<br>at ' + url + ':' + line + ':' + col + '<br>';
+      if (err && err.stack) el.innerHTML += '<pre>' + err.stack + '</pre>';
+    };
+    window.addEventListener('unhandledrejection', function(e) {
+      var el = document.getElementById('error-display');
+      el.style.display = 'block';
+      el.innerHTML += '<b>Unhandled Promise:</b> ' + (e.reason ? e.reason.message || e.reason : 'unknown') + '<br>';
+      if (e.reason && e.reason.stack) el.innerHTML += '<pre>' + e.reason.stack + '</pre>';
+    });
+  </script>
 </body>
 </html>
