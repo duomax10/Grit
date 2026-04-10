@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { generateAudio } from '../assets/AudioGenerator';
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -94,6 +95,9 @@ export class BootScene extends Phaser.Scene {
 
       this.anims.create({ key: `gabe-idle-${gameDir}`, frames: [{ key: `gabe-${dir}` }], frameRate: 1, repeat: -1 });
     }
+
+    // Generate procedural audio (fire and forget — don't block scene transition)
+    generateAudio(this).catch(() => {});
 
     // Go to game
     this.time.delayedCall(300, () => {
