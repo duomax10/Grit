@@ -440,9 +440,18 @@ export class GraveyardScene extends Phaser.Scene {
   private fenceColliders!: Phaser.Physics.Arcade.StaticGroup;
   private objectColliders!: Phaser.Physics.Arcade.StaticGroup;
   private ambientSound: Phaser.Sound.BaseSound | null = null;
+  // Soft trickling-water loop tied to the fountain. Volume is driven
+  // by distance from the player so it only kicks in when you're
+  // standing right next to the basin.
+  private fountainSound: Phaser.Sound.BaseSound | null = null;
+  private fountainPos: { x: number; y: number } | null = null;
   private footstepTimer = 0;
   private introPlayed = false;
   private exitTriggered = false;
+  // True once we've shown the "Something is stopping me." dialog at
+  // the gate; reset when the player walks back north far enough so
+  // they hear it again on a fresh attempt.
+  private blockedAtGateShown = false;
 
   constructor() {
     super({ key: 'GraveyardScene' });
@@ -548,6 +557,12 @@ export class GraveyardScene extends Phaser.Scene {
     this._onMissionNoteDismissed = null;
     this.introPlayed = false;
     this.exitTriggered = false;
+    this.blockedAtGateShown = false;
+    // Sound objects are destroyed by Phaser's per-scene sound manager
+    // on shutdown, so just drop our references.
+    this.ambientSound = null;
+    this.fountainSound = null;
+    this.fountainPos = null;
   }
 
   private buildMap(): void {
@@ -830,6 +845,49 @@ export class GraveyardScene extends Phaser.Scene {
     });
   }
 
+  /**
+   * Soft "paycheck" barrier at the gate. While both soil samples
+   * aren't collected, clamp Gabe's y so no more than ~half his sprite
+   * pushes south of the gate line, then play the blocked monologue
+   * the first time he hits the wall. The dialog re-arms once he
+   * walks back north so a fresh approach gets the line again.
+   */
+  private checkGateBarrier(): void {
+    // Don't fight the camera fade or stomp on a scripted sequence.
+    if (this.exitTriggered || this.player.locked) return;
+    const state = StateManager.getInstance();
+    if (state.getBoolFlag('sample_vera') && state.getBoolFlag('sample_rebecca')) {
+      return;
+    }
+
+    // y at which the sprite center sits when roughly half of the
+    // visible character has crossed the gate line. The fence row top
+    // is at y = (MAP_ROWS - 1) * TILE = 928, so 932 puts the sprite
+    // center a few px south of the gate threshold and well past the
+    // existing exit-trigger line at 924.8.
+    const BARRIER_Y = 932;
+    // Re-arm the dialog once he walks at least one tile back north.
+    const REARM_Y = BARRIER_Y - TILE;
+
+    // Only the central gravel path is the gate; on grass the fence
+    // already blocks normally.
+    const pxCol = this.player.x / TILE;
+    const onStonePath = pxCol >= 10.5 && pxCol <= 13.5;
+
+    if (onStonePath && this.player.y > BARRIER_Y) {
+      this.player.y = BARRIER_Y;
+      const body = this.player.body as Phaser.Physics.Arcade.Body | null;
+      if (body && body.velocity.y > 0) body.setVelocityY(0);
+      if (!this.blockedAtGateShown && this.dialogSystem && !this.dialogSystem.active) {
+        this.blockedAtGateShown = true;
+        this.player.stopMovement();
+        this.dialogSystem.showDialog(Dialogs.GATE_BLOCKED_NO_SAMPLES);
+      }
+    } else if (this.player.y < REARM_Y) {
+      this.blockedAtGateShown = false;
+    }
+  }
+
   private placeDecorations(): void {
     for (const d of DECORATIONS) {
       const x = d.c * TILE + TILE / 2;
@@ -904,6 +962,8 @@ export class GraveyardScene extends Phaser.Scene {
     // Fountain sits on the right half of the stone path
     const x = 12 * TILE;
     const y = 14 * TILE;
+    // Save center for the proximity-driven water audio in update().
+    this.fountainPos = { x, y };
     const fountainImg = this.add.image(x, y, 'fountain').setDepth(1000 + y);
     const z = this.add.zone(x, y, 64, 64);
     this.physics.add.existing(z, true);
@@ -1081,8 +1141,38 @@ export class GraveyardScene extends Phaser.Scene {
         this.ambientSound = this.sound.add('night-ambient', { loop: true, volume: 0.3 });
         this.ambientSound.play();
       } catch (_e) { /* */ }
+      // Fountain water loop starts at zero volume; updateFountainAudio
+      // ramps it up while the player is near the basin.
+      try {
+        this.fountainSound = this.sound.add('fountain-water', { loop: true, volume: 0 });
+        this.fountainSound.play();
+      } catch (_e) { /* */ }
     });
     this.scheduleOwlHoot();
+  }
+
+  /**
+   * Smoothly ramp the fountain water loop based on the player's
+   * distance to the basin. Audible only when standing within a few
+   * tiles; silent past ~6 tiles. The audio object is stopped on
+   * scene shutdown alongside the rest of the level audio.
+   */
+  private updateFountainAudio(): void {
+    if (!this.fountainSound || !this.fountainPos) return;
+    const dx = this.player.x - this.fountainPos.x;
+    const dy = this.player.y - this.fountainPos.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    // Full volume within 2 tiles, silent past 6 tiles, linear in
+    // between. Peak volume is intentionally subtle.
+    const NEAR = TILE * 2;
+    const FAR = TILE * 6;
+    const MAX_VOL = 0.22;
+    let vol: number;
+    if (dist <= NEAR) vol = MAX_VOL;
+    else if (dist >= FAR) vol = 0;
+    else vol = MAX_VOL * (1 - (dist - NEAR) / (FAR - NEAR));
+    const s = this.fountainSound as Phaser.Sound.BaseSound & { volume?: number };
+    if (typeof s.volume === 'number') s.volume = vol;
   }
 
   private scheduleOwlHoot(): void {
@@ -1123,6 +1213,8 @@ export class GraveyardScene extends Phaser.Scene {
     this.player.update();
     this.interactionSystem.update();
 
+    this.checkGateBarrier();
+    this.updateFountainAudio();
     this.checkExitTrigger();
 
     // Footstep sounds

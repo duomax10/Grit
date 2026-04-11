@@ -182,5 +182,29 @@ export async function generateAudio(scene: Phaser.Scene): Promise<void> {
   const clickUrl = await audioBufferToBase64(clickBuffer);
   await loadGeneratedAudio(scene, 'ui-click', clickUrl);
 
+  // --- FOUNTAIN WATER (gentle loop, ramped by proximity) ---
+  // Layered noise + slow swell to evoke water trickling from a stone
+  // basin. The buffer is generated quiet on purpose; the scene scales
+  // playback volume based on the player's distance to the fountain
+  // and only ramps it up when the player is right next to it.
+  const waterDuration = 6;
+  const waterBuffer = createAudioBuffer(audioCtx, waterDuration, sampleRate, (t, i) => {
+    const r1 = seededRandom((i * 31) % 1000 + 1);
+    const r2 = seededRandom((i * 17) % 997 + 1);
+    let val = (r1() * 2 - 1) + (r2() * 2 - 1) * 0.6;
+    // Slow swell so it doesn't feel like static white noise.
+    val *= 0.65 + 0.35 * Math.sin(t * 0.7);
+    // Low-frequency burble shaping for a "trickling" feel.
+    val *= 0.7 + 0.3 * Math.sin(t * 4.2);
+    // Short fade at the loop boundaries so the seam isn't a click.
+    const fade = 0.4;
+    let env = 1;
+    if (t < fade) env = t / fade;
+    if (t > waterDuration - fade) env = (waterDuration - t) / fade;
+    return val * 0.2 * env;
+  });
+  const waterUrl = await audioBufferToBase64(waterBuffer);
+  await loadGeneratedAudio(scene, 'fountain-water', waterUrl);
+
   await audioCtx.close();
 }

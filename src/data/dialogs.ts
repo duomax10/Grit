@@ -100,6 +100,14 @@ export const SAMPLE_COLLECTED_READY: DialogSequence = [
   { type: 'thought', text: 'Im ready to go.' },
 ];
 
+// Played the first time the player tries to walk out the gate before
+// collecting both soil samples. The soft barrier in GraveyardScene
+// stops Gabe roughly half-past the gate and triggers this monologue.
+export const GATE_BLOCKED_NO_SAMPLES: DialogSequence = [
+  { type: 'thought', text: 'Something is stopping me.' },
+  { type: 'thought', text: 'I think its my paycheck.' },
+];
+
 export const CARETAKER_HOUSE_DIALOG: DialogSequence = [
   { type: 'thought', text: 'The caretaker\'s house. Lights are on but nobody\'s answering.' },
   { type: 'thought', text: 'Door\'s locked. Figures.' },
