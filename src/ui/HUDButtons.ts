@@ -24,11 +24,10 @@ export class HUDButtons {
   private missionBg!: Phaser.GameObjects.Graphics;
   private missionText!: Phaser.GameObjects.Text;
 
-  // Secondary "interact available" pip — lives up by the top-right
-  // button cluster so the player notices an interactable even when
+  // Secondary "interact available" pip — lives just above the
+  // inventory button so the player notices an interactable even when
   // their thumb is parked over the main E button at bottom-right.
   private interactPip!: Phaser.GameObjects.Container;
-  private interactPipTween?: Phaser.Tweens.Tween;
 
   // Callbacks
   public onInteract?: () => void;
@@ -160,10 +159,10 @@ export class HUDButtons {
   }
 
   /**
-   * Small green pip placed under the mission/inventory button cluster.
-   * Mirrors the main E button's visibility so the player always has a
-   * "you can interact" signal in their peripheral vision regardless of
-   * where their thumb is.
+   * Small green pip placed above the inventory button, right-aligned
+   * with the button's right edge. Mirrors the main E button's
+   * visibility so the player always has a "you can interact" signal
+   * in their peripheral vision regardless of where their thumb is.
    */
   private createInteractPip(): void {
     this.interactPip = this.scene.add.container(0, 0);
@@ -195,25 +194,19 @@ export class HUDButtons {
     // Mission button: just left of the inventory button
     this.missionContainer.setPosition(width - 82, 58);
 
-    // Interact pip: centered under the two top-right buttons
-    this.interactPip.setPosition(width - 58, 90);
+    // Interact pip: just above the inventory button, right-aligned
+    // with the button's right edge. Inventory is at (width - 34, 58)
+    // with half-size 20, so its right edge sits at width - 14 and its
+    // top edge at y = 38. Pip center at (width - 18, 28) places the
+    // 4 px core dot ~6 px above the button with a small inset from
+    // the right edge.
+    this.interactPip.setPosition(width - 18, 28);
   }
 
   showInteract(): void {
     if (!this.interactVisible) {
       this.interactContainer.setVisible(true);
       this.interactPip.setVisible(true);
-      this.interactPip.setAlpha(1);
-      // Gentle pulse so the pip breathes and draws the eye
-      this.interactPipTween?.stop();
-      this.interactPipTween = this.scene.tweens.add({
-        targets: this.interactPip,
-        alpha: 0.4,
-        duration: 700,
-        ease: 'Sine.easeInOut',
-        yoyo: true,
-        repeat: -1,
-      });
       this.interactVisible = true;
     }
   }
@@ -221,10 +214,7 @@ export class HUDButtons {
   hideInteract(): void {
     if (this.interactVisible) {
       this.interactContainer.setVisible(false);
-      this.interactPipTween?.stop();
-      this.interactPipTween = undefined;
       this.interactPip.setVisible(false);
-      this.interactPip.setAlpha(1);
       this.interactVisible = false;
     }
   }
