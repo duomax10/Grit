@@ -34,23 +34,36 @@ export class BootScene extends Phaser.Scene {
       console.warn(`Missing asset: ${file.key} at ${file.url}`);
     });
 
-    // Character sprites
-    this.load.image('gabe-south', 'assets/sprites/gabe-south.png');
-    this.load.image('gabe-north', 'assets/sprites/gabe-north.png');
-    this.load.image('gabe-east', 'assets/sprites/gabe-east.png');
-    this.load.image('gabe-west', 'assets/sprites/gabe-west.png');
+    // Character sprites — all extracted into a Gabe-specific folder.
+    // Idle rotations live under gabe/rotations/<dir>.png, walk and
+    // crouch frame sequences live under gabe/animations/<anim>/<dir>/
+    // frame_XXX.png. Directions in the source zip use the standard
+    // compass naming (south/north/east/west plus diagonals); the game
+    // currently only uses the four cardinals.
+    this.load.image('gabe-south', 'assets/sprites/gabe/rotations/south.png');
+    this.load.image('gabe-north', 'assets/sprites/gabe/rotations/north.png');
+    this.load.image('gabe-east', 'assets/sprites/gabe/rotations/east.png');
+    this.load.image('gabe-west', 'assets/sprites/gabe/rotations/west.png');
 
-    // Walk frames
+    // Walk frames (6 per direction)
     for (const dir of ['south', 'north', 'east', 'west']) {
       for (let f = 0; f < 6; f++) {
-        this.load.image(`gabe-${dir}-walk-${f}`, `assets/sprites/gabe-${dir}-walk-${f}.png`);
+        const frame = String(f).padStart(3, '0');
+        this.load.image(
+          `gabe-${dir}-walk-${f}`,
+          `assets/sprites/gabe/animations/walk/${dir}/frame_${frame}.png`,
+        );
       }
     }
 
     // Crouch frames (5 per direction)
     for (const dir of ['south', 'north', 'east', 'west']) {
       for (let f = 0; f < 5; f++) {
-        this.load.image(`gabe-${dir}-crouch-${f}`, `assets/sprites/gabe-${dir}-crouch-${f}.png`);
+        const frame = String(f).padStart(3, '0');
+        this.load.image(
+          `gabe-${dir}-crouch-${f}`,
+          `assets/sprites/gabe/animations/crouch/${dir}/frame_${frame}.png`,
+        );
       }
     }
 
