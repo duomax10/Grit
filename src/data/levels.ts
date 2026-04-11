@@ -33,7 +33,7 @@ export interface Level {
 export const LEVELS: Level[] = [
   {
     id: 'graveyard',
-    title: 'Monday',
+    title: 'Monday for Gabe',
     subtitle: 'Soil samples at the cemetery.',
     sceneKey: 'GraveyardScene',
     missionId: 'graveyard_intro',
