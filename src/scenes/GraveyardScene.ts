@@ -729,21 +729,27 @@ export class GraveyardScene extends Phaser.Scene {
 
   /**
    * Lock the HUD/joystick, crouch Gabe, swap the first empty
-   * container for a filled one, flip the state flag, then unlock
-   * and play the follow-up dialog.
+   * container for a filled one, then play the follow-up dialog.
+   * The state flag is flipped AFTER the follow-up dialog closes so
+   * the objective-complete toast never overlaps Gabe's monologue.
    */
   private collectSoilSample(flagKey: string, followupDialog: Dialogs.DialogSequence): void {
     this.setInputLocked(true);
 
     this.player.playCrouch(1500, () => {
-      // Mid-sequence payoff: fill the container and flip the flag.
+      // Inventory updates immediately so the player sees the filled
+      // container the moment they reopen their bag.
       InventorySystem.getInstance().fillSampleContainer();
-      StateManager.getInstance().setFlag(flagKey, true);
 
       this.setInputLocked(false);
       // Small beat before the follow-up thought
       this.time.delayedCall(250, () => {
-        this.dialogSystem?.showDialog(followupDialog);
+        this.dialogSystem?.showDialog(followupDialog, () => {
+          // Dialog's done — now flip the flag. This triggers
+          // MissionSystem.evaluateObjectives, which may fire an
+          // objective-complete / mission-complete toast.
+          StateManager.getInstance().setFlag(flagKey, true);
+        });
       });
     });
   }
