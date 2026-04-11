@@ -1141,14 +1141,32 @@ export class GraveyardScene extends Phaser.Scene {
         this.ambientSound = this.sound.add('night-ambient', { loop: true, volume: 0.3 });
         this.ambientSound.play();
       } catch (_e) { /* */ }
-      // Fountain water loop starts at zero volume; updateFountainAudio
-      // ramps it up while the player is near the basin.
-      try {
-        this.fountainSound = this.sound.add('fountain-water', { loop: true, volume: 0 });
-        this.fountainSound.play();
-      } catch (_e) { /* */ }
     });
+    this.startFountainAudio();
     this.scheduleOwlHoot();
+  }
+
+  /**
+   * Starts the fountain water loop once the procedurally generated
+   * `fountain-water` buffer has finished loading into the audio
+   * cache. AudioGenerator runs fire-and-forget from BootScene, so
+   * the buffer may not exist when this scene first creates, and
+   * `this.sound.add()` would otherwise silently produce a dead sound
+   * object. We poll the cache and start as soon as the key shows up.
+   */
+  private startFountainAudio(): void {
+    const tryStart = () => {
+      if (this.fountainSound) return;
+      if (this.cache && this.cache.audio && this.cache.audio.exists('fountain-water')) {
+        try {
+          this.fountainSound = this.sound.add('fountain-water', { loop: true, volume: 0 });
+          this.fountainSound.play();
+        } catch (_e) { /* */ }
+      } else {
+        this.time.delayedCall(250, tryStart);
+      }
+    };
+    tryStart();
   }
 
   /**
@@ -1162,17 +1180,26 @@ export class GraveyardScene extends Phaser.Scene {
     const dx = this.player.x - this.fountainPos.x;
     const dy = this.player.y - this.fountainPos.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
-    // Full volume within 2 tiles, silent past 6 tiles, linear in
-    // between. Peak volume is intentionally subtle.
-    const NEAR = TILE * 2;
-    const FAR = TILE * 6;
-    const MAX_VOL = 0.22;
+    // Full volume within ~2.5 tiles of the basin, silent past ~7
+    // tiles, linear in between. Peak is loud enough to be obvious
+    // when standing right on top of the fountain but quiet enough
+    // not to fight the night-ambient bed.
+    const NEAR = TILE * 2.5;
+    const FAR = TILE * 7;
+    const MAX_VOL = 0.55;
     let vol: number;
     if (dist <= NEAR) vol = MAX_VOL;
     else if (dist >= FAR) vol = 0;
     else vol = MAX_VOL * (1 - (dist - NEAR) / (FAR - NEAR));
-    const s = this.fountainSound as Phaser.Sound.BaseSound & { volume?: number };
-    if (typeof s.volume === 'number') s.volume = vol;
+    // Phaser's WebAudioSound exposes both a `volume` setter and a
+    // `setVolume()` method; prefer the method to be explicit and
+    // fall through to the property for HTML5AudioSound compatibility.
+    const s = this.fountainSound as Phaser.Sound.BaseSound & {
+      setVolume?: (v: number) => void;
+      volume?: number;
+    };
+    if (typeof s.setVolume === 'function') s.setVolume(vol);
+    else if (typeof s.volume === 'number') s.volume = vol;
   }
 
   private scheduleOwlHoot(): void {
