@@ -7,6 +7,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private facing: Direction = 'down';
   private isMoving = false;
 
+  // When true, update() skips input-driven movement/animations.
+  // Used during scripted sequences (crouch, dialogs, etc).
+  private inputLocked = false;
+
+  // When crouching, update() leaves the sprite alone so the tween
+  // isn't stomped by the idle pose each frame.
+  private isCrouching = false;
+
   // Input from virtual joystick or keyboard
   public inputX = 0;
   public inputY = 0;
@@ -29,7 +37,26 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     return this.facing;
   }
 
+  get locked(): boolean {
+    return this.inputLocked;
+  }
+
+  setInputLocked(locked: boolean): void {
+    this.inputLocked = locked;
+    if (locked) {
+      this.inputX = 0;
+      this.inputY = 0;
+      this.setVelocity(0, 0);
+    }
+  }
+
   update(): void {
+    if (this.inputLocked || this.isCrouching) {
+      this.setVelocity(0, 0);
+      this.setDepth(1000 + this.y + 30);
+      return;
+    }
+
     const vx = this.inputX * this.speed;
     const vy = this.inputY * this.speed;
 
@@ -74,5 +101,64 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.setVelocity(0, 0);
     this.play(`gabe-idle-${this.facing}`, true);
     this.isMoving = false;
+  }
+
+  /**
+   * Play a crouch-down animation by squashing the sprite's Y scale
+   * (there are no dedicated crouch frames). Holds the squash for
+   * `holdMs` before popping back up. Calls `onComplete` when the
+   * sprite is back to full height.
+   *
+   * While crouching, update() leaves the sprite alone so the tween
+   * isn't overridden each frame.
+   */
+  playCrouch(holdMs = 1500, onComplete?: () => void): void {
+    if (this.isCrouching) return;
+    this.isCrouching = true;
+    this.stopMovement();
+    // Stop the anim so it doesn't fight the scale tween
+    this.anims.stop();
+    this.setTexture(`gabe-${this.dirKey()}`);
+
+    const downMs = 180;
+    const upMs = 220;
+    const squashY = 0.72;
+    const squashX = 1.08;
+
+    // Use scene tweens so Phaser ticks us even when isCrouching skips
+    // update() changes.
+    this.scene.tweens.add({
+      targets: this,
+      scaleY: squashY,
+      scaleX: squashX,
+      duration: downMs,
+      ease: 'Sine.easeOut',
+      onComplete: () => {
+        this.scene.time.delayedCall(holdMs, () => {
+          this.scene.tweens.add({
+            targets: this,
+            scaleY: 1,
+            scaleX: 1,
+            duration: upMs,
+            ease: 'Sine.easeIn',
+            onComplete: () => {
+              this.isCrouching = false;
+              this.play(`gabe-idle-${this.facing}`, true);
+              onComplete?.();
+            },
+          });
+        });
+      },
+    });
+  }
+
+  /** Map internal 'down/up/left/right' to sprite direction suffix. */
+  private dirKey(): string {
+    switch (this.facing) {
+      case 'down': return 'south';
+      case 'up': return 'north';
+      case 'right': return 'east';
+      case 'left': return 'west';
+    }
   }
 }

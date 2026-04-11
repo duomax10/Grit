@@ -99,4 +99,26 @@ export class InventorySystem {
     // Use the stronger hand, or 1 for bare fists
     return Math.max(leftDmg, rightDmg, 1);
   }
+
+  /**
+   * Replace the first empty sample container in the backpack with a
+   * filled one. Returns true if a container was filled, false if
+   * there were no empty containers.
+   */
+  fillSampleContainer(): boolean {
+    const idx = this.backpack.findIndex((i) => i.id === 'sampleContainer');
+    if (idx < 0) return false;
+    const filled = ITEMS.sampleContainerFilled;
+    if (!filled) return false;
+    this.backpack[idx] = { ...filled };
+    return true;
+  }
+
+  countEmptySampleContainers(): number {
+    return this.backpack.filter((i) => i.id === 'sampleContainer').length;
+  }
+
+  countFilledSampleContainers(): number {
+    return this.backpack.filter((i) => i.id === 'sampleContainerFilled').length;
+  }
 }

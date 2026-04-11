@@ -3,6 +3,7 @@ import { VirtualJoystick } from '../ui/VirtualJoystick';
 import { HUDButtons } from '../ui/HUDButtons';
 import { InventoryUI } from '../ui/InventoryUI';
 import { StickyNote } from '../ui/StickyNote';
+import { ObjectiveToast } from '../ui/ObjectiveToast';
 import { InteractiveObject } from '../entities/InteractiveObject';
 import { MissionSystem } from '../systems/MissionSystem';
 import { DialogSystem } from '../systems/DialogSystem';
@@ -12,7 +13,12 @@ export class UIScene extends Phaser.Scene {
   private hudButtons!: HUDButtons;
   private inventoryUI!: InventoryUI;
   private stickyNote!: StickyNote;
+  private objectiveToast!: ObjectiveToast;
   public dialogSystem!: DialogSystem;
+
+  // When locked, HUD button callbacks are suppressed and joystickData
+  // is zeroed. Toggled by GraveyardScene during scripted sequences.
+  public inputLocked = false;
 
   // Exposed for GraveyardScene to read
   public joystickData = { x: 0, y: 0 };
@@ -29,11 +35,13 @@ export class UIScene extends Phaser.Scene {
     this.hudButtons = new HUDButtons(this);
 
     this.hudButtons.onInteract = () => {
+      if (this.inputLocked) return;
       if (this.inventoryUI.active || this.stickyNote.isVisible) return;
       this.events.emit('interact-pressed');
     };
 
     this.hudButtons.onInventory = () => {
+      if (this.inputLocked) return;
       if (this.inventoryUI.active) {
         this.inventoryUI.close();
       } else {
@@ -43,6 +51,7 @@ export class UIScene extends Phaser.Scene {
     };
 
     this.hudButtons.onMission = () => {
+      if (this.inputLocked) return;
       if (this.stickyNote.isVisible) {
         this.stickyNote.dismiss();
       } else {
@@ -62,6 +71,9 @@ export class UIScene extends Phaser.Scene {
 
     // Dialog system lives here so it renders above HUD buttons
     this.dialogSystem = new DialogSystem(this);
+
+    // Objective completion toast
+    this.objectiveToast = new ObjectiveToast(this);
 
     // Listen for objective completions to refresh the note
     MissionSystem.getInstance().on('objective-completed', () => {
@@ -89,15 +101,27 @@ export class UIScene extends Phaser.Scene {
       }
     });
 
+    // Input lock events from gameplay scene (scripted sequences)
+    this.events.on('input-lock', (locked: boolean) => {
+      this.inputLocked = locked;
+      if (locked) {
+        this.joystickData.x = 0;
+        this.joystickData.y = 0;
+        this.joystick.reset();
+      }
+    });
+
     // Keyboard shortcut for interact (E key)
     if (this.input.keyboard) {
       this.input.keyboard.on('keydown-E', () => {
+        if (this.inputLocked) return;
         if (this.inventoryUI.active) return;
         this.events.emit('interact-pressed');
       });
 
       // Keyboard shortcut for inventory (I key)
       this.input.keyboard.on('keydown-I', () => {
+        if (this.inputLocked) return;
         if (this.inventoryUI.active) {
           this.inventoryUI.close();
         } else {
@@ -116,6 +140,11 @@ export class UIScene extends Phaser.Scene {
   }
 
   update(): void {
+    if (this.inputLocked) {
+      this.joystickData.x = 0;
+      this.joystickData.y = 0;
+      return;
+    }
     if (!this.inventoryUI.active) {
       this.joystick.update();
       this.joystickData.x = this.joystick.x;

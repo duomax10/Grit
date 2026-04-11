@@ -40,4 +40,10 @@ export const ITEMS: Record<string, GameItem> = {
     description: 'A small glass vial with a cork stopper. Holds one soil sample.',
     icon: 'item-container',
   },
+  sampleContainerFilled: {
+    id: 'sampleContainerFilled',
+    name: 'Sealed Sample',
+    description: 'A glass vial packed with rich dark cemetery topsoil.',
+    icon: 'item-container-filled',
+  },
 };

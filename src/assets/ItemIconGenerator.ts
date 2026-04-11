@@ -24,7 +24,11 @@ const PAL = {
   corkDark: '#3a2814',
   cork: '#5a4020',
   corkLight: '#7a5a30',
-  liquid: '#3a2818',
+  // Rich dark topsoil — brown with a reddish undertone
+  soilDark: '#2a1808',
+  soil: '#40240c',
+  soilLight: '#5a3414',
+  soilHi: '#6e4018',
   outline: '#0a0a0a',
   shadow: 'rgba(0,0,0,0.35)',
 };
@@ -129,10 +133,10 @@ function drawSpade(ctx: CanvasRenderingContext2D): void {
 }
 
 /**
- * Draw a small glass sample container: cork-stoppered vial with
- * dark liquid partway up.
+ * Draw the glass + cork outline/base for the sample container. Shared
+ * between the empty and filled variants so they're visually consistent.
  */
-function drawSampleContainer(ctx: CanvasRenderingContext2D): void {
+function drawContainerShell(ctx: CanvasRenderingContext2D): void {
   ctx.clearRect(0, 0, ICON, ICON);
 
   // Drop shadow
@@ -140,12 +144,10 @@ function drawSampleContainer(ctx: CanvasRenderingContext2D): void {
   ctx.fillRect(10, 28, 12, 2);
 
   // --- CORK STOPPER ---
-  // Top of cork
   rect(ctx, 12, 4, 8, 1, PAL.outline);
   rect(ctx, 12, 5, 8, 2, PAL.corkDark);
   rect(ctx, 12, 6, 8, 1, PAL.cork);
   rect(ctx, 13, 6, 6, 1, PAL.corkLight);
-  // Cork sticking out at top rim
   rect(ctx, 13, 7, 6, 1, PAL.cork);
 
   // --- VIAL NECK (slightly narrower) ---
@@ -163,7 +165,6 @@ function drawSampleContainer(ctx: CanvasRenderingContext2D): void {
   rect(ctx, 13, 10, 6, 1, PAL.glass);
 
   // --- VIAL BODY (wider) ---
-  // Outline
   for (let y = 11; y <= 27; y++) {
     px(ctx, 11, y, PAL.outline);
     px(ctx, 20, y, PAL.outline);
@@ -171,37 +172,79 @@ function drawSampleContainer(ctx: CanvasRenderingContext2D): void {
   for (let x = 12; x <= 19; x++) {
     px(ctx, x, 28, PAL.outline);
   }
-  // Rounded bottom corners
   px(ctx, 11, 27, PAL.glass);
   px(ctx, 20, 27, PAL.glass);
   px(ctx, 11, 28, PAL.outline);
   px(ctx, 20, 28, PAL.outline);
 
-  // Glass fill (light layer)
+  // Glass fill (dark background layer — hint of transparency)
   for (let y = 11; y <= 27; y++) {
     for (let x = 12; x <= 19; x++) {
       px(ctx, x, y, PAL.glassDark);
     }
   }
 
-  // --- LIQUID (fills lower ~60% of body) ---
-  const liquidTop = 18;
-  for (let y = liquidTop; y <= 27; y++) {
-    for (let x = 12; x <= 19; x++) {
-      px(ctx, x, y, PAL.liquid);
-    }
-  }
-  // Surface meniscus
-  for (let x = 12; x <= 19; x++) {
-    px(ctx, x, liquidTop, '#5a3a22');
-  }
-
-  // --- GLASS HIGHLIGHTS ---
-  // Left-side vertical highlight
+  // Left-side vertical highlight (always visible — catches the light)
   for (let y = 12; y <= 16; y++) px(ctx, 13, y, PAL.glassLight);
-  for (let y = 20; y <= 25; y++) px(ctx, 13, y, '#6a4a2a');
   // Tiny top-right sparkle
   px(ctx, 18, 12, PAL.glassLight);
+}
+
+/**
+ * Empty sample container — the glass shell with no contents.
+ */
+function drawSampleContainer(ctx: CanvasRenderingContext2D): void {
+  drawContainerShell(ctx);
+  // A thin bottom film so it doesn't look completely flat/transparent
+  for (let x = 12; x <= 19; x++) {
+    px(ctx, x, 27, '#1a2428');
+  }
+}
+
+/**
+ * Filled sample container — nearly full of rich dark topsoil with
+ * visible soil clumps and a gritty texture.
+ */
+function drawSampleContainerFilled(ctx: CanvasRenderingContext2D): void {
+  drawContainerShell(ctx);
+
+  // Soil fills most of the body, from y=12 to y=27
+  const soilTop = 12;
+  for (let y = soilTop; y <= 27; y++) {
+    for (let x = 12; x <= 19; x++) {
+      px(ctx, x, y, PAL.soil);
+    }
+  }
+  // Shaded bottom half (darker at the base)
+  for (let y = 22; y <= 27; y++) {
+    for (let x = 12; x <= 19; x++) {
+      px(ctx, x, y, PAL.soilDark);
+    }
+  }
+  // Highlighted top surface (lighter at the top)
+  for (let x = 12; x <= 19; x++) {
+    px(ctx, x, soilTop, PAL.soilLight);
+    px(ctx, x, soilTop + 1, PAL.soilLight);
+  }
+  // Gritty clumps — deterministic scatter for stable icon
+  const grit: Array<[number, number, string]> = [
+    [13, 14, PAL.soilHi],
+    [17, 15, PAL.soilDark],
+    [15, 16, PAL.soilLight],
+    [18, 17, PAL.soilDark],
+    [13, 19, PAL.soilHi],
+    [16, 20, PAL.soilLight],
+    [14, 22, PAL.soilDark],
+    [18, 23, PAL.soilHi],
+    [15, 25, PAL.soilLight],
+    [17, 26, PAL.soilDark],
+  ];
+  for (const [x, y, c] of grit) px(ctx, x, y, c);
+
+  // Tiny meniscus just under the cork — soil packed up to the neck
+  for (let x = 13; x <= 18; x++) {
+    px(ctx, x, 11, PAL.soilDark);
+  }
 }
 
 /**
@@ -212,6 +255,7 @@ export function generateItemIcons(scene: Phaser.Scene): void {
   const icons: Array<[string, (ctx: CanvasRenderingContext2D) => void]> = [
     ['item-spade', drawSpade],
     ['item-container', drawSampleContainer],
+    ['item-container-filled', drawSampleContainerFilled],
   ];
 
   for (const [key, draw] of icons) {

@@ -139,6 +139,18 @@ export class VirtualJoystick {
     this.thumbGraphics.strokeCircle(this.thumbX, this.thumbY, this.THUMB_RADIUS);
   }
 
+  /**
+   * Force-release the joystick (used when input is locked by a
+   * scripted sequence so the thumb stick snaps back).
+   */
+  reset(): void {
+    if (this.isDown) {
+      this.onUp();
+    }
+    this.x = 0;
+    this.y = 0;
+  }
+
   update(): void {
     // Keyboard override when no touch
     if (!this.isDown && this.cursors) {

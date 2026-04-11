@@ -1,8 +1,17 @@
 /**
  * Manages game state: progress, flags, and future save/load.
+ *
+ * Extends Phaser.Events.EventEmitter so other systems (e.g.
+ * MissionSystem) can react to flag changes and evaluate level
+ * objectives whenever state changes.
+ *
+ * Events:
+ *   - 'flag-changed' (key, value)  — emitted on setFlag
  */
 
-export class StateManager {
+import Phaser from 'phaser';
+
+export class StateManager extends Phaser.Events.EventEmitter {
   private static instance: StateManager;
 
   private levelsCompleted: Set<string> = new Set();
@@ -26,7 +35,10 @@ export class StateManager {
 
   // --- Flags ---
   setFlag(key: string, value: boolean | string): void {
+    const prev = this.flags.get(key);
+    if (prev === value) return;
     this.flags.set(key, value);
+    this.emit('flag-changed', key, value);
   }
 
   getFlag(key: string): boolean | string | undefined {

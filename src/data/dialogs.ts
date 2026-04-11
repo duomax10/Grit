@@ -3,14 +3,36 @@
  *
  * Types:
  * - 'thought': Internal monologue (italic, no speaker label)
- * - 'speech': Character dialog (speaker label shown)
+ * - 'speech':  Character dialog (speaker label shown)
+ * - 'choice':  Branch prompt with buttons. The chosen `id` is
+ *              passed to the showDialog onComplete callback.
  */
 
-export interface DialogLine {
-  type: 'thought' | 'speech';
+export interface DialogLineThought {
+  type: 'thought';
   speaker?: string;
   text: string;
 }
+
+export interface DialogLineSpeech {
+  type: 'speech';
+  speaker?: string;
+  text: string;
+}
+
+export interface DialogChoice {
+  id: string;
+  text: string;
+}
+
+export interface DialogLineChoice {
+  type: 'choice';
+  /** Optional prompt text shown above the buttons. */
+  text?: string;
+  choices: DialogChoice[];
+}
+
+export type DialogLine = DialogLineThought | DialogLineSpeech | DialogLineChoice;
 
 export type DialogSequence = DialogLine[];
 
@@ -23,6 +45,14 @@ export const GRAVEYARD_INTRO: DialogSequence = [
 export const GRAVESTONE_INSPECT_1: DialogSequence = [
   { type: 'thought', text: 'Rebecca Johnson. 1942-2025.' },
   { type: 'thought', text: '"Beloved wife and mother." Rest easy, Rebecca.' },
+  { type: 'thought', text: 'I dont understand that man.' },
+  {
+    type: 'choice',
+    choices: [
+      { id: 'collect', text: 'Collect sample' },
+      { id: 'decline', text: 'reconsider my life' },
+    ],
+  },
 ];
 
 export const GRAVESTONE_INSPECT_2: DialogSequence = [
@@ -34,6 +64,14 @@ export const GRAVESTONE_INSPECT_2: DialogSequence = [
 export const GRAVESTONE_INSPECT_3: DialogSequence = [
   { type: 'thought', text: 'Vera Thorne. 1990-2025.' },
   { type: 'thought', text: '"She left us too early. Her soul will be missed."' },
+  { type: 'thought', text: 'Why does he have me doing this stuff.' },
+  {
+    type: 'choice',
+    choices: [
+      { id: 'collect', text: 'Collect sample' },
+      { id: 'decline', text: 'maybe not....' },
+    ],
+  },
 ];
 
 export const GRAVESTONE_INSPECT_4: DialogSequence = [
@@ -46,6 +84,14 @@ export const GRAVESTONE_INSPECT_5: DialogSequence = [
   { type: 'thought', text: 'An unmarked stone. No name, no dates.' },
   { type: 'thought', text: 'Just a symbol I don\'t recognize carved into it.' },
   { type: 'thought', text: 'I should probably leave that alone.' },
+];
+
+// Follow-up thought after collecting a sample.
+export const SAMPLE_COLLECTED_VERA: DialogSequence = [
+  { type: 'thought', text: 'Sample sealed. One down.' },
+];
+export const SAMPLE_COLLECTED_REBECCA: DialogSequence = [
+  { type: 'thought', text: 'Sample sealed. Both of them now.' },
 ];
 
 export const CARETAKER_HOUSE_DIALOG: DialogSequence = [

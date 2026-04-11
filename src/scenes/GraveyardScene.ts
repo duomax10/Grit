@@ -6,6 +6,7 @@ import { DialogSystem } from '../systems/DialogSystem';
 import type { UIScene } from './UIScene';
 import { StateManager } from '../systems/StateManager';
 import { MissionSystem } from '../systems/MissionSystem';
+import { InventorySystem } from '../systems/InventorySystem';
 import * as Dialogs from '../data/dialogs';
 
 // Map layout matching the reference image
@@ -671,13 +672,87 @@ export class GraveyardScene extends Phaser.Scene {
           inspectData: { texture: texKey },
           onInteract: () => {
             this.player.stopMovement();
-            this.dialogSystem?.showDialog(gravestoneDialogs[g.dialogIdx!]);
+            const dialogIdx = g.dialogIdx!;
+            // Rebecca (idx 0) and Vera (idx 2) are collectable graves —
+            // show the dialog then branch on the choice.
+            if (dialogIdx === 0) {
+              this.showCollectableGraveDialog(
+                gravestoneDialogs[0],
+                'sample_rebecca',
+                Dialogs.SAMPLE_COLLECTED_REBECCA,
+              );
+            } else if (dialogIdx === 2) {
+              this.showCollectableGraveDialog(
+                gravestoneDialogs[2],
+                'sample_vera',
+                Dialogs.SAMPLE_COLLECTED_VERA,
+              );
+            } else {
+              this.dialogSystem?.showDialog(gravestoneDialogs[dialogIdx]);
+            }
           },
         });
         obj.setVisible(false);
         this.interactionSystem.addObject(obj);
       }
     }
+  }
+
+  /**
+   * Show a collectable-grave dialog. If the player picks "collect",
+   * lock input, play the crouch squash, fill a sample container, set
+   * the state flag (which MissionSystem uses to auto-complete the
+   * soil_samples objective), then show a follow-up line.
+   *
+   * If the sample was already collected, show the base grave dialog
+   * without re-prompting — no double dipping.
+   */
+  private showCollectableGraveDialog(
+    sequence: Dialogs.DialogSequence,
+    flagKey: string,
+    followupDialog: Dialogs.DialogSequence,
+  ): void {
+    const state = StateManager.getInstance();
+    if (state.getBoolFlag(flagKey)) {
+      // Already done — strip the choice prompt from the sequence
+      // so the player just reads the epitaph.
+      const trimmed = sequence.filter((l) => l.type !== 'choice');
+      this.dialogSystem?.showDialog(trimmed);
+      return;
+    }
+
+    this.dialogSystem?.showDialog(sequence, (chosenId) => {
+      if (chosenId !== 'collect') return;
+      this.collectSoilSample(flagKey, followupDialog);
+    });
+  }
+
+  /**
+   * Lock the HUD/joystick, crouch Gabe, swap the first empty
+   * container for a filled one, flip the state flag, then unlock
+   * and play the follow-up dialog.
+   */
+  private collectSoilSample(flagKey: string, followupDialog: Dialogs.DialogSequence): void {
+    this.setInputLocked(true);
+
+    this.player.playCrouch(1500, () => {
+      // Mid-sequence payoff: fill the container and flip the flag.
+      InventorySystem.getInstance().fillSampleContainer();
+      StateManager.getInstance().setFlag(flagKey, true);
+
+      this.setInputLocked(false);
+      // Small beat before the follow-up thought
+      this.time.delayedCall(250, () => {
+        this.dialogSystem?.showDialog(followupDialog);
+      });
+    });
+  }
+
+  /** Lock/unlock the player + HUD. Broadcasts to UIScene so buttons disable. */
+  private setInputLocked(locked: boolean): void {
+    this.player.setInputLocked(locked);
+    const uiScene = this.scene.get('UIScene');
+    if (uiScene) uiScene.events.emit('input-lock', locked);
   }
 
   private placeDecorations(): void {
@@ -944,6 +1019,7 @@ export class GraveyardScene extends Phaser.Scene {
   }
 
   private handleInteract(): void {
+    if (this.player.locked) return;
     if (this.dialogSystem?.active) {
       this.dialogSystem.advance();
       return;
@@ -954,7 +1030,8 @@ export class GraveyardScene extends Phaser.Scene {
   update(_time: number, delta: number): void {
     const uiScene = this.scene.get('UIScene');
     const dialogActive = this.dialogSystem?.active ?? false;
-    if (uiScene) {
+    const locked = this.player.locked;
+    if (uiScene && !locked) {
       const joyData = (uiScene as { joystickData?: { x: number; y: number } }).joystickData;
       if (joyData && !dialogActive) {
         this.player.inputX = joyData.x;
@@ -963,6 +1040,9 @@ export class GraveyardScene extends Phaser.Scene {
         this.player.inputX = 0;
         this.player.inputY = 0;
       }
+    } else if (locked) {
+      this.player.inputX = 0;
+      this.player.inputY = 0;
     }
 
     this.player.update();
