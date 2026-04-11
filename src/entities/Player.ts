@@ -130,7 +130,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     const upKey = `gabe-crouch-up-${dir}`;
 
     // Fallback if crouch frames are missing — just wait it out.
-    if (!this.anims.exists(downKey)) {
+    // NOTE: check scene-level anim manager, NOT `this.anims.exists`.
+    // The sprite-local AnimationState.exists only returns true for
+    // animations that have already been played on this sprite; for
+    // globally-registered animations we have to ask the manager.
+    if (!this.scene.anims.exists(downKey)) {
       this.scene.time.delayedCall(holdMs, () => {
         this.isCrouching = false;
         onComplete?.();

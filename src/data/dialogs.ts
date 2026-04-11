@@ -45,7 +45,7 @@ export const GRAVEYARD_INTRO: DialogSequence = [
 export const GRAVESTONE_INSPECT_1: DialogSequence = [
   { type: 'thought', text: 'Rebecca Johnson. 1942-2025.' },
   { type: 'thought', text: '"Beloved wife and mother." Rest easy, Rebecca.' },
-  { type: 'thought', text: 'I dont understand that man.' },
+  { type: 'thought', text: 'I should ask him why Im doing this, but I won\'t.' },
   {
     type: 'choice',
     choices: [
@@ -88,10 +88,10 @@ export const GRAVESTONE_INSPECT_5: DialogSequence = [
 
 // Follow-up thought after collecting a sample.
 export const SAMPLE_COLLECTED_VERA: DialogSequence = [
-  { type: 'thought', text: 'Sample sealed. One down.' },
+  { type: 'thought', text: 'Does this make me a grave robber?' },
 ];
 export const SAMPLE_COLLECTED_REBECCA: DialogSequence = [
-  { type: 'thought', text: 'Sample sealed. Both of them now.' },
+  { type: 'thought', text: 'Its just dirt in a jar... right?' },
 ];
 
 // Extra thought that fires only after the SECOND sample is

@@ -129,9 +129,15 @@ export class StickyNote {
     ctx.closePath();
     ctx.fill();
 
-    // Tape at top
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
+    // Tape at top — drawn slightly above the note edge so the
+    // overhang reads as a real piece of tape. Tinted toward warm
+    // weathered masking tape (not bright white) so the sliver that
+    // pokes out doesn't pop against the dark twilight level.
+    ctx.fillStyle = 'rgba(190,170,130,0.55)';
     ctx.fillRect(w / 2 - 20, -6, 40, 10);
+    // Subtle darker edge along the bottom of the tape for definition.
+    ctx.fillStyle = 'rgba(120,100,70,0.35)';
+    ctx.fillRect(w / 2 - 20, 3, 40, 1);
 
     // Title
     const mission = MissionSystem.getInstance().getCurrentMission();

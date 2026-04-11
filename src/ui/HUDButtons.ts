@@ -24,6 +24,11 @@ export class HUDButtons {
   private missionBg!: Phaser.GameObjects.Graphics;
   private missionText!: Phaser.GameObjects.Text;
 
+  // Secondary "interact available" pip — lives just above the
+  // inventory button so the player notices an interactable even when
+  // their thumb is parked over the main E button at bottom-right.
+  private interactPip!: Phaser.GameObjects.Container;
+
   // Callbacks
   public onInteract?: () => void;
   public onInventory?: () => void;
@@ -36,6 +41,7 @@ export class HUDButtons {
     this.createInteractButton();
     this.createInventoryButton();
     this.createMissionButton();
+    this.createInteractPip();
     this.repositionButtons();
 
     scene.scale.on('resize', () => this.repositionButtons());
@@ -152,6 +158,30 @@ export class HUDButtons {
     });
   }
 
+  /**
+   * Small green pip placed above the inventory button, right-aligned
+   * with the button's right edge. Mirrors the main E button's
+   * visibility so the player always has a "you can interact" signal
+   * in their peripheral vision regardless of where their thumb is.
+   */
+  private createInteractPip(): void {
+    this.interactPip = this.scene.add.container(0, 0);
+    this.interactPip.setDepth(200);
+    this.interactPip.setScrollFactor(0);
+    this.interactPip.setVisible(false);
+
+    const gfx = this.scene.add.graphics();
+    // Outer soft glow
+    gfx.fillStyle(0x5aff6a, 0.25);
+    gfx.fillCircle(0, 0, 8);
+    // Core dot — same green family as the E button
+    gfx.fillStyle(0x6aff7a, 0.95);
+    gfx.fillCircle(0, 0, 4);
+    gfx.lineStyle(1, 0xa8ffb0, 0.9);
+    gfx.strokeCircle(0, 0, 4);
+    this.interactPip.add(gfx);
+  }
+
   private repositionButtons(): void {
     const { width, height } = this.scene.scale;
 
@@ -163,11 +193,20 @@ export class HUDButtons {
 
     // Mission button: just left of the inventory button
     this.missionContainer.setPosition(width - 82, 58);
+
+    // Interact pip: just above the inventory button, right-aligned
+    // with the button's right edge. Inventory is at (width - 34, 58)
+    // with half-size 20, so its right edge sits at width - 14 and its
+    // top edge at y = 38. Pip center at (width - 18, 28) places the
+    // 4 px core dot ~6 px above the button with a small inset from
+    // the right edge.
+    this.interactPip.setPosition(width - 18, 28);
   }
 
   showInteract(): void {
     if (!this.interactVisible) {
       this.interactContainer.setVisible(true);
+      this.interactPip.setVisible(true);
       this.interactVisible = true;
     }
   }
@@ -175,6 +214,7 @@ export class HUDButtons {
   hideInteract(): void {
     if (this.interactVisible) {
       this.interactContainer.setVisible(false);
+      this.interactPip.setVisible(false);
       this.interactVisible = false;
     }
   }
