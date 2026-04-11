@@ -88,10 +88,10 @@ export const GRAVESTONE_INSPECT_5: DialogSequence = [
 
 // Follow-up thought after collecting a sample.
 export const SAMPLE_COLLECTED_VERA: DialogSequence = [
-  { type: 'thought', text: 'Sample sealed. Does this make me a grave robber?' },
+  { type: 'thought', text: 'Does this make me a grave robber?' },
 ];
 export const SAMPLE_COLLECTED_REBECCA: DialogSequence = [
-  { type: 'thought', text: 'Sample sealed.' },
+  { type: 'thought', text: 'Sample sealed. Its just dirt in a jar... right?' },
 ];
 
 // Extra thought that fires only after the SECOND sample is
