@@ -45,6 +45,13 @@ export class BootScene extends Phaser.Scene {
       }
     }
 
+    // Crouch frames (5 per direction)
+    for (const dir of ['south', 'north', 'east', 'west']) {
+      for (let f = 0; f < 5; f++) {
+        this.load.image(`gabe-${dir}-crouch-${f}`, `assets/sprites/gabe-${dir}-crouch-${f}.png`);
+      }
+    }
+
     // Tiles
     this.load.image('grass', 'assets/tiles/grass.png');
     this.load.image('gravel', 'assets/tiles/stone_path.png');
@@ -101,6 +108,30 @@ export class BootScene extends Phaser.Scene {
       }
 
       this.anims.create({ key: `gabe-idle-${gameDir}`, frames: [{ key: `gabe-${dir}` }], frameRate: 1, repeat: -1 });
+
+      // Crouch: play frames 0..N forward, hold, then reverse back up.
+      // We build two one-shot anims so Player can sequence them.
+      let crouchFrameCount = 0;
+      for (let f = 0; f < 5; f++) {
+        if (this.textures.exists(`gabe-${dir}-crouch-${f}`)) crouchFrameCount++;
+        else break;
+      }
+      if (crouchFrameCount >= 2) {
+        const down: Array<{ key: string }> = [];
+        for (let f = 0; f < crouchFrameCount; f++) {
+          down.push({ key: `gabe-${dir}-crouch-${f}` });
+        }
+        const up = [...down].reverse();
+        this.anims.create({ key: `gabe-crouch-down-${gameDir}`, frames: down, frameRate: 12, repeat: 0 });
+        this.anims.create({ key: `gabe-crouch-up-${gameDir}`, frames: up, frameRate: 12, repeat: 0 });
+        // Hold: the fully crouched pose (last frame)
+        this.anims.create({
+          key: `gabe-crouch-hold-${gameDir}`,
+          frames: [{ key: `gabe-${dir}-crouch-${crouchFrameCount - 1}` }],
+          frameRate: 1,
+          repeat: -1,
+        });
+      }
     }
 
     // Generate procedural item icons for the inventory
