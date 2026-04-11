@@ -31,6 +31,15 @@ export class StickyNote {
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
+
+    // Subscribe BEFORE the initial render so we can't miss a
+    // mission-changed event fired during the same scene-boot tick.
+    // Without this, the note can freeze on the 'Mission' fallback
+    // title if the level scene's setMission ran before the StickyNote
+    // listener was attached.
+    MissionSystem.getInstance().on('mission-changed', this.refresh, this);
+    MissionSystem.getInstance().on('objective-completed', this.refresh, this);
+
     this.createUI();
   }
 

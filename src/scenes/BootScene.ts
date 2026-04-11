@@ -1,7 +1,8 @@
 import Phaser from 'phaser';
 import { generateAudio } from '../assets/AudioGenerator';
 import { generateItemIcons } from '../assets/ItemIconGenerator';
-import { getDefaultLevel, getLevel } from '../data/levels';
+import { getDefaultLevel, getLevel, Level } from '../data/levels';
+import { MissionSystem } from '../systems/MissionSystem';
 
 export class BootScene extends Phaser.Scene {
   constructor() {
