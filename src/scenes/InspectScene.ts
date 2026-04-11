@@ -10,11 +10,18 @@ export interface InspectData {
   texture: string;
   label?: string;
   description?: string;
+  /**
+   * Scene key of the gameplay scene to resume when the inspect
+   * overlay closes. Defaults to 'GraveyardScene' for backwards
+   * compatibility with the first level.
+   */
+  parentSceneKey?: string;
 }
 
 export class InspectScene extends Phaser.Scene {
   private container!: Phaser.GameObjects.Container;
   private inspectData: InspectData | null = null;
+  private parentSceneKey = 'GraveyardScene';
 
   constructor() {
     super({ key: 'InspectScene' });
@@ -22,6 +29,7 @@ export class InspectScene extends Phaser.Scene {
 
   init(data: InspectData): void {
     this.inspectData = data;
+    this.parentSceneKey = data.parentSceneKey ?? 'GraveyardScene';
   }
 
   create(): void {
@@ -102,7 +110,7 @@ export class InspectScene extends Phaser.Scene {
     this.cameras.main.fadeOut(200, 0, 0, 0);
     this.cameras.main.once('camerafadeoutcomplete', () => {
       this.scene.stop();
-      this.scene.resume('GraveyardScene');
+      this.scene.resume(this.parentSceneKey);
       this.scene.resume('UIScene');
     });
   }

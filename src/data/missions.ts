@@ -28,7 +28,7 @@ export interface Mission {
 export const MISSIONS: Record<string, Mission> = {
   graveyard_intro: {
     id: 'graveyard_intro',
-    title: 'Mission',
+    title: 'Monday',
     objectives: [
       { id: 'dry_cleaning', text: 'Pick up dry cleaning', completed: true },
       {

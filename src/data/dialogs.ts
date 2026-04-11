@@ -94,6 +94,12 @@ export const SAMPLE_COLLECTED_REBECCA: DialogSequence = [
   { type: 'thought', text: 'Sample sealed. Both of them now.' },
 ];
 
+// Extra thought that fires only after the SECOND sample is
+// collected, regardless of order, right before the mission toast.
+export const SAMPLE_COLLECTED_READY: DialogSequence = [
+  { type: 'thought', text: 'Im ready to go.' },
+];
+
 export const CARETAKER_HOUSE_DIALOG: DialogSequence = [
   { type: 'thought', text: 'The caretaker\'s house. Lights are on but nobody\'s answering.' },
   { type: 'thought', text: 'Door\'s locked. Figures.' },

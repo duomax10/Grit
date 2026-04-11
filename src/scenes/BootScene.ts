@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { generateAudio } from '../assets/AudioGenerator';
 import { generateItemIcons } from '../assets/ItemIconGenerator';
+import { getDefaultLevel, getLevel } from '../data/levels';
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -140,12 +141,32 @@ export class BootScene extends Phaser.Scene {
     // Generate procedural audio (fire and forget — don't block scene transition)
     generateAudio(this).catch(() => {});
 
-    // Go to game
+    // Pick the starting scene. Defaults to the first gameplay level
+    // registered in data/levels.ts, but if the URL carries
+    // `?dev=picker` we jump straight to the hidden dev picker instead.
+    // A `?level=<id>` param can force a specific level for deep
+    // linking without exposing the picker to players.
+    const params = new URLSearchParams(typeof window !== 'undefined' ? window.location.search : '');
+    const devFlag = params.get('dev');
+    const levelParam = params.get('level');
+
+    let startSceneKey: string;
+    let startUI = true;
+    if (devFlag === 'picker') {
+      startSceneKey = 'LevelPickerScene';
+      startUI = false; // picker owns its own chrome
+    } else if (levelParam) {
+      const lvl = getLevel(levelParam);
+      startSceneKey = lvl ? lvl.sceneKey : getDefaultLevel().sceneKey;
+    } else {
+      startSceneKey = getDefaultLevel().sceneKey;
+    }
+
     this.time.delayedCall(300, () => {
       this.cameras.main.fadeOut(600, 0, 0, 0);
       this.cameras.main.once('camerafadeoutcomplete', () => {
-        this.scene.start('GraveyardScene');
-        this.scene.start('UIScene');
+        this.scene.start(startSceneKey);
+        if (startUI) this.scene.start('UIScene');
       });
     });
   }

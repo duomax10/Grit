@@ -112,6 +112,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
    * BootScene. While crouching, update() leaves the sprite alone so
    * the anim isn't overridden by idle/walk.
    *
+   * Timing is driven by scene.time.delayedCall rather than the
+   * ANIMATION_COMPLETE_KEY event — the event-based approach was
+   * silently failing in some Phaser builds, so the deterministic
+   * timer keeps the sequence visible.
+   *
    * Falls back to a simple delay if the crouch frames didn't load.
    */
   playCrouch(holdMs = 1500, onComplete?: () => void): void {
@@ -133,23 +138,24 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       return;
     }
 
+    // 5 frames @ 12 fps = ~417ms per transition. Add a small buffer
+    // so the last frame is actually rendered before we switch anims.
+    const transitionMs = 460;
+
     this.play(downKey, true);
-    this.once(
-      Phaser.Animations.Events.ANIMATION_COMPLETE_KEY + downKey,
-      () => {
-        this.play(holdKey, true);
-        this.scene.time.delayedCall(holdMs, () => {
-          this.play(upKey, true);
-          this.once(
-            Phaser.Animations.Events.ANIMATION_COMPLETE_KEY + upKey,
-            () => {
-              this.isCrouching = false;
-              this.play(`gabe-idle-${this.facing}`, true);
-              onComplete?.();
-            },
-          );
+
+    this.scene.time.delayedCall(transitionMs, () => {
+      if (!this.isCrouching) return;
+      this.play(holdKey, true);
+      this.scene.time.delayedCall(holdMs, () => {
+        if (!this.isCrouching) return;
+        this.play(upKey, true);
+        this.scene.time.delayedCall(transitionMs, () => {
+          this.isCrouching = false;
+          this.play(`gabe-idle-${this.facing}`, true);
+          onComplete?.();
         });
-      },
-    );
+      });
+    });
   }
 }

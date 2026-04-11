@@ -442,6 +442,7 @@ export class GraveyardScene extends Phaser.Scene {
   private ambientSound: Phaser.Sound.BaseSound | null = null;
   private footstepTimer = 0;
   private introPlayed = false;
+  private exitTriggered = false;
 
   constructor() {
     super({ key: 'GraveyardScene' });
@@ -511,18 +512,42 @@ export class GraveyardScene extends Phaser.Scene {
 
     this.cameras.main.fadeIn(1000, 0, 0, 0);
 
-    // UI events
+    // UI events — bound methods so shutdown() can detach them and
+    // we don't leak listeners on the persistent UIScene across level
+    // swaps (dev level picker, future level-to-level transitions).
     const uiScene = this.scene.get('UIScene');
     if (uiScene) {
-      uiScene.events.on('interact-pressed', () => this.handleInteract());
-      uiScene.events.on('inventory-pressed', () => this.player.stopMovement());
-      // After the mission sticky note is dismissed, play the intro dialog
-      uiScene.events.once('mission-note-dismissed', () => {
+      this._onInteractPressed = () => this.handleInteract();
+      this._onInventoryPressed = () => this.player.stopMovement();
+      this._onMissionNoteDismissed = () => {
         this.time.delayedCall(300, () => {
           this.dialogSystem?.showDialog(Dialogs.GRAVEYARD_INTRO);
         });
-      });
+      };
+      uiScene.events.on('interact-pressed', this._onInteractPressed);
+      uiScene.events.on('inventory-pressed', this._onInventoryPressed);
+      uiScene.events.once('mission-note-dismissed', this._onMissionNoteDismissed);
     }
+
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, this.onShutdown, this);
+  }
+
+  private _onInteractPressed: (() => void) | null = null;
+  private _onInventoryPressed: (() => void) | null = null;
+  private _onMissionNoteDismissed: (() => void) | null = null;
+
+  private onShutdown(): void {
+    const uiScene = this.scene.get('UIScene');
+    if (uiScene) {
+      if (this._onInteractPressed) uiScene.events.off('interact-pressed', this._onInteractPressed);
+      if (this._onInventoryPressed) uiScene.events.off('inventory-pressed', this._onInventoryPressed);
+      if (this._onMissionNoteDismissed) uiScene.events.off('mission-note-dismissed', this._onMissionNoteDismissed);
+    }
+    this._onInteractPressed = null;
+    this._onInventoryPressed = null;
+    this._onMissionNoteDismissed = null;
+    this.introPlayed = false;
+    this.exitTriggered = false;
   }
 
   private buildMap(): void {
@@ -736,6 +761,16 @@ export class GraveyardScene extends Phaser.Scene {
   private collectSoilSample(flagKey: string, followupDialog: Dialogs.DialogSequence): void {
     this.setInputLocked(true);
 
+    // If the OTHER sample is already set, this collection is the
+    // second one — append Gabe's "Im ready to go." line so it plays
+    // before the mission-complete toast.
+    const state = StateManager.getInstance();
+    const otherFlag = flagKey === 'sample_vera' ? 'sample_rebecca' : 'sample_vera';
+    const isSecondSample = state.getBoolFlag(otherFlag);
+    const sequence: Dialogs.DialogSequence = isSecondSample
+      ? [...followupDialog, ...Dialogs.SAMPLE_COLLECTED_READY]
+      : followupDialog;
+
     this.player.playCrouch(1500, () => {
       // Inventory updates immediately so the player sees the filled
       // container the moment they reopen their bag.
@@ -744,7 +779,7 @@ export class GraveyardScene extends Phaser.Scene {
       this.setInputLocked(false);
       // Small beat before the follow-up thought
       this.time.delayedCall(250, () => {
-        this.dialogSystem?.showDialog(followupDialog, () => {
+        this.dialogSystem?.showDialog(sequence, () => {
           // Dialog's done — now flip the flag. This triggers
           // MissionSystem.evaluateObjectives, which may fire an
           // objective-complete / mission-complete toast.
@@ -759,6 +794,40 @@ export class GraveyardScene extends Phaser.Scene {
     this.player.setInputLocked(locked);
     const uiScene = this.scene.get('UIScene');
     if (uiScene) uiScene.events.emit('input-lock', locked);
+  }
+
+  /**
+   * Once both soil samples are collected, leaving near the bottom of
+   * the stone path (the gate) fires the end-of-day splash. The
+   * trigger is a thin strip at the bottom edge of the central gravel
+   * path, a couple tiles above the fence line so it catches the
+   * player before they collide with the wall.
+   */
+  private checkExitTrigger(): void {
+    if (this.exitTriggered) return;
+
+    const state = StateManager.getInstance();
+    if (!state.getBoolFlag('sample_vera') || !state.getBoolFlag('sample_rebecca')) {
+      return;
+    }
+
+    // Stone path runs at c = 11..12; the gate is at r = MAP_ROWS - 1.
+    // Spawn is at r = 28, so we require the player to step further
+    // south into the gate tile before firing — gives the mission
+    // toast room to read, and matches "close to the bottom" intent.
+    const pxCol = this.player.x / TILE;
+    const pxRow = this.player.y / TILE;
+    const onStonePath = pxCol >= 10.5 && pxCol <= 13.5;
+    const nearExit = pxRow >= 28.9;
+    if (!onStonePath || !nearExit) return;
+
+    this.exitTriggered = true;
+    this.setInputLocked(true);
+    this.cameras.main.fadeOut(800, 0, 0, 0);
+    this.cameras.main.once('camerafadeoutcomplete', () => {
+      this.scene.stop('UIScene');
+      this.scene.start('SplashScene');
+    });
   }
 
   private placeDecorations(): void {
@@ -1053,6 +1122,8 @@ export class GraveyardScene extends Phaser.Scene {
 
     this.player.update();
     this.interactionSystem.update();
+
+    this.checkExitTrigger();
 
     // Footstep sounds
     if (Math.abs(this.player.body!.velocity.x) > 10 || Math.abs(this.player.body!.velocity.y) > 10) {

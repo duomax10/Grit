@@ -3,6 +3,8 @@ import { BootScene } from './scenes/BootScene';
 import { GraveyardScene } from './scenes/GraveyardScene';
 import { UIScene } from './scenes/UIScene';
 import { InspectScene } from './scenes/InspectScene';
+import { SplashScene } from './scenes/SplashScene';
+import { LevelPickerScene } from './scenes/LevelPickerScene';
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
@@ -22,7 +24,7 @@ const config: Phaser.Types.Core.GameConfig = {
       debug: false,
     },
   },
-  scene: [BootScene, GraveyardScene, UIScene, InspectScene],
+  scene: [BootScene, GraveyardScene, UIScene, InspectScene, SplashScene, LevelPickerScene],
   backgroundColor: '#0a0a0a',
   input: {
     activePointers: 3,
