@@ -440,11 +440,6 @@ export class GraveyardScene extends Phaser.Scene {
   private fenceColliders!: Phaser.Physics.Arcade.StaticGroup;
   private objectColliders!: Phaser.Physics.Arcade.StaticGroup;
   private ambientSound: Phaser.Sound.BaseSound | null = null;
-  // Soft trickling-water loop tied to the fountain. Volume is driven
-  // by distance from the player so it only kicks in when you're
-  // standing right next to the basin.
-  private fountainSound: Phaser.Sound.BaseSound | null = null;
-  private fountainPos: { x: number; y: number } | null = null;
   private footstepTimer = 0;
   private introPlayed = false;
   private exitTriggered = false;
@@ -561,8 +556,6 @@ export class GraveyardScene extends Phaser.Scene {
     // Sound objects are destroyed by Phaser's per-scene sound manager
     // on shutdown, so just drop our references.
     this.ambientSound = null;
-    this.fountainSound = null;
-    this.fountainPos = null;
   }
 
   private buildMap(): void {
@@ -962,8 +955,6 @@ export class GraveyardScene extends Phaser.Scene {
     // Fountain sits on the right half of the stone path
     const x = 12 * TILE;
     const y = 14 * TILE;
-    // Save center for the proximity-driven water audio in update().
-    this.fountainPos = { x, y };
     const fountainImg = this.add.image(x, y, 'fountain').setDepth(1000 + y);
     const z = this.add.zone(x, y, 64, 64);
     this.physics.add.existing(z, true);
@@ -1142,64 +1133,7 @@ export class GraveyardScene extends Phaser.Scene {
         this.ambientSound.play();
       } catch (_e) { /* */ }
     });
-    this.startFountainAudio();
     this.scheduleOwlHoot();
-  }
-
-  /**
-   * Starts the fountain water loop once the procedurally generated
-   * `fountain-water` buffer has finished loading into the audio
-   * cache. AudioGenerator runs fire-and-forget from BootScene, so
-   * the buffer may not exist when this scene first creates, and
-   * `this.sound.add()` would otherwise silently produce a dead sound
-   * object. We poll the cache and start as soon as the key shows up.
-   */
-  private startFountainAudio(): void {
-    const tryStart = () => {
-      if (this.fountainSound) return;
-      if (this.cache && this.cache.audio && this.cache.audio.exists('fountain-water')) {
-        try {
-          this.fountainSound = this.sound.add('fountain-water', { loop: true, volume: 0 });
-          this.fountainSound.play();
-        } catch (_e) { /* */ }
-      } else {
-        this.time.delayedCall(250, tryStart);
-      }
-    };
-    tryStart();
-  }
-
-  /**
-   * Smoothly ramp the fountain water loop based on the player's
-   * distance to the basin. Audible only when standing within a few
-   * tiles; silent past ~6 tiles. The audio object is stopped on
-   * scene shutdown alongside the rest of the level audio.
-   */
-  private updateFountainAudio(): void {
-    if (!this.fountainSound || !this.fountainPos) return;
-    const dx = this.player.x - this.fountainPos.x;
-    const dy = this.player.y - this.fountainPos.y;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-    // Full volume within ~2.5 tiles of the basin, silent past ~7
-    // tiles, linear in between. Peak is loud enough to be obvious
-    // when standing right on top of the fountain but quiet enough
-    // not to fight the night-ambient bed.
-    const NEAR = TILE * 2.5;
-    const FAR = TILE * 7;
-    const MAX_VOL = 0.55;
-    let vol: number;
-    if (dist <= NEAR) vol = MAX_VOL;
-    else if (dist >= FAR) vol = 0;
-    else vol = MAX_VOL * (1 - (dist - NEAR) / (FAR - NEAR));
-    // Phaser's WebAudioSound exposes both a `volume` setter and a
-    // `setVolume()` method; prefer the method to be explicit and
-    // fall through to the property for HTML5AudioSound compatibility.
-    const s = this.fountainSound as Phaser.Sound.BaseSound & {
-      setVolume?: (v: number) => void;
-      volume?: number;
-    };
-    if (typeof s.setVolume === 'function') s.setVolume(vol);
-    else if (typeof s.volume === 'number') s.volume = vol;
   }
 
   private scheduleOwlHoot(): void {
@@ -1241,7 +1175,6 @@ export class GraveyardScene extends Phaser.Scene {
     this.interactionSystem.update();
 
     this.checkGateBarrier();
-    this.updateFountainAudio();
     this.checkExitTrigger();
 
     // Footstep sounds

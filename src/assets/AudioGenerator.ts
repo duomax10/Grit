@@ -140,66 +140,6 @@ export async function generateAudio(scene: Phaser.Scene): Promise<void> {
   const footstep2Url = await audioBufferToBase64(footstep2Buffer);
   await loadGeneratedAudio(scene, 'footstep-alt', footstep2Url);
 
-  // --- FOUNTAIN WATER (gentle loop, ramped by proximity) ---
-  // Generated early in the queue so the GraveyardScene can grab it
-  // before its 500 ms ambient-start delay elapses. The loop is built
-  // from three layers:
-  //   1. HISS: high-frequency noise for the water-spray bed.
-  //   2. GURGLE: short upward-sweeping sine chirps scattered across
-  //      the buffer. Each chirp is a decaying "bloop" — the
-  //      characteristic sound of an air bubble collapsing in water.
-  //   3. BASIN: a couple of low sines to suggest the resonant cavity
-  //      of the stone basin.
-  // Times, base freqs, sweep rates, and decay rates are hand-picked
-  // for organic irregularity and to wrap cleanly at the loop seam.
-  // Parallel flat arrays are used so the per-sample generator can
-  // iterate without allocating per call.
-  const waterDuration = 6;
-  const bubbleStarts  = [0.15, 0.48, 0.92, 1.27, 1.71, 2.14, 2.55, 2.98, 3.43, 3.86, 4.27, 4.71, 5.12, 5.55];
-  const bubbleFreqs   = [ 480,  320,  560,  380,  420,  290,  510,  360,  440,  270,  530,  400,  350,  470];
-  const bubbleSweeps  = [ 3.2,  2.8,  3.5,  2.5,  3.0,  2.6,  3.3,  2.9,  3.1,  2.4,  3.4,  2.7,  2.8,  3.1];
-  const bubbleDecays  = [  22,   28,   24,   26,   22,   30,   23,   27,   25,   32,   23,   26,   28,   24];
-  const numBubbles = bubbleStarts.length;
-  const waterBuffer = createAudioBuffer(audioCtx, waterDuration, sampleRate, (t, i) => {
-    // --- HISS: filtered noise for the water-spray bed ---
-    // Subtracting two independent noise streams biases toward
-    // higher-frequency content than a single stream, giving the
-    // "shh" of spray instead of a low wind rumble.
-    const r1 = seededRandom((i * 31) % 1000 + 1);
-    const r2 = seededRandom((i * 53) % 997 + 1);
-    const n1 = r1() * 2 - 1;
-    const n2 = r2() * 2 - 1;
-    let hiss = (n1 - n2 * 0.7) * 0.08;
-    hiss *= 0.7 + 0.3 * Math.sin(t * 0.8 * Math.PI * 2);
-
-    // --- GURGLE: exponentially decaying upward chirps ---
-    let gurgle = 0;
-    for (let b = 0; b < numBubbles; b++) {
-      const dt = t - bubbleStarts[b];
-      if (dt >= 0 && dt < 0.25) {
-        const env = Math.exp(-dt * bubbleDecays[b]);
-        const freq = bubbleFreqs[b] * (1 + dt * bubbleSweeps[b]);
-        gurgle += Math.sin(dt * freq * Math.PI * 2) * env * 0.35;
-      }
-    }
-
-    // --- BASIN: subtle low resonance ---
-    const basin = (Math.sin(t * 90 * Math.PI * 2) * 0.015
-                 + Math.sin(t * 130 * Math.PI * 2) * 0.010)
-                * (0.7 + 0.3 * Math.sin(t * 1.3));
-
-    let val = hiss + gurgle + basin;
-
-    // Short fade at the loop boundaries so the seam isn't a click.
-    const fade = 0.3;
-    let fadeEnv = 1;
-    if (t < fade) fadeEnv = t / fade;
-    if (t > waterDuration - fade) fadeEnv = (waterDuration - t) / fade;
-    return val * 0.7 * fadeEnv;
-  });
-  const waterUrl = await audioBufferToBase64(waterBuffer);
-  await loadGeneratedAudio(scene, 'fountain-water', waterUrl);
-
   // --- NIGHT AMBIENT (long loop with crickets and wind) ---
   const ambientDuration = 8;
   const ambientBuffer = createAudioBuffer(audioCtx, ambientDuration, sampleRate, (t, i) => {
